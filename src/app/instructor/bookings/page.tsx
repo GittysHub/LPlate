@@ -34,7 +34,7 @@ export default function InstructorBookingsPage() {
 
   useEffect(() => {
     loadBookings();
-  }, []);
+  }, [loadBookings]);
 
   const loadBookings = useCallback(async () => {
     try {

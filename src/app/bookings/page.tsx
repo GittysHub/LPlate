@@ -32,7 +32,7 @@ export default function MyBookingsPage() {
 
   useEffect(() => {
     loadBookings();
-  }, []);
+  }, [loadBookings]);
 
   const loadBookings = useCallback(async () => {
     try {
@@ -89,7 +89,7 @@ export default function MyBookingsPage() {
         status: b.status,
         instructor: {
           name: b.instructor?.name || "Instructor",
-          avatar_url: b.instructor?.avatar_url,
+          avatar_url: b.instructor?.avatar_url ?? null,
           base_postcode: b.instructor?.base_postcode,
           vehicle_type: b.instructor?.vehicle_type,
           hourly_rate: b.instructor?.hourly_rate,
