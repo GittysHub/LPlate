@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import SearchBar from "@/components/ui/SearchBar";
 import InstructorCard from "@/components/ui/InstructorCard";
@@ -8,16 +8,21 @@ import StatCard from "@/components/ui/StatCard";
 import SocialProofCarousel from "@/components/ui/SocialProofCarousel";
 import { createSupabaseBrowser } from "@/lib/supabase";
 
+interface InstructorData {
+  id: string;
+  name: string;
+  avatar_url: string | null;
+  hourly_rate: number;
+  location: string;
+  vehicle_type: string;
+}
+
 export default function Home() {
-  const [instructors, setInstructors] = useState<any[]>([]);
+  const [instructors, setInstructors] = useState<InstructorData[]>([]);
   const [loading, setLoading] = useState(true);
   const sb = createSupabaseBrowser();
 
-  useEffect(() => {
-    fetchTopInstructors();
-  }, []);
-
-  async function fetchTopInstructors() {
+  const fetchTopInstructors = useCallback(async () => {
     try {
       const { data, error } = await sb
         .from("instructors")
@@ -39,7 +44,19 @@ export default function Home() {
 
       if (error) throw error;
 
-      const instructorData = (data as any[])?.map((r: any) => {
+      interface SupabaseInstructorRow {
+        id: string;
+        description: string | null;
+        base_postcode: string | null;
+        vehicle_type: string | null;
+        hourly_rate: number | null;
+        gender: string | null;
+        lat: number | null;
+        lng: number | null;
+        profiles: { name: string | null; avatar_url: string | null } | null;
+      }
+
+      const instructorData = (data as SupabaseInstructorRow[])?.map((r: SupabaseInstructorRow) => {
         const location = getTownFromPostcode(r.base_postcode);
         console.log('Instructor:', r.profiles?.name, 'Postcode:', r.base_postcode, 'Location:', location);
         return {
@@ -60,7 +77,11 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [sb]);
+
+  useEffect(() => {
+    fetchTopInstructors();
+  }, [fetchTopInstructors]);
 
   function getTownFromPostcode(postcode: string): string {
     // Map common Bristol area postcodes to town names
@@ -186,7 +207,7 @@ export default function Home() {
           <div className="mb-2">
                    <h2 className="text-xl font-normal text-gray-900 mb-3">Your learner journey made simple.</h2>
             <div className="grid grid-cols-3 gap-8">
-              {journeySteps.map((step, index) => (
+              {journeySteps.map((step) => (
                 <div key={step.step} className="text-center relative">
                         <div className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-full flex items-center justify-center text-white text-5xl mx-auto mb-3 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:rotate-6 relative overflow-hidden group`}>
                           <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-full"></div>
@@ -332,7 +353,7 @@ export default function Home() {
       <section className="px-6 py-12">
         <div className="max-w-md mx-auto">
           <h2 className="text-xl font-semibold text-gray-900 mb-8 text-center">
-            We've got you covered
+            We&apos;ve got you covered
           </h2>
           <div className="grid grid-cols-3 gap-4">
             <div className="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100">

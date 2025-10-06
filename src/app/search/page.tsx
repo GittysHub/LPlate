@@ -134,8 +134,20 @@ export default function SearchPage() {
 
       if (error) throw error;
 
+      interface SupabaseRow {
+        id: string;
+        description: string | null;
+        base_postcode: string | null;
+        vehicle_type: "manual" | "auto" | "both" | null;
+        hourly_rate: number | null;
+        gender: "male" | "female" | "other" | null;
+        lat: number | null;
+        lng: number | null;
+        profiles: { name: string | null; avatar_url: string | null } | null;
+      }
+
       let rows: InstructorCard[] =
-        (data as any)?.map((r: any) => ({
+        (data as SupabaseRow[])?.map((r: SupabaseRow) => ({
           id: r.id,
           description: r.description,
           base_postcode: r.base_postcode,
@@ -185,8 +197,15 @@ export default function SearchPage() {
             .eq("is_recurring", true);
           if (availErr) throw availErr;
 
+          interface AvailabilitySlot {
+            instructor_id: string;
+            start_at: string;
+            end_at: string;
+            is_recurring: boolean;
+          }
+
           filtered = filtered.filter(inst => {
-            const slots = (avail as any[])?.filter(a => a.instructor_id === inst.id) || [];
+            const slots = (avail as AvailabilitySlot[])?.filter(a => a.instructor_id === inst.id) || [];
             return slots.some(s => {
               const sStart = new Date(s.start_at);
               const sEnd = new Date(s.end_at);
@@ -213,8 +232,8 @@ export default function SearchPage() {
         .sort((a, b) => (a.distanceKm! - b.distanceKm!));
 
       setResults(withDistance);
-    } catch (e: any) {
-      setErr(e.message || "Search failed");
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Search failed");
     } finally {
       setLoading(false);
     }
@@ -223,10 +242,10 @@ export default function SearchPage() {
   const handleFilterChange = (filterType: string, filterId: string) => {
     switch (filterType) {
       case "vehicle":
-        setVehicle(filterId as any);
+        setVehicle(filterId as "any" | "manual" | "auto" | "both");
         break;
       case "gender":
-        setGender(filterId as any);
+        setGender(filterId as "any" | "male" | "female" | "other");
         break;
       case "day":
         setDayOfWeek(filterId);
