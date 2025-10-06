@@ -115,8 +115,8 @@ export default function InstructorProfilePage() {
       hourly_rate: inst.hourly_rate ?? 30,
       adi_badge: !!inst.adi_badge,
       verification_status: inst.verification_status ?? "pending",
-      lat: lat ?? (inst as any)?.lat ?? null,
-      lng: lng ?? (inst as any)?.lng ?? null,
+      lat: lat ?? inst?.lat ?? null,
+      lng: lng ?? inst?.lng ?? null,
     });
 
     setSaving(false);
@@ -184,8 +184,8 @@ export default function InstructorProfilePage() {
                   const { data: pub } = sb.storage.from("avatars").getPublicUrl(path);
                   setProfile({ ...profile, avatar_url: pub.publicUrl });
                   setMsg("Photo uploaded");
-                } catch (er: any) {
-                  setMsg(er.message || "Upload failed");
+                } catch (er: unknown) {
+                  setMsg(er instanceof Error ? er.message : "Upload failed");
                 } finally {
                   setUploading(false);
                   setTimeout(() => localUrl && URL.revokeObjectURL(localUrl), 1000);
@@ -227,7 +227,7 @@ export default function InstructorProfilePage() {
               step="1"
               className="w-full border border-gray-300 rounded-lg px-4 py-3"
               value={inst.hourly_rate ?? 30}
-              onChange={(e) => setInstructor({ ...(inst as any), hourly_rate: Number(e.target.value) })}
+              onChange={(e) => setInstructor({ ...instructor!, hourly_rate: Number(e.target.value) })}
             />
           </div>
           <div>
@@ -248,7 +248,7 @@ export default function InstructorProfilePage() {
             <select
               className="w-full border border-gray-300 rounded-lg px-4 py-3"
               value={inst.vehicle_type ?? "manual"}
-              onChange={(e) => setInstructor({ ...(inst as any), vehicle_type: e.target.value as any })}
+              onChange={(e) => setInstructor({ ...instructor!, vehicle_type: e.target.value as "manual" | "auto" | "both" })}
             >
               <option value="manual">Manual</option>
               <option value="auto">Auto</option>
@@ -260,7 +260,7 @@ export default function InstructorProfilePage() {
             <select
               className="w-full border border-gray-300 rounded-lg px-4 py-3"
               value={inst.gender ?? "other"}
-              onChange={(e) => setInstructor({ ...(inst as any), gender: e.target.value as any })}
+              onChange={(e) => setInstructor({ ...instructor!, gender: e.target.value as "male" | "female" | "other" })}
             >
               <option value="male">Male</option>
               <option value="female">Female</option>
@@ -275,7 +275,7 @@ export default function InstructorProfilePage() {
           <textarea
             className="w-full border border-gray-300 rounded-lg px-4 py-3 min-h-28"
             value={inst.description ?? ""}
-            onChange={(e) => setInstructor({ ...(inst as any), description: e.target.value })}
+            onChange={(e) => setInstructor({ ...instructor!, description: e.target.value })}
           />
         </div>
 
@@ -284,7 +284,7 @@ export default function InstructorProfilePage() {
           <input
             type="checkbox"
             checked={!!inst.adi_badge}
-            onChange={(e) => setInstructor({ ...(inst as any), adi_badge: e.target.checked })}
+            onChange={(e) => setInstructor({ ...instructor!, adi_badge: e.target.checked })}
           />
           <span>ADI Badge</span>
         </label>

@@ -3,8 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import SearchBar from "@/components/ui/SearchBar";
-import InstructorCard from "@/components/ui/InstructorCard";
-import StatCard from "@/components/ui/StatCard";
 import SocialProofCarousel from "@/components/ui/SocialProofCarousel";
 import { createSupabaseBrowser } from "@/lib/supabase";
 

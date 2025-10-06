@@ -7,9 +7,19 @@ import { usePathname } from "next/navigation";
 
 const sb = createSupabaseBrowser();
 
+interface User {
+  id: string;
+  email?: string;
+}
+
+interface Profile {
+  role: string;
+  name: string | null;
+}
+
 export default function Navigation() {
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
