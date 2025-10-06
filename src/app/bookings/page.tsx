@@ -30,10 +30,6 @@ export default function MyBookingsPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    loadBookings();
-  }, [loadBookings]);
-
   const loadBookings = useCallback(async () => {
     try {
       const { data: { user } } = await sb.auth.getUser();
