@@ -67,7 +67,8 @@ src/
 │       ├── InstructorCard.tsx # Instructor display card
 │       ├── StatCard.tsx      # Statistics display card
 │       ├── ProgressBar.tsx    # Progress visualization
-│       └── ToggleSwitch.tsx   # iOS 7 style toggle
+│       ├── ToggleSwitch.tsx   # iOS 7 style toggle
+│       └── SocialProofCarousel.tsx # Certificate showcase carousel
 └── lib/
     ├── supabase.ts           # Client-side Supabase client
     ├── supabase-browser.ts   # Browser-specific client
@@ -257,7 +258,13 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 - **Authentication**: Secure login/logout with role-based navigation
 - **Mobile-First Design**: Perfectly responsive across all device sizes
 
-### 🔄 Latest Updates (v2.0)
+### 🔄 Latest Updates (v2.2)
+- **Enhanced Navigation**: Improved hamburger menu with 2-line design, thicker lines, and square button proportions
+- **Button Consistency**: "Find Instructors" and hamburger menu buttons now have matching thin, bordered styling
+- **Social Proof Carousel**: Horizontal scrolling showcase of qualified learners with certificates
+- **Updated Statistics**: Realistic numbers showing 200+ instructors, 2k+ lessons, 88% pass rate
+- **Enhanced Homepage**: Tighter spacing, improved journey steps, and better visual flow
+- **Content Refinement**: Updated headings and descriptions for better impact
 - **Complete UI Redesign**: Apple-inspired interface with Poppins font and modern components
 - **Enhanced Search Experience**: Improved search bar with shadows and hover effects
 - **Journey Visualization**: 3-step horizontal layout with animated icons

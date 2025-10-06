@@ -69,7 +69,7 @@ export default function Navigation() {
             <div className="flex items-center space-x-6">
               <Link
                 href="/search"
-                className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                className="border border-gray-300 hover:border-green-500 text-gray-600 hover:text-green-500 px-4 py-1.5 rounded-lg font-medium transition-all duration-200 text-sm"
               >
                 Find Instructors
               </Link>
@@ -100,10 +100,10 @@ export default function Navigation() {
           <div className="flex items-center space-x-6">
             <Link
               href="/search"
-              className={`font-medium transition-colors ${
+              className={`border border-gray-300 hover:border-green-500 px-4 py-1.5 rounded-lg font-medium transition-all duration-200 text-sm ${
                 pathname === "/search" 
-                  ? "text-green-500" 
-                  : "text-gray-600 hover:text-gray-900"
+                  ? "border-green-500 text-green-500" 
+                  : "text-gray-600 hover:text-green-500"
               }`}
             >
               Find Instructors
@@ -113,13 +113,12 @@ export default function Navigation() {
             <div className="relative">
               <button
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                className="p-2 rounded-xl hover:bg-gray-100 transition-colors"
+                className="border border-gray-300 hover:border-green-500 px-3 py-2 rounded-lg font-medium transition-all duration-200 text-sm flex items-center justify-center"
                 aria-label="Menu"
               >
-                <div className="w-6 h-6 flex flex-col justify-center space-y-1">
-                  <div className={`h-0.5 bg-gray-600 transition-all duration-200 ${isMenuOpen ? 'rotate-45 translate-y-1.5' : ''}`}></div>
-                  <div className={`h-0.5 bg-gray-600 transition-all duration-200 ${isMenuOpen ? 'opacity-0' : ''}`}></div>
-                  <div className={`h-0.5 bg-gray-600 transition-all duration-200 ${isMenuOpen ? '-rotate-45 -translate-y-1.5' : ''}`}></div>
+                <div className="w-5 h-5 flex flex-col justify-center space-y-1">
+                  <div className={`h-1 bg-gray-600 transition-all duration-200 ${isMenuOpen ? 'rotate-45 translate-y-0.5' : ''}`}></div>
+                  <div className={`h-1 bg-gray-600 transition-all duration-200 ${isMenuOpen ? '-rotate-45 -translate-y-0.5' : ''}`}></div>
                 </div>
               </button>
               

@@ -26,7 +26,7 @@ export default function SearchBar({
 
   return (
     <form onSubmit={handleSubmit} className={`relative ${className}`}>
-      <div className="relative flex shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105">
+      <div className="relative flex shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 border-2 border-black rounded-xl focus-within:border-gray-800">
         <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 z-10 text-lg">
           📍
         </div>
@@ -35,7 +35,7 @@ export default function SearchBar({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
-          className="w-full border-2 border-gray-300 rounded-xl pl-12 pr-24 py-4 text-lg text-gray-900 placeholder-gray-500 focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 hover:border-green-400 hover:shadow-lg bg-white rounded-l-xl"
+          className="w-full border-0 rounded-xl pl-12 pr-24 py-4 text-lg text-gray-900 placeholder-gray-500 focus:ring-4 focus:ring-green-700 transition-all duration-300 bg-white rounded-l-xl outline-none"
           disabled={loading}
         />
         <button
@@ -46,6 +46,7 @@ export default function SearchBar({
               ? "bg-green-800 text-white cursor-not-allowed opacity-70"
               : "bg-green-600 hover:bg-green-700 text-white hover:scale-110 hover:shadow-xl hover:shadow-green-200"
           }`}
+          style={{ right: '-2px', top: '-2px', bottom: '-2px' }}
         >
           {loading ? "Searching..." : "Search"}
         </button>

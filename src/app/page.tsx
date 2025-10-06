@@ -5,6 +5,7 @@ import Link from "next/link";
 import SearchBar from "@/components/ui/SearchBar";
 import InstructorCard from "@/components/ui/InstructorCard";
 import StatCard from "@/components/ui/StatCard";
+import SocialProofCarousel from "@/components/ui/SocialProofCarousel";
 import { createSupabaseBrowser } from "@/lib/supabase";
 
 export default function Home() {
@@ -140,21 +141,21 @@ export default function Home() {
       {
         step: "1",
         title: "Find",
-        description: "Find the best\nmatch for you",
+        description: "Find your\nperfect match",
         icon: "🔍",
         color: "from-blue-400 to-purple-500"
       },
       {
         step: "2", 
         title: "Learn",
-        description: "Learn with\ncertified instructors",
+        description: "Learn with\ncertified pros",
         icon: "📚",
         color: "from-orange-400 to-red-500"
       },
       {
         step: "3",
         title: "Pass",
-        description: "Pass your\npractical exam!",
+        description: "Pass your\ndriving test!",
         icon: "🎉",
         color: "from-green-400 to-emerald-500"
       }
@@ -182,12 +183,12 @@ export default function Home() {
                 </div>
 
           {/* Journey Steps */}
-          <div className="mb-12">
-                   <h2 className="text-xl font-normal text-gray-900 mb-8">Your learner journey made simple.</h2>
+          <div className="mb-2">
+                   <h2 className="text-xl font-normal text-gray-900 mb-3">Your learner journey made simple.</h2>
             <div className="grid grid-cols-3 gap-8">
               {journeySteps.map((step, index) => (
                 <div key={step.step} className="text-center relative">
-                        <div className={`w-28 h-28 bg-gradient-to-br ${step.color} rounded-full flex items-center justify-center text-white text-6xl mx-auto mb-4 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:rotate-6 relative overflow-hidden group`}>
+                        <div className={`w-20 h-20 bg-gradient-to-br ${step.color} rounded-full flex items-center justify-center text-white text-5xl mx-auto mb-3 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:rotate-6 relative overflow-hidden group`}>
                           <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-full"></div>
                           <div className="relative z-10 group-hover:animate-bounce">
                             {step.icon}
@@ -207,7 +208,7 @@ export default function Home() {
       </section>
 
       {/* Featured Instructors Carousel */}
-      <section className="px-6 py-12 bg-gray-50">
+      <section className="px-6 py-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
             Top Rated Instructors Near You
@@ -309,35 +310,44 @@ export default function Home() {
             <Link href="/search" className="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-4 rounded-2xl transition-colors">
               View All Instructors
             </Link>
-          </div>
-        </div>
-      </section>
+             </div>
+           </div>
+         </section>
 
-      {/* Stats Section */}
+         {/* Social Proof Section */}
+         <section className="px-6 py-6 bg-white">
+           <div className="max-w-6xl mx-auto">
+             <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
+               Qualified learners
+             </h2>
+             <p className="text-gray-600 text-center mb-8 max-w-2xl mx-auto">
+               Hundreds of qualified drivers started right here!
+             </p>
+             
+             <SocialProofCarousel />
+           </div>
+         </section>
+
+         {/* Stats Section */}
       <section className="px-6 py-12">
         <div className="max-w-md mx-auto">
           <h2 className="text-xl font-semibold text-gray-900 mb-8 text-center">
-            Trusted by Thousands
+            We've got you covered
           </h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-4">
             <div className="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100">
               <div className="text-3xl mb-2">👨‍🏫</div>
-              <div className="text-2xl font-bold text-gray-900 mb-1">500+</div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">200+</div>
               <div className="text-sm text-gray-600">Qualified Instructors</div>
             </div>
             <div className="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100">
-              <div className="text-3xl mb-2">🚗</div>
-              <div className="text-2xl font-bold text-gray-900 mb-1">10K+</div>
+              <div className="text-3xl mb-2">📚</div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">2k+</div>
               <div className="text-sm text-gray-600">Lessons Completed</div>
             </div>
             <div className="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100">
-              <div className="text-3xl mb-2">⭐</div>
-              <div className="text-2xl font-bold text-gray-900 mb-1">4.8</div>
-              <div className="text-sm text-gray-600">Average Rating</div>
-            </div>
-            <div className="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100">
               <div className="text-3xl mb-2">🎯</div>
-              <div className="text-2xl font-bold text-gray-900 mb-1">85%</div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">88%</div>
               <div className="text-sm text-gray-600">Pass Rate</div>
             </div>
           </div>
