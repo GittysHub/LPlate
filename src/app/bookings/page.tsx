@@ -86,9 +86,9 @@ export default function MyBookingsPage() {
         instructor: {
           name: b.instructor?.name || "Instructor",
           avatar_url: b.instructor?.avatar_url ?? null,
-          base_postcode: b.instructor?.base_postcode,
-          vehicle_type: b.instructor?.vehicle_type,
-          hourly_rate: b.instructor?.hourly_rate,
+          base_postcode: b.instructor?.base_postcode ?? null,
+          vehicle_type: b.instructor?.vehicle_type ?? null,
+          hourly_rate: b.instructor?.hourly_rate ?? null,
         },
       }));
 

@@ -86,9 +86,9 @@ export default function InstructorBookingsPage() {
         instructorId: b.instructor_id,
         learner: {
           name: b.learner?.name || "Learner",
-          avatar_url: b.learner?.avatar_url,
-          phone: b.learner?.phone,
-          postcode: b.learner?.postcode,
+          avatar_url: b.learner?.avatar_url ?? null,
+          phone: b.learner?.phone ?? null,
+          postcode: b.learner?.postcode ?? null,
         },
       }));
 
