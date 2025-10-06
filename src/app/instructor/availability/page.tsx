@@ -1,37 +1,40 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 
-// Helpers for <input type="datetime-local">
-function toLocalInputValue(d: Date) {
-  // returns "YYYY-MM-DDTHH:mm"
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(
-    d.getHours()
-  )}:${pad(d.getMinutes())}`;
-}
-function fromLocalInputValue(s: string) {
-  // treat as local time
-  return new Date(s);
-}
+type WeekDay = {
+  key: number; // 1=Mon ... 7=Sun (ISO)
+  label: string;
+  enabled: boolean;
+  start: string; // HH:MM
+  end: string;   // HH:MM
+};
 
 type Slot = {
   id: string;
   instructor_id: string;
-  start_at: string; // ISO
-  end_at: string;   // ISO
+  start_at: string;
+  end_at: string;
   is_recurring: boolean;
 };
+
+const DEFAULT_WEEK: WeekDay[] = [
+  { key: 1, label: "Mon", enabled: true, start: "09:00", end: "17:00" },
+  { key: 2, label: "Tue", enabled: true, start: "09:00", end: "17:00" },
+  { key: 3, label: "Wed", enabled: true, start: "09:00", end: "17:00" },
+  { key: 4, label: "Thu", enabled: true, start: "09:00", end: "17:00" },
+  { key: 5, label: "Fri", enabled: true, start: "09:00", end: "17:00" },
+  { key: 6, label: "Sat", enabled: false, start: "09:00", end: "17:00" },
+  { key: 7, label: "Sun", enabled: false, start: "09:00", end: "17:00" },
+];
 
 export default function AvailabilityPage() {
   const sb = createSupabaseBrowser();
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
-  const [slots, setSlots] = useState<Slot[]>([]);
-  const [start, setStart] = useState(toLocalInputValue(new Date()));
-  const [durationMins, setDurationMins] = useState<60 | 120>(120);
-  const [recurring, setRecurring] = useState(false);
+  const [week, setWeek] = useState<WeekDay[]>(DEFAULT_WEEK);
+  const [initialWeek, setInitialWeek] = useState<WeekDay[]>(DEFAULT_WEEK);
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
@@ -50,152 +53,158 @@ export default function AvailabilityPage() {
         .from("availability")
         .select("*")
         .eq("instructor_id", user.id)
+        .eq("is_recurring", true)
         .order("start_at", { ascending: true });
 
-      setSlots((data as any) ?? []);
+      const slots: Slot[] = (data as any) ?? [];
+      if (slots.length > 0) {
+        const next = DEFAULT_WEEK.map(d => ({ ...d }));
+        for (const s of slots) {
+          const start = new Date(s.start_at);
+          const end = new Date(s.end_at);
+          // JS getDay(): 0 Sun..6 Sat; convert to ISO 1..7
+          const iso = ((start.getDay() + 6) % 7) + 1;
+          const target = next.find(n => n.key === iso)!;
+          target.enabled = true;
+          target.start = start.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Europe/London" });
+          target.end = end.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Europe/London" });
+        }
+        setWeek(next);
+        setInitialWeek(next);
+      }
       setLoading(false);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const end = useMemo(() => {
-    const s = fromLocalInputValue(start);
-    const e = new Date(s.getTime() + durationMins * 60 * 1000);
-    return toLocalInputValue(e);
-  }, [start, durationMins]);
-
-  async function addSlot(e: React.FormEvent) {
-    e.preventDefault();
-    if (!userId) return;
-
-    setSaving(true);
-    setMsg(null);
-
-    const startAt = fromLocalInputValue(start);
-    const endAt = fromLocalInputValue(end);
-
-    if (endAt <= startAt) {
-      setMsg("End must be after start.");
-      setSaving(false);
-      return;
-    }
-
-    const { error, data } = await sb
-      .from("availability")
-      .insert({
-        instructor_id: userId,
-        start_at: startAt.toISOString(), // store as UTC
-        end_at: endAt.toISOString(),
-        is_recurring: recurring,
-      })
-      .select()
-      .single();
-
-    setSaving(false);
-
-    if (error) {
-      setMsg(error.message);
-      return;
-    }
-    setSlots(prev => [...prev, data as any].sort((a, b) => a.start_at.localeCompare(b.start_at)));
-    setMsg("Added");
+  function updateDay(idx: number, patch: Partial<WeekDay>) {
+    setWeek(prev => {
+      const next = [...prev];
+      next[idx] = { ...next[idx], ...patch } as WeekDay;
+      return next;
+    });
   }
 
-  async function removeSlot(id: string) {
-    const previous = slots;
-    setSlots(prev => prev.filter(s => s.id !== id));
-    const { error } = await sb.from("availability").delete().eq("id", id);
-    if (error) {
-      // rollback on failure
-      setSlots(previous);
-      setMsg(error.message);
+  function nextDateForIsoDow(iso: number) {
+    const now = new Date();
+    const currentIso = ((now.getDay() + 6) % 7) + 1;
+    const diff = (iso - currentIso + 7) % 7 || 7; // next occurrence in the future (at least next week)
+    const d = new Date(now);
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  async function save() {
+    if (!userId) return;
+    setSaving(true);
+    setMsg(null);
+    try {
+      // Replace existing recurring template with new one
+      const { error: delErr } = await sb
+        .from("availability")
+        .delete()
+        .eq("instructor_id", userId)
+        .eq("is_recurring", true);
+      if (delErr) throw delErr;
+
+      const rows: Omit<Slot, "id">[] = [] as any;
+      for (const d of week) {
+        if (!d.enabled) continue;
+        const base = nextDateForIsoDow(d.key);
+        const [sh, sm] = d.start.split(":" ).map(Number);
+        const [eh, em] = d.end.split(":" ).map(Number);
+        const start = new Date(base);
+        start.setHours(sh, sm, 0, 0);
+        const end = new Date(base);
+        end.setHours(eh, em, 0, 0);
+        if (end <= start) continue; // skip invalid
+        rows.push({
+          instructor_id: userId,
+          start_at: start.toISOString(),
+          end_at: end.toISOString(),
+          is_recurring: true,
+        } as any);
+      }
+
+      if (rows.length > 0) {
+        const { error: insErr } = await sb.from("availability").insert(rows as any);
+        if (insErr) throw insErr;
+      }
+
+      setInitialWeek(week);
+      setMsg("Saved");
+    } catch (e: any) {
+      setMsg(e.message || "Save failed");
+    } finally {
+      setSaving(false);
     }
+  }
+
+  function cancel() {
+    setWeek(initialWeek);
+    setMsg(null);
   }
 
   if (loading) return <main>Loading…</main>;
   if (!userId) return <main>Please sign in, then return here.</main>;
 
   return (
-    <main className="space-y-8">
-      <section>
-        <h2 className="text-lg font-medium mb-3">Add available slot</h2>
-        <form onSubmit={addSlot} className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
-          <label className="block">
-            <div className="text-sm">Start (local time)</div>
-            <input
-              type="datetime-local"
-              className="w-full border rounded p-2"
-              value={start}
-              onChange={e => setStart(e.target.value)}
-            />
-          </label>
+    <main className="max-w-md mx-auto space-y-6">
+      <h1 className="text-2xl font-bold">Your Diary</h1>
 
-          <label className="block">
-            <div className="text-sm">Duration</div>
-            <select
-              className="w-full border rounded p-2"
-              value={durationMins}
-              onChange={(e) => setDurationMins(Number(e.target.value) as 60 | 120)}
-            >
-              <option value={60}>60 minutes</option>
-              <option value={120}>120 minutes</option>
-            </select>
-          </label>
+      <div className="bg-white border rounded-2xl overflow-hidden divide-y">
+        {week.map((d, i) => (
+          <div key={d.key} className="flex items-center justify-between px-4 py-3">
+            <div className="w-16 font-medium">{d.label}</div>
+            <div className="flex-1 text-center text-gray-700">
+              <input
+                type="time"
+                value={d.start}
+                onChange={(e) => updateDay(i, { start: e.target.value })}
+                className="border rounded px-2 py-1 mr-2"
+                disabled={!d.enabled}
+              />
+              <span className="mx-1">-</span>
+              <input
+                type="time"
+                value={d.end}
+                onChange={(e) => updateDay(i, { end: e.target.value })}
+                className="border rounded px-2 py-1 ml-2"
+                disabled={!d.enabled}
+              />
+            </div>
+            <label className="ml-4 inline-flex items-center cursor-pointer">
+              <div className="relative">
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  checked={d.enabled}
+                  onChange={(e) => updateDay(i, { enabled: e.target.checked })}
+                />
+                <div className={`w-12 h-7 rounded-full transition-all duration-300 ease-out ${
+                  d.enabled 
+                    ? 'bg-green-700' 
+                    : 'bg-red-700'
+                }`}>
+                  <div className={`w-6 h-6 bg-white rounded-full transform transition-transform duration-300 ease-out shadow-md ${
+                    d.enabled ? 'translate-x-5' : 'translate-x-0.5'
+                  }`} style={{ marginTop: '2px' }}></div>
+                </div>
+              </div>
+            </label>
+          </div>
+        ))}
+      </div>
 
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={recurring}
-              onChange={(e) => setRecurring(e.target.checked)}
-            />
-            <span>Recurring</span>
-          </label>
+      {msg && <p className="text-sm">{msg}</p>}
 
-          <button
-            type="submit"
-            className="bg-black text-white px-4 py-2 rounded"
-            disabled={saving}
-          >
-            {saving ? "Adding…" : "Add slot"}
-          </button>
-        </form>
-        {msg && <p className="text-sm mt-2">{msg}</p>}
-        <p className="text-xs text-neutral-500 mt-2">
-          Stored in UTC; displayed/entered in your local time. Default timezone: London.
-        </p>
-      </section>
-
-      <section>
-        <h2 className="text-lg font-medium mb-3">Your availability</h2>
-        {slots.length === 0 ? (
-          <p>No slots yet.</p>
-        ) : (
-          <ul className="divide-y border rounded-2xl overflow-hidden">
-            {slots.map((s) => {
-              const startLocal = new Date(s.start_at);
-              const endLocal = new Date(s.end_at);
-              return (
-                <li key={s.id} className="flex items-center justify-between px-4 py-3">
-                  <div className="text-sm">
-                    <div>
-                      {startLocal.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/London" })}
-                      {" — "}
-                      {endLocal.toLocaleTimeString("en-GB", { timeStyle: "short", timeZone: "Europe/London" })}
-                    </div>
-                    {s.is_recurring && <div className="text-xs text-neutral-500">Recurring</div>}
-                  </div>
-                  <button
-                    className="text-sm underline"
-                    onClick={() => removeSlot(s.id)}
-                  >
-                    Delete
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </section>
+      <div className="flex items-center justify-between pt-2">
+        <button onClick={cancel} className="px-6 py-3 rounded-lg border">Cancel</button>
+        <button onClick={save} disabled={saving} className="px-6 py-3 rounded-lg bg-green-600 text-white disabled:opacity-50">
+          {saving ? "Saving…" : "Save"}
+        </button>
+      </div>
     </main>
   );
 }

@@ -1,103 +1,368 @@
-import Image from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import SearchBar from "@/components/ui/SearchBar";
+import InstructorCard from "@/components/ui/InstructorCard";
+import StatCard from "@/components/ui/StatCard";
+import { createSupabaseBrowser } from "@/lib/supabase";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [instructors, setInstructors] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const sb = createSupabaseBrowser();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    fetchTopInstructors();
+  }, []);
+
+  async function fetchTopInstructors() {
+    try {
+      const { data, error } = await sb
+        .from("instructors")
+        .select(`
+          id, 
+          description, 
+          base_postcode, 
+          vehicle_type, 
+          hourly_rate, 
+          gender, 
+          lat, 
+          lng, 
+          profiles(name, avatar_url)
+        `)
+        .eq("verification_status", "approved")
+        .not("lat", "is", null)
+        .not("lng", "is", null)
+        .limit(8);
+
+      if (error) throw error;
+
+      const instructorData = (data as any[])?.map((r: any) => {
+        const location = getTownFromPostcode(r.base_postcode);
+        console.log('Instructor:', r.profiles?.name, 'Postcode:', r.base_postcode, 'Location:', location);
+        return {
+          id: r.id,
+          name: r.profiles?.name ?? "Instructor",
+          avatar_url: r.profiles?.avatar_url ?? null,
+          hourly_rate: r.hourly_rate ?? 30,
+          location: location,
+          vehicle_type: r.vehicle_type ?? "manual",
+          description: r.description ?? "",
+          rating: 4.8 // Placeholder rating
+        };
+      }) ?? [];
+
+      setInstructors(instructorData);
+    } catch (e) {
+      console.error("Failed to fetch instructors:", e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function getTownFromPostcode(postcode: string): string {
+    // Map common Bristol area postcodes to town names
+    const postcodeToTown: { [key: string]: string } = {
+      'BS1': 'Bristol City Centre',
+      'BS2': 'Bristol',
+      'BS3': 'Bristol',
+      'BS4': 'Bristol',
+      'BS5': 'Bristol',
+      'BS6': 'Bristol',
+      'BS7': 'Bristol',
+      'BS8': 'Bristol',
+      'BS9': 'Bristol',
+      'BS10': 'Bristol',
+      'BS11': 'Bristol',
+      'BS13': 'Bristol',
+      'BS14': 'Bristol',
+      'BS15': 'Bristol',
+      'BS16': 'Bristol',
+      'BS20': 'Bristol',
+      'BS21': 'Clevedon',
+      'BS22': 'Weston-super-Mare',
+      'BS23': 'Weston-super-Mare',
+      'BS24': 'Weston-super-Mare',
+      'BS25': 'Winscombe',
+      'BS26': 'Axbridge',
+      'BS27': 'Cheddar',
+      'BS28': 'Wells',
+      'BS29': 'Burnham-on-Sea',
+      'BS30': 'Bath',
+      'BS31': 'Bath',
+      'BS32': 'Bristol',
+      'BS34': 'Bristol',
+      'BS35': 'Thornbury',
+      'BS36': 'Bristol',
+      'BS37': 'Yate',
+      'BS39': 'Radstock',
+      'BS40': 'Bristol',
+      'BS41': 'Bristol',
+      'BS48': 'Portishead',
+      'BS49': 'Nailsea',
+      'BA1': 'Bath',
+      'BA2': 'Bath',
+      'BA3': 'Radstock',
+      'BA4': 'Shepton Mallet',
+      'BA5': 'Wells',
+      'BA6': 'Glastonbury',
+      'BA7': 'Yeovil',
+      'BA8': 'Templecombe',
+      'BA9': 'Wincanton',
+      'BA10': 'Bruton',
+      'BA11': 'Frome',
+      'BA12': 'Warminster',
+      'BA13': 'Westbury',
+      'BA14': 'Trowbridge',
+      'BA15': 'Bradford-on-Avon',
+      'BA16': 'Street'
+    };
+
+    if (!postcode) return 'Bristol';
+    
+    // Extract the first part of the postcode (e.g., BS16 from BS16 2NR)
+    const postcodePrefix = postcode.split(' ')[0];
+    const town = postcodeToTown[postcodePrefix] || 'Bristol';
+    
+    // Debug logging
+    console.log('Postcode:', postcode, 'Prefix:', postcodePrefix, 'Town:', town);
+    
+    return town;
+  }
+
+  const handleSearch = (query: string) => {
+    // Redirect to search page with query
+    window.location.href = `/search?q=${encodeURIComponent(query)}`;
+  };
+
+    const journeySteps = [
+      {
+        step: "1",
+        title: "Find",
+        description: "Find the best\nmatch for you",
+        icon: "🔍",
+        color: "from-blue-400 to-purple-500"
+      },
+      {
+        step: "2", 
+        title: "Learn",
+        description: "Learn with\ncertified instructors",
+        icon: "📚",
+        color: "from-orange-400 to-red-500"
+      },
+      {
+        step: "3",
+        title: "Pass",
+        description: "Pass your\npractical exam!",
+        icon: "🎉",
+        color: "from-green-400 to-emerald-500"
+      }
+    ];
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Hero Section - Mobile First */}
+      <section className="px-6 py-12 md:py-20">
+        <div className="max-w-md mx-auto text-center">
+                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-normal text-gray-900 leading-tight mb-4">
+                   Find the <span className="text-green-500 font-bold">BEST</span> instructor!
+                 </h1>
+          
+          <p className="text-lg text-gray-600 mb-8 leading-relaxed">
+            Find your perfect driving instructor in seconds
+          </p>
+          
+          {/* Search Bar */}
+                <div className="mb-12">
+                  <SearchBar 
+                    placeholder="Enter your postcode"
+                    onSearch={handleSearch}
+                  />
+                </div>
+
+          {/* Journey Steps */}
+          <div className="mb-12">
+                   <h2 className="text-xl font-normal text-gray-900 mb-8">Your learner journey made simple.</h2>
+            <div className="grid grid-cols-3 gap-8">
+              {journeySteps.map((step, index) => (
+                <div key={step.step} className="text-center relative">
+                        <div className={`w-28 h-28 bg-gradient-to-br ${step.color} rounded-full flex items-center justify-center text-white text-6xl mx-auto mb-4 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-110 hover:rotate-6 relative overflow-hidden group`}>
+                          <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-full"></div>
+                          <div className="relative z-10 group-hover:animate-bounce">
+                            {step.icon}
+                          </div>
+                        </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    {step.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm leading-tight whitespace-pre-line">
+                    {step.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </section>
+
+      {/* Featured Instructors Carousel */}
+      <section className="px-6 py-12 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
+            Top Rated Instructors Near You
+          </h2>
+          
+          {loading ? (
+            <div className="flex space-x-4 overflow-hidden">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex-shrink-0 w-64 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 animate-pulse">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-16 h-16 bg-gray-200 rounded-full"></div>
+                    <div className="flex-1">
+                      <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded mb-2"></div>
+                      <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="relative overflow-hidden">
+              <div className="flex space-x-4 animate-scroll" style={{ width: 'max-content' }}>
+                {instructors.map((instructor) => (
+                  <Link key={instructor.id} href={`/instructor/profile/${instructor.id}`} className="flex-shrink-0 w-64 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-pointer">
+                    <div className="flex items-center space-x-4">
+                      {/* Profile Photo */}
+                      <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+                        {instructor.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
+                          {instructor.name}
+                        </h3>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <div className="flex text-yellow-400">
+                            {[...Array(5)].map((_, i) => (
+                              <span key={i} className="text-sm">⭐</span>
+                            ))}
+                          </div>
+                          <span className="text-sm text-gray-500">{instructor.rating}</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          📍 {instructor.location}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-lg font-bold text-green-600">
+                            £{instructor.hourly_rate}/hr
+                          </span>
+                          <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                            {instructor.vehicle_type}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+                {/* Duplicate for seamless loop */}
+                {instructors.map((instructor) => (
+                  <Link key={`${instructor.id}-duplicate`} href={`/instructor/profile/${instructor.id}`} className="flex-shrink-0 w-64 bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-pointer">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+                        {instructor.name.split(' ').map(n => n[0]).join('')}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
+                          {instructor.name}
+                        </h3>
+                        <div className="flex items-center space-x-2 mb-2">
+                          <div className="flex text-yellow-400">
+                            {[...Array(5)].map((_, i) => (
+                              <span key={i} className="text-sm">⭐</span>
+                            ))}
+                          </div>
+                          <span className="text-sm text-gray-500">{instructor.rating}</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          📍 {instructor.location}
+                        </p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-lg font-bold text-green-600">
+                            £{instructor.hourly_rate}/hr
+                          </span>
+                          <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                            {instructor.vehicle_type}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          <div className="text-center mt-8">
+            <Link href="/search" className="inline-block bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-4 rounded-2xl transition-colors">
+              View All Instructors
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="px-6 py-12">
+        <div className="max-w-md mx-auto">
+          <h2 className="text-xl font-semibold text-gray-900 mb-8 text-center">
+            Trusted by Thousands
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100">
+              <div className="text-3xl mb-2">👨‍🏫</div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">500+</div>
+              <div className="text-sm text-gray-600">Qualified Instructors</div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100">
+              <div className="text-3xl mb-2">🚗</div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">10K+</div>
+              <div className="text-sm text-gray-600">Lessons Completed</div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100">
+              <div className="text-3xl mb-2">⭐</div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">4.8</div>
+              <div className="text-sm text-gray-600">Average Rating</div>
+            </div>
+            <div className="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100">
+              <div className="text-3xl mb-2">🎯</div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">85%</div>
+              <div className="text-sm text-gray-600">Pass Rate</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="px-6 py-12 bg-gray-50">
+        <div className="max-w-md mx-auto text-center">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+            Ready to Start Your Driving Journey?
+          </h2>
+          <p className="text-gray-600 mb-8">
+            Join thousands of successful learners who found their perfect instructor.
+          </p>
+          <div className="space-y-4">
+            <Link href="/search" className="block bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-4 rounded-2xl transition-colors">
+              Find Your Instructor
+            </Link>
+            <Link href="/auth/sign-in" className="block bg-white border-2 border-gray-200 hover:border-green-500 text-gray-700 font-semibold px-8 py-4 rounded-2xl transition-colors">
+              Sign Up as Instructor
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

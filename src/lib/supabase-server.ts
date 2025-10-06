@@ -1,4 +1,4 @@
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 export const createSupabaseServer = () => {
@@ -9,8 +9,6 @@ export const createSupabaseServer = () => {
     {
       cookies: {
         get: (name: string) => cookieStore.get(name)?.value,
-        set: () => {},
-        remove: () => {},
       },
     }
   );

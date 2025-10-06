@@ -1,220 +1,285 @@
-📝 L Plate Project – README for Context Sharing
-1. Project Overview
-
-Goal:
-A marketplace web app connecting UK learner drivers with driving instructors.
-
-Focus on simplicity, Apple-like clean UI, and usability for instructors, including older, less tech-savvy users.
-
-Core features include:
-
-Instructor onboarding and profiles
-
-Search for instructors by postcode, distance, vehicle type, and gender
-
-Booking requests between learners and instructors
-
-Future integrations: Stripe payments, lesson scheduling, and notifications.
-
-Current Status:
-
-MVP development in progress
-
-Search functionality works (with distance calculation and filters)
-
-Booking flow functional (can create bookings in DB)
-
-Instructor profiles implemented with geolocation support
-
-UI currently minimal, styling improvements needed.
-
-2. Tech Stack
-Layer	Tech
-Frontend	Next.js 15, TypeScript, TailwindCSS
-Backend	Supabase (Postgres + Auth + Storage)
-Authentication	Supabase Auth
-Payments	Stripe (planned, not yet implemented)
-Hosting	Vercel (frontend), Supabase (backend)
-3. Architecture Overview
-Next.js App
-  ├─ /src
-  │   ├─ /app
-  │   │   ├─ /auth            -> Sign-in and callback routes
-  │   │   ├─ /search          -> Learner search page
-  │   │   ├─ /booking/request -> Booking request flow
-  │   │   ├─ /instructor
-  │   │   │   ├─ profile      -> Instructor profile management
-  │   │   │   └─ availability -> Manage availability slots
-  │   │   └─ layout.tsx       -> Shared layouts
-  │   │
-  │   └─ /lib
-  │       ├─ supabase.ts        -> Supabase client setup
-  │       ├─ supabase-browser.ts-> Browser-side Supabase client
-  │       └─ supabase-server.ts -> Server-side Supabase client
-  │
-  └─ /public                     -> Static assets
-
-
-Supabase Usage:
-
-Auth: Instructors and learners log in via Supabase Auth.
-
-RLS (Row Level Security): Protects tables so users can only read/write their own data.
-
-Database: Postgres with geolocation-enabled search.
-
-4. Database Schema (Key Tables)
-profiles
-Column	Type	Notes
-id	uuid	PK, matches Supabase user id
-name	text	Instructor or learner name
-role	text	'learner' or 'instructor'
-postcode	text	UK postcode
-phone	text	Optional
-instructors
-Column	Type	Notes
-id	uuid	FK → profiles.id
-description	text	
-gender	text	'male', 'female', 'other'
-base_postcode	text	Used for search
-vehicle_type	text	'manual', 'auto', 'both'
-hourly_rate	numeric	e.g., 30.00
-adi_badge	boolean	
-verification_status	text	'pending', 'approved', 'rejected'
-lat	float8	Latitude, calculated via postcode API
-lng	float8	Longitude, calculated via postcode API
-bookings
-Column	Type	Notes
-id	uuid	PK
-learner_id	uuid	FK → profiles.id
-instructor_id	uuid	FK → instructors.id
-start_at	timestamptz	Lesson start time
-end_at	timestamptz	Lesson end time
-price	numeric	Calculated based on hourly rate and duration
-note	text	Optional learner note
-status	text	ENUM: 'pending', 'confirmed', 'cancelled'
-5. Known Issues / Current Blockers
-
- Booking request initially failed due to missing note column – fixed today.
-
- Booking request failed due to status mismatch – fixed by setting default status to pending.
-
- Search page works but UI is very basic and needs redesign for usability.
-
- Git Bash terminal occasionally locks up after nano, requiring restart.
-
- Instructor availability feature not yet functional (UI present, no backend logic).
-
- No booking notifications implemented yet.
-
-6. Next Steps
-
-Immediate Priority:
-
-Improve UI for search and instructor profile pages.
-
-Add validation for booking inputs.
-
-Create a "My Bookings" page for both learners and instructors.
-
-Upcoming Features:
-
-Instructor availability calendar logic.
-
-Stripe payment integration.
-
-Email notifications via Supabase Functions or external service.
-
-Technical Improvements:
-
-Add better error handling on frontend for Supabase calls.
-
-Improve Supabase RLS policies to handle bookings more securely.
-
-7. How to Run the Project
-# 1. Clone the repo
-git clone <your-repo-url>
-cd lplate
-
-# 2. Install dependencies
-pnpm install
-
-# 3. Run dev server
-pnpm dev
-
-# 4. Access app
-http://localhost:3000
-
-
-Environment Variables Required (.env.local):
-
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-
-8. Session Summary
-
-Date: 2025-09-23
-
-What we achieved today:
-
-Added instructor profile creation with geolocation support.
-
-Built learner search page with filters for vehicle type, gender, and distance.
-
-Built booking request page:
-
-Learners can send a booking request to an instructor.
-
-Fixed database schema issues (note column, status constraint).
-
-Verified end-to-end flow works:
-
-Instructor appears in search.
-
-Booking request is saved in database with status "pending".
-
-Open questions:
-
-How to structure notifications for booking requests?
-
-What fields are required for Stripe integration?
-
--------------- Legacy README ------------------------
-
-
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# 🚗 L Plate - Learner Driver Marketplace
+
+A modern marketplace web app connecting UK learner drivers with qualified driving instructors. Built with Next.js 15, TypeScript, and Supabase.
+
+## ✨ Features
+
+### 🎯 Core Functionality
+- **Instructor Search**: Find instructors by postcode, distance, vehicle type, gender, and availability
+- **Profile Management**: Instructors can manage their profiles with photos, descriptions, and rates
+- **Booking System**: Learners can request lessons and instructors can manage bookings
+- **Availability Calendar**: Instructors can set their weekly availability schedule
+- **Real-time Filtering**: Search results filtered by instructor availability and preferences
+
+### 🎨 Modern UI/UX
+- **Clean, Apple-inspired design** with Poppins font
+- **Responsive layout** that works on all devices
+- **Gradient backgrounds** and modern card designs
+- **Smooth animations** and hover effects
+- **Intuitive navigation** with role-based menus
+
+### 🔐 Authentication & Security
+- **Supabase Auth** for secure user authentication
+- **Row Level Security (RLS)** protecting user data
+- **Role-based access** (learner vs instructor)
+- **Profile photo uploads** to Supabase Storage
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| **Frontend** | Next.js 15, TypeScript, TailwindCSS |
+| **Backend** | Supabase (Postgres + Auth + Storage) |
+| **Authentication** | Supabase Auth |
+| **Database** | PostgreSQL with geolocation support |
+| **File Storage** | Supabase Storage |
+| **Styling** | TailwindCSS with custom components |
+| **Fonts** | Poppins (Google Fonts) |
+
+## 📁 Project Structure
+
+```
+src/
+├── app/
+│   ├── (auth)/
+│   │   └── sign-in/           # Authentication pages
+│   ├── auth/
+│   │   └── callback/          # Auth callback handling
+│   ├── booking/
+│   │   └── request/           # Booking request flow
+│   ├── instructor/
+│   │   ├── profile/           # Instructor profile management
+│   │   ├── availability/     # Weekly availability calendar
+│   │   ├── bookings/         # Instructor's booking management
+│   │   └── layout.tsx        # Instructor-specific layout
+│   ├── search/               # Learner search page
+│   ├── bookings/             # Learner's booking management
+│   ├── layout.tsx            # Root layout with navigation
+│   └── page.tsx              # Homepage
+├── components/
+│   └── Navigation.tsx         # Global navigation component
+└── lib/
+    ├── supabase.ts           # Client-side Supabase client
+    ├── supabase-browser.ts   # Browser-specific client
+    └── supabase-server.ts    # Server-side client
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🗄 Database Schema
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Key Tables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+#### `profiles`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key, matches Supabase user ID |
+| `name` | text | User's display name |
+| `role` | text | 'learner' or 'instructor' |
+| `postcode` | text | UK postcode for location |
+| `phone` | text | Contact phone number |
+| `email` | text | Contact email |
+| `avatar_url` | text | Profile photo URL |
 
-## Learn More
+#### `instructors`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Foreign key to profiles.id |
+| `description` | text | Instructor bio/description |
+| `gender` | text | 'male', 'female', 'other' |
+| `base_postcode` | text | Primary service area |
+| `vehicle_type` | text | 'manual', 'auto', 'both' |
+| `hourly_rate` | numeric | Price per hour |
+| `adi_badge` | boolean | ADI qualification status |
+| `verification_status` | text | 'pending', 'approved', 'rejected' |
+| `lat` | float8 | Latitude for distance calculation |
+| `lng` | float8 | Longitude for distance calculation |
 
-To learn more about Next.js, take a look at the following resources:
+#### `bookings`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `learner_id` | uuid | Foreign key to profiles.id |
+| `instructor_id` | uuid | Foreign key to instructors.id |
+| `start_at` | timestamptz | Lesson start time |
+| `end_at` | timestamptz | Lesson end time |
+| `price` | numeric | Total lesson cost |
+| `note` | text | Learner's special requests |
+| `status` | text | 'pending', 'confirmed', 'cancelled', 'completed' |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+#### `availability`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `instructor_id` | uuid | Foreign key to instructors.id |
+| `start_at` | timestamptz | Availability start time |
+| `end_at` | timestamptz | Availability end time |
+| `is_recurring` | boolean | Weekly recurring slot |
+| `created_at` | timestamptz | Record creation time |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🚀 Getting Started
 
-## Deploy on Vercel
+### Prerequisites
+- Node.js 18+ 
+- pnpm (recommended) or npm
+- Supabase account
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Installation
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. **Clone the repository**
+   ```bash
+git clone <your-repo-url>
+cd lplate
+   ```
+
+2. **Install dependencies**
+   ```bash
+pnpm install
+   ```
+
+3. **Set up environment variables**
+   Create a `.env.local` file in the project root:
+   ```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **Run the development server**
+```bash
+pnpm dev
+   ```
+
+5. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+### Supabase Setup
+
+1. **Create a new Supabase project**
+2. **Run the database migrations** (see Database Setup below)
+3. **Set up Storage bucket** named "avatars" for profile photos
+4. **Configure RLS policies** for data security
+
+## 🗃 Database Setup
+
+Run these SQL commands in your Supabase SQL editor:
+
+```sql
+-- Create profiles table
+CREATE TABLE profiles (
+  id uuid REFERENCES auth.users(id) PRIMARY KEY,
+  name text NOT NULL,
+  role text NOT NULL CHECK (role IN ('learner', 'instructor')),
+  postcode text,
+  phone text,
+  email text,
+  avatar_url text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Create instructors table
+CREATE TABLE instructors (
+  id uuid REFERENCES profiles(id) PRIMARY KEY,
+  description text,
+  gender text CHECK (gender IN ('male', 'female', 'other')),
+  base_postcode text,
+  vehicle_type text CHECK (vehicle_type IN ('manual', 'auto', 'both')),
+  hourly_rate numeric,
+  adi_badge boolean DEFAULT false,
+  verification_status text DEFAULT 'pending' CHECK (verification_status IN ('pending', 'approved', 'rejected')),
+  lat float8,
+  lng float8,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Create bookings table
+CREATE TABLE bookings (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  learner_id uuid REFERENCES profiles(id),
+  instructor_id uuid REFERENCES instructors(id),
+  start_at timestamptz NOT NULL,
+  end_at timestamptz NOT NULL,
+  price numeric NOT NULL,
+  note text,
+  status text DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'cancelled', 'completed')),
+  created_at timestamptz DEFAULT now()
+);
+
+-- Create availability table
+CREATE TABLE availability (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  instructor_id uuid REFERENCES instructors(id),
+  start_at timestamptz NOT NULL,
+  end_at timestamptz NOT NULL,
+  is_recurring boolean DEFAULT false,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Add indexes for performance
+CREATE INDEX idx_instructors_location ON instructors(lat, lng);
+CREATE INDEX idx_instructors_status ON instructors(verification_status);
+CREATE INDEX idx_bookings_learner ON bookings(learner_id);
+CREATE INDEX idx_bookings_instructor ON bookings(instructor_id);
+CREATE INDEX idx_availability_instructor ON availability(instructor_id);
+
+-- Enable RLS
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE instructors ENABLE ROW LEVEL SECURITY;
+ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE availability ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies (add your specific policies here)
+-- Example: Users can only read/write their own profiles
+CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
+CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
+```
+
+## 🎯 Key Features Implemented
+
+### ✅ Completed Features
+- **Modern Search Interface**: Beautiful, responsive search with multiple filters
+- **Instructor Profiles**: Complete profile management with photo uploads
+- **Booking System**: Full booking request and management flow
+- **Availability Calendar**: Weekly availability management for instructors
+- **My Bookings**: Separate pages for learners and instructors
+- **Authentication**: Secure login/logout with role-based navigation
+- **Responsive Design**: Works perfectly on desktop and mobile
+
+### 🔄 Recent Updates
+- **UI Redesign**: Complete visual overhaul with modern gradients and animations
+- **Availability Filtering**: Search results filtered by instructor availability
+- **Profile Photos**: Avatar upload and display throughout the app
+- **Enhanced Navigation**: Role-based navigation with user context
+- **Booking Management**: Instructors can confirm/decline/reschedule lessons
+
+## 🚧 Roadmap
+
+### 🔜 Next Features
+- **Payment Integration**: Stripe payment processing
+- **Email Notifications**: Booking confirmations and updates
+- **Advanced Scheduling**: Recurring lesson bookings
+- **Reviews & Ratings**: Instructor feedback system
+- **Mobile App**: React Native version
+
+### 🛠 Technical Improvements
+- **Error Handling**: Comprehensive error boundaries and user feedback
+- **Performance**: Image optimization and lazy loading
+- **Testing**: Unit and integration test coverage
+- **Analytics**: User behavior tracking and insights
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📞 Support
+
+For support, email support@lplate.com or create an issue in this repository.
+
+---
+
+**Built with ❤️ for UK learner drivers and instructors**

@@ -1,22 +1,11 @@
-import { createBrowserClient, createServerClient } from "@supabase/supabase-js";
-import { cookies } from "next/headers";
+import { createClient as createSupabaseJsClient } from "@supabase/supabase-js";
 
 export const createSupabaseBrowser = () =>
-  createBrowserClient(
+  createSupabaseJsClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    { auth: { persistSession: true, detectSessionInUrl: true } }
+    { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }
   );
 
-export const createSupabaseServer = () => {
-  const cookieStore = cookies();
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        get: (name: string) => cookieStore.get(name)?.value,
-      },
-    }
-  );
-};
+// For server components, create a separate file
+export const createClient = createSupabaseBrowser;
