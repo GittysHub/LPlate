@@ -13,6 +13,8 @@ interface InstructorData {
   hourly_rate: number;
   location: string;
   vehicle_type: string;
+  description: string;
+  rating: number;
 }
 
 export default function Home() {
@@ -51,16 +53,16 @@ export default function Home() {
         gender: string | null;
         lat: number | null;
         lng: number | null;
-        profiles: { name: string | null; avatar_url: string | null } | null;
+        profiles: { name: string | null; avatar_url: string | null }[] | null;
       }
 
       const instructorData = (data as SupabaseInstructorRow[])?.map((r: SupabaseInstructorRow) => {
-        const location = getTownFromPostcode(r.base_postcode);
-        console.log('Instructor:', r.profiles?.name, 'Postcode:', r.base_postcode, 'Location:', location);
+        const location = r.base_postcode ? getTownFromPostcode(r.base_postcode) : "Unknown";
+        console.log('Instructor:', r.profiles && r.profiles.length > 0 ? r.profiles[0].name : "Unknown", 'Postcode:', r.base_postcode, 'Location:', location);
         return {
           id: r.id,
-          name: r.profiles?.name ?? "Instructor",
-          avatar_url: r.profiles?.avatar_url ?? null,
+          name: r.profiles && r.profiles.length > 0 ? r.profiles[0].name ?? "Instructor" : "Instructor",
+          avatar_url: r.profiles && r.profiles.length > 0 ? r.profiles[0].avatar_url ?? null : null,
           hourly_rate: r.hourly_rate ?? 30,
           location: location,
           vehicle_type: r.vehicle_type ?? "manual",

@@ -24,6 +24,8 @@ type Instructor = {
   hourly_rate: number | null;
   adi_badge: boolean | null;
   verification_status: "pending" | "approved" | "rejected" | null;
+  lat: number | null;
+  lng: number | null;
 };
 
 export default function InstructorProfilePage() {

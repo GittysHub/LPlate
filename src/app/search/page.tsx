@@ -143,7 +143,7 @@ export default function SearchPage() {
         gender: "male" | "female" | "other" | null;
         lat: number | null;
         lng: number | null;
-        profiles: { name: string | null; avatar_url: string | null } | null;
+        profiles: { name: string | null; avatar_url: string | null }[] | null;
       }
 
       let rows: InstructorCard[] =
@@ -156,8 +156,8 @@ export default function SearchPage() {
           gender: r.gender,
           lat: r.lat,
           lng: r.lng,
-          name: r.profiles?.name ?? null,
-          avatar_url: r.profiles?.avatar_url ?? null,
+          name: r.profiles && r.profiles.length > 0 ? r.profiles[0].name ?? null : null,
+          avatar_url: r.profiles && r.profiles.length > 0 ? r.profiles[0].avatar_url ?? null : null,
         })) ?? [];
 
       if (vehicle !== "any") rows = rows.filter(r => (r.vehicle_type ?? "manual") === vehicle);

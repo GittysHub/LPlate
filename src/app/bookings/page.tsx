@@ -73,7 +73,7 @@ export default function MyBookingsPage() {
           base_postcode: string | null;
           vehicle_type: "manual" | "auto" | "both" | null;
           hourly_rate: number | null;
-        } | null;
+        }[] | null;
       }
 
       const formattedBookings: Booking[] = (data || []).map((b: SupabaseBookingRow) => ({
@@ -83,12 +83,12 @@ export default function MyBookingsPage() {
         price: b.price,
         note: b.note,
         status: b.status,
-        instructor: b.instructor ? {
-          name: b.instructor.name || "Instructor",
-          avatar_url: b.instructor.avatar_url ?? null,
-          base_postcode: b.instructor.base_postcode ?? null,
-          vehicle_type: b.instructor.vehicle_type ?? null,
-          hourly_rate: b.instructor.hourly_rate ?? null,
+        instructor: b.instructor && b.instructor.length > 0 ? {
+          name: b.instructor[0].name || "Instructor",
+          avatar_url: b.instructor[0].avatar_url ?? null,
+          base_postcode: b.instructor[0].base_postcode ?? null,
+          vehicle_type: b.instructor[0].vehicle_type ?? null,
+          hourly_rate: b.instructor[0].hourly_rate ?? null,
         } : {
           name: "Instructor",
           avatar_url: null,

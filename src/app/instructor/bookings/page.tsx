@@ -72,7 +72,7 @@ export default function InstructorBookingsPage() {
           avatar_url: string | null;
           phone: string | null;
           postcode: string | null;
-        } | null;
+        }[] | null;
       }
 
       const formattedBookings: Booking[] = (data || []).map((b: SupabaseBookingRow) => ({
@@ -84,11 +84,11 @@ export default function InstructorBookingsPage() {
         status: b.status,
         learnerId: b.learner_id,
         instructorId: b.instructor_id,
-        learner: b.learner ? {
-          name: b.learner.name || "Learner",
-          avatar_url: b.learner.avatar_url ?? null,
-          phone: b.learner.phone ?? null,
-          postcode: b.learner.postcode ?? null,
+        learner: b.learner && b.learner.length > 0 ? {
+          name: b.learner[0].name || "Learner",
+          avatar_url: b.learner[0].avatar_url ?? null,
+          phone: b.learner[0].phone ?? null,
+          postcode: b.learner[0].postcode ?? null,
         } : {
           name: "Learner",
           avatar_url: null,
