@@ -1,5 +1,6 @@
 "use client";
 
+// Homepage component
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import SearchBar from "@/components/ui/SearchBar";
