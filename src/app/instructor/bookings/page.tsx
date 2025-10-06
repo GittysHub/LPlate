@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -36,7 +36,7 @@ export default function InstructorBookingsPage() {
     loadBookings();
   }, []);
 
-  async function loadBookings() {
+  const loadBookings = useCallback(async () => {
     try {
       const { data: { user } } = await sb.auth.getUser();
       if (!user) {
@@ -62,7 +62,24 @@ export default function InstructorBookingsPage() {
 
       if (error) throw error;
 
-      const formattedBookings: Booking[] = (data || []).map((b: any) => ({
+      interface SupabaseBookingRow {
+        id: string;
+        start_at: string;
+        end_at: string;
+        price: number;
+        note: string | null;
+        status: "pending" | "confirmed" | "cancelled" | "completed";
+        learner_id: string;
+        instructor_id: string;
+        learner: {
+          name: string | null;
+          avatar_url: string | null;
+          phone: string | null;
+          postcode: string | null;
+        } | null;
+      }
+
+      const formattedBookings: Booking[] = (data || []).map((b: SupabaseBookingRow) => ({
         id: b.id,
         start_at: b.start_at,
         end_at: b.end_at,
@@ -80,12 +97,16 @@ export default function InstructorBookingsPage() {
       }));
 
       setBookings(formattedBookings);
-    } catch (e: any) {
-      setError(e.message || "Failed to load bookings");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to load bookings");
     } finally {
       setLoading(false);
     }
-  }
+  }, [sb, router]);
+
+  useEffect(() => {
+    loadBookings();
+  }, [loadBookings]);
 
   async function rescheduleBooking(booking: Booking) {
     setActionLoading(booking.id);
@@ -131,7 +152,7 @@ export default function InstructorBookingsPage() {
 
       // Refresh bookings
       await loadBookings();
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error("Failed to update booking:", e);
     } finally {
       setActionLoading(null);

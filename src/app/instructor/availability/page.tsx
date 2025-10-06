@@ -56,7 +56,16 @@ export default function AvailabilityPage() {
         .eq("is_recurring", true)
         .order("start_at", { ascending: true });
 
-      const slots: Slot[] = (data as any) ?? [];
+      interface SupabaseSlot {
+        id: string;
+        instructor_id: string;
+        start_at: string;
+        end_at: string;
+        is_recurring: boolean;
+        created_at: string;
+      }
+
+      const slots: Slot[] = (data as SupabaseSlot[]) ?? [];
       if (slots.length > 0) {
         const next = DEFAULT_WEEK.map(d => ({ ...d }));
         for (const s of slots) {
@@ -108,7 +117,7 @@ export default function AvailabilityPage() {
         .eq("is_recurring", true);
       if (delErr) throw delErr;
 
-      const rows: Omit<Slot, "id">[] = [] as any;
+      const rows: Omit<Slot, "id">[] = [];
       for (const d of week) {
         if (!d.enabled) continue;
         const base = nextDateForIsoDow(d.key);
@@ -124,11 +133,11 @@ export default function AvailabilityPage() {
           start_at: start.toISOString(),
           end_at: end.toISOString(),
           is_recurring: true,
-        } as any);
+        });
       }
 
       if (rows.length > 0) {
-        const { error: insErr } = await sb.from("availability").insert(rows as any);
+        const { error: insErr } = await sb.from("availability").insert(rows);
         if (insErr) throw insErr;
       }
 

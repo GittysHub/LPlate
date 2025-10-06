@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -34,7 +34,7 @@ export default function MyBookingsPage() {
     loadBookings();
   }, []);
 
-  async function loadBookings() {
+  const loadBookings = useCallback(async () => {
     try {
       const { data: { user } } = await sb.auth.getUser();
       if (!user) {
@@ -64,7 +64,23 @@ export default function MyBookingsPage() {
 
       if (error) throw error;
 
-      const formattedBookings: Booking[] = (data || []).map((b: any) => ({
+      interface SupabaseBookingRow {
+        id: string;
+        start_at: string;
+        end_at: string;
+        price: number;
+        note: string | null;
+        status: "pending" | "confirmed" | "cancelled" | "completed";
+        instructor: {
+          name: string | null;
+          avatar_url: string | null;
+          base_postcode: string | null;
+          vehicle_type: "manual" | "auto" | "both" | null;
+          hourly_rate: number | null;
+        } | null;
+      }
+
+      const formattedBookings: Booking[] = (data || []).map((b: SupabaseBookingRow) => ({
         id: b.id,
         start_at: b.start_at,
         end_at: b.end_at,
@@ -81,12 +97,16 @@ export default function MyBookingsPage() {
       }));
 
       setBookings(formattedBookings);
-    } catch (e: any) {
-      setError(e.message || "Failed to load bookings");
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : "Failed to load bookings");
     } finally {
       setLoading(false);
     }
-  }
+  }, [sb, router]);
+
+  useEffect(() => {
+    loadBookings();
+  }, [loadBookings]);
 
   function formatDate(dateString: string) {
     const date = new Date(dateString);
