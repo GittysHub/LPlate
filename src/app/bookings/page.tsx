@@ -83,12 +83,18 @@ export default function MyBookingsPage() {
         price: b.price,
         note: b.note,
         status: b.status,
-        instructor: {
-          name: b.instructor?.name || "Instructor",
-          avatar_url: b.instructor?.avatar_url ?? null,
-          base_postcode: b.instructor?.base_postcode ?? null,
-          vehicle_type: b.instructor?.vehicle_type ?? null,
-          hourly_rate: b.instructor?.hourly_rate ?? null,
+        instructor: b.instructor ? {
+          name: b.instructor.name || "Instructor",
+          avatar_url: b.instructor.avatar_url ?? null,
+          base_postcode: b.instructor.base_postcode ?? null,
+          vehicle_type: b.instructor.vehicle_type ?? null,
+          hourly_rate: b.instructor.hourly_rate ?? null,
+        } : {
+          name: "Instructor",
+          avatar_url: null,
+          base_postcode: null,
+          vehicle_type: null,
+          hourly_rate: null,
         },
       }));
 
