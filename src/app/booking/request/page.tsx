@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 
@@ -13,7 +13,7 @@ type Instructor = {
   profiles?: { name: string | null } | null;
 };
 
-export default function RequestPage() {
+function RequestPageContent() {
   const sb = createSupabaseBrowser();
   const params = useSearchParams();
   const router = useRouter();
@@ -118,7 +118,7 @@ export default function RequestPage() {
       if (error) throw error;
 
       setMsg("Request sent! The instructor will be notified to accept.");
-      // optional: go to a “my bookings” page later
+      // optional: go to a "my bookings" page later
       // router.push("/dashboard");
     } catch (e: unknown) {
       setErr(e instanceof Error ? e.message : "Could not create booking.");
@@ -216,5 +216,15 @@ export default function RequestPage() {
         {err && <p className="text-red-600 text-sm">{err}</p>}
       </form>
     </main>
+  );
+}
+
+export default function RequestPage() {
+  return (
+    <Suspense fallback={
+      <main className="max-w-3xl mx-auto p-6">Loading…</main>
+    }>
+      <RequestPageContent />
+    </Suspense>
   );
 }
