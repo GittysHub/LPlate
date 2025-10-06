@@ -36,7 +36,7 @@ export default function SignIn() {
           <select
             className="w-full border rounded p-2"
             value={role}
-            onChange={(e) => setRole(e.target.value as any)}
+            onChange={(e) => setRole(e.target.value as "learner" | "instructor" | "driving_school")}
           >
             <option value="learner">Learner</option>
             <option value="instructor">Instructor</option>

@@ -143,8 +143,8 @@ export default function AvailabilityPage() {
 
       setInitialWeek(week);
       setMsg("Saved");
-    } catch (e: any) {
-      setMsg(e.message || "Save failed");
+    } catch (e: unknown) {
+      setMsg(e instanceof Error ? e.message : "Save failed");
     } finally {
       setSaving(false);
     }

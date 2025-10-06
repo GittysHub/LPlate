@@ -102,7 +102,7 @@ export default function InstructorBookingsPage() {
     } finally {
       setLoading(false);
     }
-  }, [sb, router]);
+  }, [router]);
 
   useEffect(() => {
     loadBookings();

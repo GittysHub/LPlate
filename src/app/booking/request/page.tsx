@@ -65,7 +65,7 @@ export default function RequestPage() {
       if (error) {
         setErr(error.message);
       } else {
-        setInst(data as any);
+        setInst(data as Instructor | null);
       }
       setLoading(false);
     })();
@@ -120,8 +120,8 @@ export default function RequestPage() {
       setMsg("Request sent! The instructor will be notified to accept.");
       // optional: go to a “my bookings” page later
       // router.push("/dashboard");
-    } catch (e: any) {
-      setErr(e.message || "Could not create booking.");
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Could not create booking.");
     } finally {
       setSubmitting(false);
     }

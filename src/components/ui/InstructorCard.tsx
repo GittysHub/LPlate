@@ -27,7 +27,6 @@ export default function InstructorCard({
   distance,
   description,
   rating = 4.8,
-  onBookLesson,
   className = ""
 }: InstructorCardProps) {
   const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
