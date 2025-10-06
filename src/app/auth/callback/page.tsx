@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 
-export default function AuthCallbackPage() {
+function AuthCallbackContent() {
   const router = useRouter();
   const params = useSearchParams();
   const role = (params.get("role") ?? "learner").toLowerCase();
@@ -39,5 +39,17 @@ export default function AuthCallbackPage() {
     <main className="max-w-md mx-auto p-6">
       <p>Signing you in…</p>
     </main>
+  );
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <main className="max-w-md mx-auto p-6">
+        <p>Signing you in…</p>
+      </main>
+    }>
+      <AuthCallbackContent />
+    </Suspense>
   );
 }
