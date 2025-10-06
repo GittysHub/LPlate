@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import SearchBar from "@/components/ui/SearchBar";
 import SocialProofCarousel from "@/components/ui/SocialProofCarousel";
-import { createSupabaseBrowser } from "@/lib/supabase";
+import { createSupabaseBrowser } from "@/lib/supabase-browser";
 
 interface InstructorData {
   id: string;
