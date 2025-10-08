@@ -24,7 +24,7 @@ export default function SignIn() {
       });
       if (error) setErr(error.message);
       else setSent(true);
-    } catch (error) {
+    } catch {
       setErr("An unexpected error occurred");
     } finally {
       setLoading(false);
@@ -51,7 +51,7 @@ export default function SignIn() {
             </div>
             <h2 className="text-xl font-semibold text-gray-900">Check your email</h2>
             <p className="text-gray-600 text-base">
-              We've sent a magic link to <strong>{email}</strong>
+              We&apos;ve sent a magic link to <strong>{email}</strong>
             </p>
             <button 
               onClick={() => setSent(false)}

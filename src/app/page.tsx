@@ -3,6 +3,7 @@
 // Homepage component
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import SearchBar from "@/components/ui/SearchBar";
 import SocialProofCarousel from "@/components/ui/SocialProofCarousel";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
@@ -289,9 +290,11 @@ export default function Home() {
                         {/* Profile Photo */}
                         <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
                           {instructor.avatar_url ? (
-                            <img 
+                            <Image 
                               src={instructor.avatar_url} 
                               alt={instructor.name}
+                              width={96}
+                              height={96}
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -341,9 +344,11 @@ export default function Home() {
                         {/* Profile Photo */}
                         <div className="w-24 h-24 rounded-full overflow-hidden flex-shrink-0">
                           {instructor.avatar_url ? (
-                            <img 
+                            <Image 
                               src={instructor.avatar_url} 
                               alt={instructor.name}
+                              width={96}
+                              height={96}
                               className="w-full h-full object-cover"
                             />
                           ) : (

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import Logo from "@/components/ui/Logo";
 
@@ -23,7 +24,7 @@ export default function SignUp() {
       });
       if (error) setErr(error.message);
       else setSent(true);
-    } catch (error) {
+    } catch {
       setErr("An unexpected error occurred");
     } finally {
       setLoading(false);
@@ -45,9 +46,11 @@ export default function SignUp() {
 
         {/* CarSprout Image */}
         <div className="flex justify-center mb-8">
-          <img 
+          <Image 
             src="/CarSprout.png" 
             alt="Eco-friendly car with leaves" 
+            width={128}
+            height={128}
             className="w-32 h-32 object-contain"
           />
         </div>
@@ -56,7 +59,7 @@ export default function SignUp() {
           <div className="text-center space-y-6">
             <h2 className="text-2xl font-semibold text-gray-900">Check your email</h2>
             <p className="text-gray-600 text-lg">
-              We've sent a magic link to <strong className="text-gray-900">{email}</strong>
+              We&apos;ve sent a magic link to <strong className="text-gray-900">{email}</strong>
             </p>
             <div className="flex justify-center">
               <svg className="w-6 h-6 text-gray-900" fill="currentColor" viewBox="0 0 24 24">
