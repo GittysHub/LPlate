@@ -34,7 +34,7 @@ export default function MyBookingsPage() {
     try {
       const { data: { user } } = await sb.auth.getUser();
       if (!user) {
-        router.push("/auth/login");
+        router.push("/sign-in");
         return;
       }
 

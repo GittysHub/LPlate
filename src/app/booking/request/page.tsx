@@ -43,7 +43,7 @@ function RequestPageContent() {
       const { data: { user } } = await sb.auth.getUser();
       if (!user) {
         // not signed in → send to sign-in then back here
-        router.push(`/auth/sign-in?next=/booking/request?instructor_id=${encodeURIComponent(instructorId)}`);
+        router.push(`/sign-in?next=/booking/request?instructor_id=${encodeURIComponent(instructorId)}`);
         return;
       }
       setLearnerId(user.id);

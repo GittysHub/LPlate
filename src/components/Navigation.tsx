@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createSupabaseBrowser } from "@/lib/supabase";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Logo from "@/components/ui/Logo";
 
 const sb = createSupabaseBrowser();
 
@@ -58,8 +59,8 @@ export default function Navigation() {
       <nav className="bg-white border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-2xl font-bold text-green-500">
-              L Plate
+            <Link href="/" className="flex items-center">
+              <Logo size="sm" variant="horizontal" />
             </Link>
             <div className="animate-pulse bg-gray-200 h-10 w-20 rounded-xl"></div>
           </div>
@@ -73,8 +74,8 @@ export default function Navigation() {
       <nav className="bg-white border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-2xl font-bold text-green-500">
-              L Plate
+            <Link href="/" className="flex items-center">
+              <Logo size="sm" variant="horizontal" />
             </Link>
             <div className="flex items-center space-x-6">
               <Link
@@ -84,7 +85,7 @@ export default function Navigation() {
                 Find Instructors
               </Link>
               <Link
-                href="/auth/sign-in"
+                href="/sign-in"
                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-xl font-semibold transition-all duration-200 hover:scale-105"
               >
                 Login
@@ -103,8 +104,8 @@ export default function Navigation() {
     <nav className="bg-white border-b border-gray-100">
       <div className="max-w-6xl mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
-          <Link href="/" className="text-2xl font-bold text-green-500">
-            L Plate
+          <Link href="/" className="flex items-center">
+            <Logo size="sm" variant="horizontal" />
           </Link>
           
           <div className="flex items-center space-x-6">

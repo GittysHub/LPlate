@@ -67,7 +67,7 @@ export default function Dashboard() {
       <div className="min-h-screen bg-white">
         <div className="max-w-md mx-auto px-6 py-12 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4">Please sign in</h1>
-          <Link href="/auth/sign-in" className="btn-primary">
+          <Link href="/sign-in" className="btn-primary">
             Sign In
           </Link>
         </div>

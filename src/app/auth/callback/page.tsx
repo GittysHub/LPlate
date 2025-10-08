@@ -7,7 +7,7 @@ import { createSupabaseBrowser } from "@/lib/supabase-browser";
 function AuthCallbackContent() {
   const router = useRouter();
   const params = useSearchParams();
-  const role = (params.get("role") ?? "learner").toLowerCase();
+  const roleParam = params.get("role");
   const sb = createSupabaseBrowser();
 
   useEffect(() => {
@@ -18,15 +18,27 @@ function AuthCallbackContent() {
       const { data: { user } } = await sb.auth.getUser();
 
       if (user?.id && user.email) {
-        await sb.from("profiles").upsert(
-          {
+        // Check if user already has a profile
+        const { data: existingProfile } = await sb
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        // If no existing profile, create one
+        if (!existingProfile) {
+          await sb.from("profiles").insert({
             id: user.id,
-            role,
+            role: roleParam || "learner", // Use role from sign-up or default to learner
             name: user.email.split("@")[0],
             email: user.email,
-          },
-          { onConflict: "id" }
-        );
+          });
+        } else {
+          // Update email if it's different (in case user changed email)
+          await sb.from("profiles").update({
+            email: user.email,
+          }).eq("id", user.id);
+        }
       }
 
       // Go home
