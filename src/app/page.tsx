@@ -56,12 +56,12 @@ export default function Home() {
           gender: string | null;
           lat: number | null;
           lng: number | null;
-          profiles: { name: string | null; avatar_url: string | null } | null;
+          profiles: { name: string | null; avatar_url: string | null }[] | null;
         }
 
         const instructorData = (data as SupabaseInstructorRow[])?.map((r: SupabaseInstructorRow) => {
           const location = r.base_postcode ? getTownFromPostcode(r.base_postcode) : "Unknown";
-          const profile = r.profiles;
+          const profile = r.profiles?.[0]; // Get the first profile since it's an array
           const fullName = profile?.name || "Instructor";
           const firstName = fullName.split(' ')[0]; // Get only the first name
           const avatarUrl = profile?.avatar_url || null;
