@@ -2,7 +2,7 @@
 // Handles lesson payments, credit purchases, and commission calculations
 
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe, CommissionCalculator, DiscountCalculator, CreditManager, StripeErrorHandler } from '@/lib/stripe';
+import { stripe, DiscountCalculator, StripeErrorHandler } from '@/lib/stripe';
 import { createSupabaseServer } from '@/lib/supabase-server';
 
 interface PaymentRequest {
@@ -223,13 +223,13 @@ export async function POST(request: NextRequest) {
 
 // Handle credit purchase
 async function handleCreditPurchase(
-  supabase: any,
+  supabase: ReturnType<typeof createSupabaseServer>,
   learnerId: string,
   instructorId: string,
   paymentId: string,
   hours: number,
   hourlyRatePence: number,
-  totalAmountPence: number
+  _totalAmountPence: number
 ) {
   try {
     // Check if learner already has credits with this instructor

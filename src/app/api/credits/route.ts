@@ -246,7 +246,7 @@ export async function PUT(request: NextRequest) {
     const { totalAmountPence, platformFeePence, instructorAmountPence } = calculatePaymentAmounts(hoursToUse * hourlyRatePence);
 
     // Create payment intent for credit purchase
-    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+    const stripe = (await import('stripe')).default(process.env.STRIPE_SECRET_KEY!);
     
     const paymentIntent = await stripe.paymentIntents.create({
       amount: totalAmountPence,

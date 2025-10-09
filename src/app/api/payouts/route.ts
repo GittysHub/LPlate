@@ -2,7 +2,7 @@
 // Handles Friday payouts to instructors after lesson completion
 
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe, PayoutCalculator, StripeErrorHandler } from '@/lib/stripe';
+import { stripe, StripeErrorHandler } from '@/lib/stripe';
 import { createSupabaseServer } from '@/lib/supabase-server';
 
 // Process payouts for completed lessons (run every Friday)
@@ -131,9 +131,9 @@ export async function POST(request: NextRequest) {
 
 // Process payout for a single instructor
 async function processInstructorPayout(
-  supabase: any,
+  supabase: ReturnType<typeof createSupabaseServer>,
   instructorId: string,
-  lessons: any[],
+  lessons: Record<string, unknown>[],
   payoutDate: Date,
   periodStart: Date,
   periodEnd: Date
