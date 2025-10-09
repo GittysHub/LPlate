@@ -2,7 +2,7 @@
 // Handles prepaid lesson credits and automatic deduction
 
 import { NextRequest, NextResponse } from 'next/server';
-import { CreditManager } from '@/lib/stripe';
+import { CreditManager, CommissionCalculator } from '@/lib/stripe';
 import { createSupabaseServer } from '@/lib/supabase-server';
 
 // Get learner's credit balance with specific instructor
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
 
     // Calculate payment amounts
     const totalAmountPence = CreditManager.calculatePaymentFromHours(hoursToUse, hourlyRatePence);
-    const { platformFeePence, instructorAmountPence } = CreditManager.calculatePaymentAmounts(totalAmountPence);
+    const { platformFeePence, instructorAmountPence } = CommissionCalculator.calculatePaymentAmounts(totalAmountPence);
 
     // Create payment record for credit usage
     const { data: payment, error: paymentError } = await supabase
