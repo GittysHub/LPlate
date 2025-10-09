@@ -245,7 +245,7 @@ export default function InstructorProfilePage() {
               value={inst.service_radius_miles ?? 10}
               onChange={(e) => setInstructor({ ...instructor!, service_radius_miles: Number(e.target.value) })}
             />
-            <p className="text-xs text-gray-500 mt-1">How far you're willing to travel to meet learners</p>
+            <p className="text-xs text-gray-500 mt-1">How far you&apos;re willing to travel to meet learners</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>

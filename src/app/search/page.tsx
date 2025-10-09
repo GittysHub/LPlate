@@ -39,7 +39,6 @@ function SearchPageContent() {
   const sb = createSupabaseBrowser();
 
   const [postcode, setPostcode] = useState("");
-  const [radiusKm, setRadiusKm] = useState(20);
   const [vehicle, setVehicle] = useState<"any" | "manual" | "auto" | "both">("both");
   const [gender, setGender] = useState<"any" | "male" | "female">("any");
   const [selectedDays, setSelectedDays] = useState<string[]>(["1", "2", "3", "4", "5", "6", "7"]);
@@ -54,7 +53,7 @@ function SearchPageContent() {
   const searchParams = useSearchParams();
 
   // Extract search logic into a reusable function
-  const performSearch = async (searchPostcode: string) => {
+  const performSearch = useCallback(async (searchPostcode: string) => {
     setErr(null);
     setLoading(true);
     setResults([]);
@@ -133,7 +132,7 @@ function SearchPageContent() {
       if (lessonDurationMins > 0) {
         // Filter by lesson duration preference
         // This would typically check instructor preferences or availability
-        filtered = filtered.filter(r => {
+        filtered = filtered.filter(() => {
           return true; // For now, return all instructors
         });
       }
@@ -174,13 +173,13 @@ function SearchPageContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [vehicle, gender, selectedDays, timeOfDay, lessonDurationMins, sb, geocode]);
 
   // Search function wrapped in useCallback
   const search = useCallback(async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     await performSearch(postcode);
-  }, [postcode, vehicle, gender, selectedDays, timeOfDay, lessonDurationMins, sb]);
+  }, [postcode, performSearch]);
 
   // Auto-search when page loads with query parameter
   useEffect(() => {
@@ -195,7 +194,7 @@ function SearchPageContent() {
       // Use the existing performSearch function instead of duplicating logic
       performSearch(normalizedQuery);
     }
-  }, [searchParams, hasSearched]);
+  }, [searchParams, hasSearched, performSearch]);
 
   // Filter chips configuration
 
