@@ -17,9 +17,49 @@ export default function SearchBar({
 }: SearchBarProps) {
   const [query, setQuery] = useState("");
 
+  // Format postcode as user types
+  const formatPostcode = (input: string) => {
+    // Remove all spaces and convert to uppercase
+    let formatted = input.trim().toUpperCase().replace(/\s+/g, "");
+    
+    // Add space in appropriate position for UK postcodes
+    if (formatted.length >= 5) {
+      if (formatted.length === 6) {
+        // Format: ABC123 -> ABC 123
+        formatted = formatted.slice(0, 3) + " " + formatted.slice(3);
+      } else if (formatted.length === 7) {
+        // Format: ABCD123 -> ABCD 123  
+        formatted = formatted.slice(0, 4) + " " + formatted.slice(4);
+      } else if (formatted.length === 5) {
+        // Format: AB123 -> AB 123
+        formatted = formatted.slice(0, 2) + " " + formatted.slice(2);
+      } else if (formatted.length === 8) {
+        // Format: ABCD1234 -> ABCD 1234
+        formatted = formatted.slice(0, 4) + " " + formatted.slice(4);
+      }
+    }
+    
+    return formatted;
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const formatted = formatPostcode(value);
+    setQuery(formatted);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (query.trim() && !loading) {
+        onSearch(query.trim());
+      }
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (query.trim()) {
+    if (query.trim() && !loading) {
       onSearch(query.trim());
     }
   };
@@ -33,8 +73,9 @@ export default function SearchBar({
         <input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={placeholder}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          placeholder="e.g. BS16 2NR or BS162NR"
           className="w-full border-0 rounded-xl pl-12 pr-24 py-4 text-base md:text-lg text-gray-900 placeholder-gray-500 focus:ring-4 focus:ring-green-700 transition-all duration-300 bg-white rounded-l-xl outline-none"
           disabled={loading}
         />

@@ -5,10 +5,13 @@ A modern marketplace web app connecting UK learner drivers with qualified drivin
 ## ✨ Features
 
 ### 🎯 Core Functionality
-- **Instructor Search**: Find instructors by postcode, distance, vehicle type, gender, and availability
+- **Enhanced Instructor Search**: Advanced search with postcode normalization, multi-day availability, and smart filtering
+- **Modern Filter System**: Segmented toggle controls for vehicle type, gender, duration, and time of day
+- **Privacy-Focused Display**: Masked postcodes and distance in miles for instructor safety
+- **Price-Sorted Results**: Instructors sorted by lowest price first for budget-conscious learners
 - **Profile Management**: Instructors can manage their profiles with photos, descriptions, and rates
 - **Booking System**: Learners can request lessons and instructors can manage bookings
-- **Availability Calendar**: Instructors can set their weekly availability schedule
+- **Availability Calendar**: Instructors can set their weekly availability schedule with multi-day selection
 - **Real-time Filtering**: Search results filtered by instructor availability and preferences
 - **Social Proof System**: Learners can upload driving test certificates to showcase success stories
 
@@ -16,10 +19,12 @@ A modern marketplace web app connecting UK learner drivers with qualified drivin
 - **Apple-inspired design system** with Poppins font and clean aesthetics
 - **Mobile-first responsive layout** optimized for all device sizes
 - **iOS 7 style toggle switches** for availability management with green/red color coding
+- **Segmented toggle controls** with green branding and discrete shadows for filter selection
+- **Enhanced instructor cards** with large profile pictures, prominent pricing, and optimized information hierarchy
 - **Horizontal instructor carousel** with 295px uniform cards and smooth scrolling
 - **Modern card designs** with shadows, hover effects, and optimized spacing
 - **Hamburger menu navigation** with role-based dropdown menus
-- **Enhanced search bar** with shadows and interactive hover states
+- **Enhanced search bar** with real-time postcode formatting and Enter key support
 - **3-step journey visualization** with animated icons and connecting arrows
 - **Custom logo system** with fallback mechanism for reliable branding
 - **Streamlined authentication** with pill-shaped role selection and confirmation screens
@@ -69,9 +74,10 @@ src/
 ├── components/
 │   ├── Navigation.tsx         # Global navigation component
 │   └── ui/                    # Reusable UI components
-│       ├── SearchBar.tsx      # Enhanced search input
-│       ├── FilterChips.tsx    # Filter selection chips
-│       ├── InstructorCard.tsx # Instructor display card
+│       ├── SearchBar.tsx      # Enhanced search input with postcode formatting
+│       ├── FilterChips.tsx    # Multi-select filter chips for availability
+│       ├── ToggleGroup.tsx    # Segmented toggle controls for filters
+│       ├── InstructorCard.tsx # Instructor display card component
 │       ├── StatCard.tsx      # Statistics display card
 │       ├── ProgressBar.tsx    # Progress visualization
 │       ├── ToggleSwitch.tsx   # iOS 7 style toggle
@@ -309,7 +315,20 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 - **Social Media Integration**: Footer-style social links with brand colors and hover animations
 - **Homepage Flow Optimization**: Strategic section placement for improved user journey and conversion
 
-### 🔄 Latest Updates (v2.5)
+### 🔄 Latest Updates (v2.6) - Enhanced Instructor Search
+- **Advanced Search Functionality**: Complete overhaul of instructor search with modern filtering system
+- **Postcode Normalization**: Smart handling of UK postcodes with or without spaces (e.g., "BS16 2NR" or "BS162NR")
+- **Modern Filter System**: Segmented toggle controls for Vehicle Type, Gender, Duration, and Time of Day
+- **Multi-Day Availability**: Support for selecting multiple days (e.g., Monday & Wednesday) with "Any Day" when all selected
+- **Privacy Protection**: Masked postcodes (BS16 ***) and distance display in miles for instructor safety
+- **Price-Sorted Results**: Instructors sorted by lowest price first for budget-conscious learners
+- **Enhanced Instructor Cards**: Large profile pictures (96px), prominent pricing badges, and optimized information hierarchy
+- **Enter Key Support**: Search bar now responds to both Enter key press and button click
+- **Improved Information Flow**: Name → Location/Distance → Rating → Vehicle Type for better user experience
+- **Real-Time Formatting**: Postcode input automatically formats as user types
+- **Toggle Component**: New reusable segmented toggle with green branding and discrete shadows
+
+### 🔄 Previous Updates (v2.5)
 - **Homepage Structure Optimization**: Reorganized sections for better user flow and conversion
 - **Stats Section Placement**: Moved "We've got you covered" stats right after instructor showcase for better social proof timing
 - **Social Media Integration**: Added playful social media links at bottom of homepage with Instagram, TikTok, and Twitter

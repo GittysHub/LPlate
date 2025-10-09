@@ -238,7 +238,7 @@ export default function Home() {
           {/* Search Bar */}
                 <div className="mb-12">
                   <SearchBar 
-                    placeholder="Enter your postcode"
+                    placeholder="e.g. BS16 2NR or BS162NR"
                     onSearch={handleSearch}
                   />
                 </div>
@@ -306,7 +306,7 @@ export default function Home() {
                         </p>
                         <div className="flex items-center mb-2">
                           <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
-                            {instructor.vehicle_type === 'both' ? 'manual & auto' : instructor.vehicle_type === 'auto' ? 'auto' : instructor.vehicle_type === 'manual' ? 'manual' : instructor.vehicle_type}
+                            {instructor.vehicle_type === 'both' ? 'Auto & Manual' : instructor.vehicle_type === 'auto' ? 'Auto' : instructor.vehicle_type === 'manual' ? 'Manual' : instructor.vehicle_type}
                           </span>
                         </div>
                         {/* Price badge */}
@@ -360,7 +360,7 @@ export default function Home() {
                         </p>
                         <div className="flex items-center mb-2">
                           <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
-                            {instructor.vehicle_type === 'both' ? 'manual & auto' : instructor.vehicle_type === 'auto' ? 'auto' : instructor.vehicle_type === 'manual' ? 'manual' : instructor.vehicle_type}
+                            {instructor.vehicle_type === 'both' ? 'Auto & Manual' : instructor.vehicle_type === 'auto' ? 'Auto' : instructor.vehicle_type === 'manual' ? 'Manual' : instructor.vehicle_type}
                           </span>
                         </div>
                         {/* Price badge */}
@@ -445,7 +445,7 @@ export default function Home() {
               Qualified learners
             </h2>
             <p className="text-gray-600 mb-6 text-center">
-              Join thousands of successful learners who found their perfect instructor.
+              Join our successful driver alumni community!
             </p>
              
             <SocialProofCarousel />

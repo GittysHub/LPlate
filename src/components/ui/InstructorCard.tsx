@@ -74,7 +74,7 @@ export default function InstructorCard({
 
           <div className="flex items-center gap-2 mb-3">
             <span className="px-3 py-1 bg-[var(--border-light)] text-[var(--text-black)] rounded-full text-sm font-medium">
-              {vehicleType === "both" ? "Manual & Auto" : vehicleType}
+              {vehicleType === "both" ? "Auto & Manual" : vehicleType}
             </span>
           </div>
 

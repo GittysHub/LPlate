@@ -36,30 +36,50 @@ I'm working on **LPlate**, a UK learner driver marketplace connecting learners w
 **Tech Stack:** Next.js 15, TypeScript, TailwindCSS, Supabase (Postgres + Auth + Storage)
 
 **Core Features:**
-- Instructor search by postcode/distance/vehicle type
+- Enhanced instructor search with advanced filtering and postcode normalization
+- Modern segmented toggle controls for vehicle type, gender, duration, and time of day
+- Multi-day availability selection with privacy-protected location display
+- Price-sorted results with prominent pricing badges and large profile pictures
 - Booking system with availability calendar
 - Profile management with photo uploads
 - Social proof system (learner certificate uploads)
 - Role-based authentication (learner vs instructor)
 
 **Current Focus Areas:**
+- Enhanced instructor search functionality with modern UI/UX
+- Advanced filtering system with segmented toggles
+- Privacy protection and user experience improvements
 - Social proof carousel displaying learner success stories
 - Certificate upload system for learners
 - Database schema for social_proof_submissions table
 
 ### 🔍 **Key Areas to Investigate:**
 
-1. **Social Proof System**
+1. **Enhanced Instructor Search System**
+   - Verify postcode normalization is working (handles spaces/no spaces)
+   - Test segmented toggle controls for all filter types
+   - Check multi-day availability selection functionality
+   - Confirm price sorting (lowest first) is working
+   - Verify privacy protection (masked postcodes, miles display)
+   - Test Enter key support in search bar
+
+2. **Instructor Card Display**
+   - Check profile pictures are loading correctly (not just initials)
+   - Verify pricing badges are prominent and properly formatted
+   - Confirm information hierarchy: Name → Location → Rating → Vehicle Type
+   - Test responsive design on mobile devices
+
+3. **Social Proof System**
    - Check if learner names are displaying correctly (not "Learner")
    - Verify certificate images are loading
    - Test upload functionality
 
-2. **Database Schema**
+4. **Database Schema**
    - Verify social_proof_submissions table exists
    - Check RLS policies for storage buckets
    - Confirm test data is properly linked
 
-3. **UI/UX Status**
+5. **UI/UX Status**
    - Verify left/right layout in social proof cards
    - Check date format ("DD Mth")
    - Confirm location names are clean (no "Test Centre")
@@ -75,6 +95,14 @@ Please provide:
 
 ### 🚨 **Common Issues to Check:**
 
+- Instructor names showing as "Instructor" instead of actual names (FIXED)
+- Profile pictures not loading (showing initials instead)
+- Postcode normalization not working properly
+- Filter toggles not responding correctly
+- Price sorting not working (should be lowest first)
+- Enter key not triggering search
+- Distance showing in km instead of miles
+- Postcodes not being masked for privacy
 - Learner names showing as "Learner" instead of actual names
 - Build errors in bookings page
 - Supabase connection issues
@@ -83,8 +111,13 @@ Please provide:
 
 ### 📁 **Important File Locations:**
 
-- `README.md` - Project documentation
+- `README.md` - Project documentation with latest updates
 - `src/app/page.tsx` - Homepage with instructor carousel
+- `src/app/search/page.tsx` - Enhanced instructor search with modern filtering
+- `src/components/ui/SearchBar.tsx` - Enhanced search with postcode formatting
+- `src/components/ui/ToggleGroup.tsx` - New segmented toggle component
+- `src/components/ui/FilterChips.tsx` - Multi-select filter chips
+- `src/components/ui/InstructorCard.tsx` - Instructor display card
 - `src/components/ui/SocialProofCarousel.tsx` - Social proof display
 - `src/components/ui/SocialProofSubmissionForm.tsx` - Certificate upload
 - `src/app/bookings/page.tsx` - Learner booking management
