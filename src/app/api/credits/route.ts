@@ -246,7 +246,8 @@ export async function PUT(request: NextRequest) {
     const { totalAmountPence, platformFeePence, instructorAmountPence } = CommissionCalculator.calculatePaymentAmounts(hoursToPurchase * hourlyRatePence);
 
     // Create payment intent for credit purchase
-    const stripe = (await import('stripe')).default(process.env.STRIPE_SECRET_KEY!);
+    const Stripe = (await import('stripe')).default;
+    const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
     
     const paymentIntent = await stripe.paymentIntents.create({
       amount: totalAmountPence,
@@ -352,16 +353,4 @@ export async function PUT(request: NextRequest) {
       { status: 500 }
     );
   }
-}
-
-// Helper function to calculate payment amounts (duplicate from stripe.ts for this file)
-function calculatePaymentAmounts(instructorAmountPence: number) {
-  const platformFeePence = Math.round(instructorAmountPence * 0.18);
-  const totalAmountPence = instructorAmountPence + platformFeePence;
-  
-  return {
-    totalAmountPence,
-    platformFeePence,
-    instructorAmountPence,
-  };
 }
