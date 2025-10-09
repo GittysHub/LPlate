@@ -30,19 +30,19 @@ export async function POST(request: NextRequest) {
     // Handle different event types
     switch (event.type) {
       case 'payment_intent.succeeded':
-        await handlePaymentSucceeded(event.data.object);
+        await handlePaymentSucceeded(event.data.object as Record<string, unknown>);
         break;
         
       case 'payment_intent.payment_failed':
-        await handlePaymentFailed(event.data.object);
+        await handlePaymentFailed(event.data.object as Record<string, unknown>);
         break;
         
       case 'charge.dispute.created':
-        await handleDisputeCreated(event.data.object);
+        await handleDisputeCreated(event.data.object as Record<string, unknown>);
         break;
         
       case 'charge.refunded':
-        await handleChargeRefunded(event.data.object);
+        await handleChargeRefunded(event.data.object as Record<string, unknown>);
         break;
         
       default:
@@ -82,7 +82,7 @@ async function handlePaymentSucceeded(paymentIntent: Record<string, unknown>) {
       console.log(`Payment ${paymentIntent.id} succeeded`);
       
       // Handle credit purchase if applicable
-      if (paymentIntent.metadata?.type === 'credit_purchase') {
+      if ((paymentIntent.metadata as Record<string, unknown>)?.type === 'credit_purchase') {
         await handleCreditPurchaseFromPayment(paymentIntent);
       }
     }
@@ -133,7 +133,7 @@ async function handleDisputeCreated(charge: Record<string, unknown>) {
     }
 
     // Create dispute record (you might want to add a disputes table)
-    console.log(`Dispute created for payment ${payment.id}: ${charge.dispute?.reason}`);
+    console.log(`Dispute created for payment ${payment.id}: ${(charge.dispute as Record<string, unknown>)?.reason}`);
     
     // You could send notifications to instructors, admins, etc.
     // await notifyDisputeCreated(payment, charge.dispute);
@@ -161,7 +161,8 @@ async function handleChargeRefunded(charge: Record<string, unknown>) {
     }
 
     // Calculate refund amounts
-    const refundAmountPence = charge.refunds.data[0]?.amount || 0;
+    const refunds = charge.refunds as { data: Array<{ amount: number; id: string }> };
+    const refundAmountPence = refunds.data[0]?.amount || 0;
     const platformFeeRefundPence = Math.round(refundAmountPence * 0.18);
     const instructorRefundPence = refundAmountPence - platformFeeRefundPence;
 
@@ -170,7 +171,7 @@ async function handleChargeRefunded(charge: Record<string, unknown>) {
       .from('refunds')
       .insert({
         payment_id: payment.id,
-        stripe_refund_id: charge.refunds.data[0]?.id,
+        stripe_refund_id: refunds.data[0]?.id,
         refund_amount_pence: refundAmountPence,
         platform_fee_refund_pence: platformFeeRefundPence,
         instructor_refund_pence: instructorRefundPence,
@@ -208,7 +209,8 @@ async function handleCreditPurchaseFromPayment(paymentIntent: Record<string, unk
   try {
     const supabase = await createSupabaseServer();
     
-    const { learnerId, instructorId, hours } = paymentIntent.metadata;
+    const metadata = paymentIntent.metadata as Record<string, unknown>;
+    const { learnerId, instructorId, hours } = metadata;
     
     if (!learnerId || !instructorId || !hours) {
       console.log('Missing metadata for credit purchase');
@@ -249,7 +251,7 @@ async function handleCreditPurchaseFromPayment(paymentIntent: Record<string, unk
           instructor_id: instructorId,
           total_hours_purchased: hoursToAdd,
           hours_used: 0,
-          hourly_rate_pence: paymentIntent.amount / hoursToAdd, // Calculate rate from payment
+          hourly_rate_pence: (paymentIntent.amount as number) / hoursToAdd, // Calculate rate from payment
         });
 
       if (insertError) throw insertError;

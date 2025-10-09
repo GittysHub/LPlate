@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
     if (discountCode && discountAmountPence > 0) {
       await supabase
         .from('discount_codes')
-        .update({ uses_count: supabase.raw('uses_count + 1') })
+        .update({ uses_count: supabase.sql`uses_count + 1` })
         .eq('code', discountCode);
     }
 
@@ -223,7 +223,7 @@ export async function POST(request: NextRequest) {
 
 // Handle credit purchase
 async function handleCreditPurchase(
-  supabase: ReturnType<typeof createSupabaseServer>,
+  supabase: Awaited<ReturnType<typeof createSupabaseServer>>,
   learnerId: string,
   instructorId: string,
   paymentId: string,

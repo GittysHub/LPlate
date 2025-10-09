@@ -131,7 +131,7 @@ export async function POST(request: NextRequest) {
 
 // Process payout for a single instructor
 async function processInstructorPayout(
-  supabase: ReturnType<typeof createSupabaseServer>,
+  supabase: Awaited<ReturnType<typeof createSupabaseServer>>,
   instructorId: string,
   lessons: Record<string, unknown>[],
   payoutDate: Date,
@@ -159,7 +159,8 @@ async function processInstructorPayout(
   const paymentIds: string[] = [];
 
   for (const lesson of lessons) {
-    const payment = lesson.payments[0]; // Should be only one payment per lesson
+    const payments = lesson.payments as Array<{ instructor_amount_pence: number; platform_fee_pence: number; id: string }>;
+    const payment = payments[0]; // Should be only one payment per lesson
     totalAmountPence += payment.instructor_amount_pence;
     totalPlatformFeePence += payment.platform_fee_pence;
     paymentIds.push(payment.id);

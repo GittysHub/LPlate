@@ -30,19 +30,19 @@ export async function POST(request: NextRequest) {
     // Handle different event types
     switch (event.type) {
       case 'account.updated':
-        await handleAccountUpdated(event.data.object);
+        await handleAccountUpdated(event.data.object as Record<string, unknown>);
         break;
         
       case 'account.application.deauthorized':
-        await handleAccountDeauthorized(event.data.object);
+        await handleAccountDeauthorized(event.data.object as Record<string, unknown>);
         break;
         
       case 'transfer.created':
-        await handleTransferCreated(event.data.object);
+        await handleTransferCreated(event.data.object as Record<string, unknown>);
         break;
         
       case 'transfer.updated':
-        await handleTransferUpdated(event.data.object);
+        await handleTransferUpdated(event.data.object as Record<string, unknown>);
         break;
         
       default:

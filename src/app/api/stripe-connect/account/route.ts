@@ -37,16 +37,16 @@ export async function POST(request: NextRequest) {
     const account = await stripe.accounts.create({
       type: STRIPE_CONFIG.DEFAULT_ACCOUNT_TYPE,
       country: 'GB', // UK marketplace
-      email: instructor.profiles.email,
+      email: instructor.profiles[0]?.email || '',
       capabilities: {
         card_payments: { requested: true },
         transfers: { requested: true },
       },
       business_type: 'individual',
       individual: {
-        email: instructor.profiles.email,
-        first_name: instructor.profiles.name.split(' ')[0],
-        last_name: instructor.profiles.name.split(' ').slice(1).join(' ') || '',
+        email: instructor.profiles[0]?.email || '',
+        first_name: instructor.profiles[0]?.name?.split(' ')[0] || '',
+        last_name: instructor.profiles[0]?.name?.split(' ').slice(1).join(' ') || '',
       },
       settings: {
         payouts: {
@@ -204,7 +204,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({
       loginUrl: loginLink.url,
-      expiresAt: loginLink.expires_at,
+      expiresAt: null, // Login links don't have expires_at in Stripe API
     });
 
   } catch (error) {
