@@ -2,7 +2,7 @@
 // Handles payment events, refunds, and disputes
 
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe, WebhookVerifier, StripeErrorHandler } from '@/lib/stripe';
+import { WebhookVerifier, StripeErrorHandler } from '@/lib/stripe';
 import { createSupabaseServer } from '@/lib/supabase-server';
 
 // Handle Stripe payment events
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Handle successful payment
-async function handlePaymentSucceeded(paymentIntent: any) {
+async function handlePaymentSucceeded(paymentIntent: Record<string, unknown>) {
   try {
     const supabase = createSupabaseServer();
     
@@ -92,7 +92,7 @@ async function handlePaymentSucceeded(paymentIntent: any) {
 }
 
 // Handle failed payment
-async function handlePaymentFailed(paymentIntent: any) {
+async function handlePaymentFailed(paymentIntent: Record<string, unknown>) {
   try {
     const supabase = createSupabaseServer();
     
@@ -116,7 +116,7 @@ async function handlePaymentFailed(paymentIntent: any) {
 }
 
 // Handle dispute creation
-async function handleDisputeCreated(charge: any) {
+async function handleDisputeCreated(charge: Record<string, unknown>) {
   try {
     const supabase = createSupabaseServer();
     
@@ -144,7 +144,7 @@ async function handleDisputeCreated(charge: any) {
 }
 
 // Handle charge refunded
-async function handleChargeRefunded(charge: any) {
+async function handleChargeRefunded(charge: Record<string, unknown>) {
   try {
     const supabase = createSupabaseServer();
     
@@ -204,7 +204,7 @@ async function handleChargeRefunded(charge: any) {
 }
 
 // Handle credit purchase from payment webhook
-async function handleCreditPurchaseFromPayment(paymentIntent: any) {
+async function handleCreditPurchaseFromPayment(paymentIntent: Record<string, unknown>) {
   try {
     const supabase = createSupabaseServer();
     

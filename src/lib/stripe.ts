@@ -188,9 +188,9 @@ export class CreditManager {
    * Check if learner has sufficient credit for booking
    */
   static hasSufficientCredit(
-    learnerId: string,
-    instructorId: string,
-    requiredHours: number
+    _learnerId: string,
+    _instructorId: string,
+    _requiredHours: number
   ): Promise<boolean> {
     // This would query the database to check credit balance
     // Implementation depends on your database client

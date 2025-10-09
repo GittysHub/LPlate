@@ -121,7 +121,7 @@ function SearchPageContent() {
       // Apply availability filtering
       if (selectedDays.length > 0 && selectedDays.length < 7 && timeOfDay) {
         // Filter by specific days and time of day
-        filtered = filtered.filter(r => {
+        filtered = filtered.filter(_r => {
           // This is a simplified availability check
           // In a real app, you'd check against the availability table
           return true; // For now, return all instructors
@@ -173,7 +173,7 @@ function SearchPageContent() {
     } finally {
       setLoading(false);
     }
-  }, [vehicle, gender, selectedDays, timeOfDay, lessonDurationMins, sb, geocode]);
+  }, [vehicle, gender, selectedDays, timeOfDay, lessonDurationMins, sb]);
 
   // Search function wrapped in useCallback
   const search = useCallback(async (e?: React.FormEvent) => {

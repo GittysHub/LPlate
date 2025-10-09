@@ -2,7 +2,7 @@
 // Handles Stripe events for payments, payouts, and account updates
 
 import { NextRequest, NextResponse } from 'next/server';
-import { stripe, WebhookVerifier, StripeErrorHandler } from '@/lib/stripe';
+import { WebhookVerifier, StripeErrorHandler } from '@/lib/stripe';
 import { createSupabaseServer } from '@/lib/supabase-server';
 
 // Handle Stripe Connect account events
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Handle account updates (charges_enabled, payouts_enabled, etc.)
-async function handleAccountUpdated(account: any) {
+async function handleAccountUpdated(account: Record<string, unknown>) {
   try {
     const supabase = createSupabaseServer();
     
@@ -89,7 +89,7 @@ async function handleAccountUpdated(account: any) {
 }
 
 // Handle account deauthorization
-async function handleAccountDeauthorized(account: any) {
+async function handleAccountDeauthorized(account: Record<string, unknown>) {
   try {
     const supabase = createSupabaseServer();
     
@@ -113,7 +113,7 @@ async function handleAccountDeauthorized(account: any) {
 }
 
 // Handle transfer creation (payouts to instructors)
-async function handleTransferCreated(transfer: any) {
+async function handleTransferCreated(transfer: Record<string, unknown>) {
   try {
     const supabase = createSupabaseServer();
     
@@ -149,7 +149,7 @@ async function handleTransferCreated(transfer: any) {
 }
 
 // Handle transfer updates (payout status changes)
-async function handleTransferUpdated(transfer: any) {
+async function handleTransferUpdated(transfer: Record<string, unknown>) {
   try {
     const supabase = createSupabaseServer();
     
