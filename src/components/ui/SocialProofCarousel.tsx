@@ -86,7 +86,7 @@ export default function SocialProofCarousel() {
 
         // Create lookup maps
         const learnerMap = new Map(learnerData?.map(l => [l.id, l.name]) || []);
-        const instructorMap = new Map(instructorData?.map(i => [i.id, i.profiles?.name]) || []);
+        const instructorMap = new Map(instructorData?.map(i => [i.id, i.profiles?.[0]?.name]) || []);
 
         console.log("Learner map:", learnerMap);
         console.log("Instructor map:", instructorMap);
@@ -134,13 +134,13 @@ export default function SocialProofCarousel() {
           console.log(`Final names - Learner: ${learnerName}, Instructor: ${instructorName}`);
           
           return {
-            id: row.id,
+            id: typeof row.id === 'string' ? row.id : String(row.id || ''),
             learnerName: learnerName,
             instructorName: instructorName,
-            testDate: row.test_date,
-            imageUrl: row.certificate_image_url,
-            location: row.test_location,
-            testimonial: row.testimonial
+            testDate: typeof row.test_date === 'string' ? row.test_date : String(row.test_date || ''),
+            imageUrl: typeof row.certificate_image_url === 'string' ? row.certificate_image_url : String(row.certificate_image_url || ''),
+            location: typeof row.test_location === 'string' ? row.test_location : String(row.test_location || ''),
+            testimonial: typeof row.testimonial === 'string' ? row.testimonial : String(row.testimonial || '')
           };
         });
 

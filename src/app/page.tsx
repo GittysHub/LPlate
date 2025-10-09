@@ -101,13 +101,13 @@ export default function Home() {
           console.log('Instructor:', firstName, 'Postcode:', r.base_postcode, 'Location:', location, 'Profile:', profile);
           
           return {
-            id: r.id,
+            id: typeof r.id === 'string' ? r.id : String(r.id || ''),
             name: firstName,
             avatar_url: avatarUrl,
-            hourly_rate: r.hourly_rate ?? 30,
+            hourly_rate: typeof r.hourly_rate === 'number' ? r.hourly_rate : 30,
             location: location,
-            vehicle_type: r.vehicle_type ?? "manual",
-            description: r.description ?? "",
+            vehicle_type: typeof r.vehicle_type === 'string' ? r.vehicle_type : "manual",
+            description: typeof r.description === 'string' ? r.description : "",
             rating: 4.8 // Placeholder rating
           };
         }) ?? [];
