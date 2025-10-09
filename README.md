@@ -10,6 +10,7 @@ A modern marketplace web app connecting UK learner drivers with qualified drivin
 - **Booking System**: Learners can request lessons and instructors can manage bookings
 - **Availability Calendar**: Instructors can set their weekly availability schedule
 - **Real-time Filtering**: Search results filtered by instructor availability and preferences
+- **Social Proof System**: Learners can upload driving test certificates to showcase success stories
 
 ### 🎨 Modern UI/UX
 - **Apple-inspired design system** with Poppins font and clean aesthetics
@@ -24,6 +25,8 @@ A modern marketplace web app connecting UK learner drivers with qualified drivin
 - **Streamlined authentication** with pill-shaped role selection and confirmation screens
 - **Social media integration** with playful footer-style links and brand-colored buttons
 - **Optimized homepage flow** with strategic section placement for better conversion
+- **Social proof carousel** displaying learner success stories with certificate images
+- **Certificate upload system** for learners to share their driving test achievements
 
 ### 🔐 Authentication & Security
 - **Supabase Auth** for secure user authentication
@@ -129,6 +132,20 @@ src/
 | `end_at` | timestamptz | Availability end time |
 | `is_recurring` | boolean | Weekly recurring slot |
 | `created_at` | timestamptz | Record creation time |
+
+#### `social_proof_submissions`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `learner_id` | uuid | Foreign key to profiles.id |
+| `instructor_id` | uuid | Foreign key to instructors.id |
+| `certificate_image_url` | text | URL to uploaded certificate image |
+| `test_date` | date | Date of driving test |
+| `test_location` | text | Test centre location |
+| `testimonial` | text | Optional learner testimonial |
+| `status` | text | 'pending', 'approved', 'rejected' |
+| `created_at` | timestamptz | Submission timestamp |
+| `updated_at` | timestamptz | Last update timestamp |
 
 ## 🚀 Getting Started
 
