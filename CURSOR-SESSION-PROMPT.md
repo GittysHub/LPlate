@@ -105,6 +105,8 @@ Please provide:
 - Distance showing in km instead of miles (FIXED)
 - Postcodes not being masked for privacy (FIXED)
 - Homepage search requiring double-typing (FIXED)
+- Service radius filtering not working (check database migration applied)
+- Instructors not appearing in search results (check service_radius_miles values)
 - Learner names showing as "Learner" instead of actual names
 - Build errors in bookings page
 - Supabase connection issues
@@ -123,7 +125,11 @@ Please provide:
 - `src/components/ui/SocialProofCarousel.tsx` - Social proof display
 - `src/components/ui/SocialProofSubmissionForm.tsx` - Certificate upload
 - `src/app/bookings/page.tsx` - Learner booking management
+- `src/app/instructor/profile/page.tsx` - Instructor profile management with service radius
 - `database-setup-social-proof.sql` - Database schema
+- `add-service-radius-to-instructors.sql` - Service radius migration
+- `update-test-instructors-service-radius.sql` - Test data updates
+- `check-current-instructors.sql` - Database debugging queries
 - `BUG-SOCIAL-PROOF-LEARNER-NAMES.md` - Known issue documentation
 
 ---

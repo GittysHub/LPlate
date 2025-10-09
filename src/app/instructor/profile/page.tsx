@@ -26,6 +26,7 @@ type Instructor = {
   verification_status: "pending" | "approved" | "rejected" | null;
   lat: number | null;
   lng: number | null;
+  service_radius_miles: number | null;
 };
 
 export default function InstructorProfilePage() {
@@ -119,6 +120,7 @@ export default function InstructorProfilePage() {
       verification_status: inst.verification_status ?? "pending",
       lat: lat ?? inst?.lat ?? null,
       lng: lng ?? inst?.lng ?? null,
+      service_radius_miles: inst.service_radius_miles ?? 10,
     });
 
     setSaving(false);
@@ -218,8 +220,8 @@ export default function InstructorProfilePage() {
           />
         </div>
 
-        {/* Two columns: Hourly rate and Location (postcode) */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Three columns: Hourly rate, Service radius, and Location (postcode) */}
+        <div className="grid grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate (£)</label>
             <input
@@ -231,6 +233,19 @@ export default function InstructorProfilePage() {
               value={inst.hourly_rate ?? 30}
               onChange={(e) => setInstructor({ ...instructor!, hourly_rate: Number(e.target.value) })}
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Service Radius (miles)</label>
+            <input
+              type="number"
+              min={1}
+              max={50}
+              step="1"
+              className="w-full border border-gray-300 rounded-lg px-4 py-3"
+              value={inst.service_radius_miles ?? 10}
+              onChange={(e) => setInstructor({ ...instructor!, service_radius_miles: Number(e.target.value) })}
+            />
+            <p className="text-xs text-gray-500 mt-1">How far you're willing to travel to meet learners</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>

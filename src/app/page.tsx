@@ -183,7 +183,7 @@ export default function Home() {
 
     if (!postcode) return 'Bristol';
     
-    // Extract the first part of the postcode (e.g., BS16 from BS16 2NR)
+    // Extract the first part of the postcode (e.g., BS1 from BS1 3BD)
     const postcodePrefix = postcode.split(' ')[0];
     const town = postcodeToTown[postcodePrefix] || 'Bristol';
     
@@ -238,7 +238,7 @@ export default function Home() {
           {/* Search Bar */}
                 <div className="mb-12">
                   <SearchBar 
-                    placeholder="e.g. BS16 2NR or BS162NR"
+                    placeholder="e.g. BS1 3BD or BS13BD"
                     onSearch={handleSearch}
                   />
                 </div>

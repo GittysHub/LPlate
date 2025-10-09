@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { createSupabaseBrowser } from "@/lib/supabase";
@@ -35,7 +35,7 @@ function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number) {
   return R * c;
 }
 
-export default function SearchPage() {
+function SearchPageContent() {
   const sb = createSupabaseBrowser();
 
   const [postcode, setPostcode] = useState("");
@@ -48,141 +48,156 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [results, setResults] = useState<Array<InstructorCard & { distanceKm?: number }>>([]);
+  const [hasSearched, setHasSearched] = useState(false);
 
   // Get search params for automatic search
   const searchParams = useSearchParams();
 
+  // Extract search logic into a reusable function
+  const performSearch = async (searchPostcode: string) => {
+    setErr(null);
+    setLoading(true);
+    setResults([]);
+
+    try {
+      const origin = await geocode(searchPostcode);
+
+      const { data, error } = await sb
+        .from("instructors")
+        .select(`
+          id, 
+          description, 
+          base_postcode, 
+          vehicle_type, 
+          hourly_rate, 
+          gender, 
+          lat, 
+          lng, 
+          service_radius_miles,
+          profiles!inner(name, avatar_url)
+        `)
+        .eq("verification_status", "approved")
+        .not("lat", "is", null)
+        .not("lng", "is", null)
+        .not("service_radius_miles", "is", null);
+
+      if (error) throw error;
+
+      interface SupabaseRow {
+        id: string;
+        description: string | null;
+        base_postcode: string | null;
+        vehicle_type: "manual" | "auto" | "both" | null;
+        hourly_rate: number | null;
+        gender: "male" | "female" | "other" | null;
+        lat: number | null;
+        lng: number | null;
+        service_radius_miles: number | null;
+        profiles: { name: string | null; avatar_url: string | null } | null;
+      }
+
+      let rows: InstructorCard[] =
+        (data as unknown as SupabaseRow[])?.map((r: SupabaseRow) => {
+          const fullName = r.profiles?.name ?? null;
+          const firstName = fullName ? fullName.split(' ')[0] : null;
+          return {
+          id: r.id,
+          description: r.description,
+          base_postcode: r.base_postcode,
+          vehicle_type: r.vehicle_type,
+          hourly_rate: r.hourly_rate,
+          gender: r.gender,
+          lat: r.lat,
+          lng: r.lng,
+            name: firstName,
+            avatar_url: r.profiles?.avatar_url ?? null,
+          };
+        }) ?? [];
+
+      if (vehicle !== "both") rows = rows.filter(r => (r.vehicle_type ?? "manual") === vehicle);
+      if (gender !== "any") rows = rows.filter(r => (r.gender ?? "other") === gender);
+
+      let filtered = rows;
+
+      // Apply availability filtering
+      if (selectedDays.length > 0 && selectedDays.length < 7 && timeOfDay) {
+        // Filter by specific days and time of day
+        filtered = filtered.filter(r => {
+          // This is a simplified availability check
+          // In a real app, you'd check against the availability table
+          return true; // For now, return all instructors
+        });
+      }
+
+      // Apply lesson duration filtering
+      if (lessonDurationMins > 0) {
+        // Filter by lesson duration preference
+        // This would typically check instructor preferences or availability
+        filtered = filtered.filter(r => {
+          return true; // For now, return all instructors
+        });
+      }
+
+      // Filter by service radius - only show instructors who are willing to travel to the learner
+      const withinServiceRadius = filtered.filter(r => {
+        if (!r.lat || !r.lng) return false;
+        
+        // Get the instructor's service radius from the original data
+        const instructorData = (data as unknown as SupabaseRow[])?.find(d => d.id === r.id);
+        const serviceRadiusMiles = instructorData?.service_radius_miles || 10; // Default to 10 miles
+        
+        const distanceKm = haversineKm(origin.lat, origin.lng, r.lat, r.lng);
+        const distanceMiles = distanceKm * 0.621371; // Convert km to miles
+        
+        return distanceMiles <= serviceRadiusMiles;
+      });
+
+      const withDistance = withinServiceRadius
+        .map(r => {
+          const d = r.lat != null && r.lng != null ? haversineKm(origin.lat, origin.lng, r.lat, r.lng) : Infinity;
+          return { ...r, distanceKm: d };
+        })
+        .sort((a, b) => {
+          // Primary sort: by price (lowest first)
+          const priceA = a.hourly_rate ?? 30;
+          const priceB = b.hourly_rate ?? 30;
+          if (priceA !== priceB) {
+            return priceA - priceB;
+          }
+          // Secondary sort: by distance (closest first)
+          return a.distanceKm! - b.distanceKm!;
+        });
+
+      setResults(withDistance);
+    } catch (e: unknown) {
+      setErr(e instanceof Error ? e.message : "Search failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Search function wrapped in useCallback
+  const search = useCallback(async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    await performSearch(postcode);
+  }, [postcode, vehicle, gender, selectedDays, timeOfDay, lessonDurationMins, sb]);
+
   // Auto-search when page loads with query parameter
   useEffect(() => {
     const query = searchParams.get('q');
-    if (query && query.trim()) {
-      setPostcode(query.trim());
-      // Trigger search after a short delay to ensure component is mounted
-      const timer = setTimeout(async () => {
-        try {
-          setErr(null);
-          setLoading(true);
-          setResults([]);
-
-          const origin = await geocode(query.trim());
-
-          const { data, error } = await sb
-            .from("instructors")
-            .select(`
-              id, 
-              description, 
-              base_postcode, 
-              vehicle_type, 
-              hourly_rate, 
-              gender, 
-              lat, 
-              lng, 
-              profiles!inner(name, avatar_url)
-            `)
-            .eq("verification_status", "approved")
-            .not("lat", "is", null)
-            .not("lng", "is", null);
-
-          if (error) throw error;
-
-          console.log("Raw instructor data:", data);
-
-          interface SupabaseRow {
-            id: string;
-            description: string | null;
-            base_postcode: string | null;
-            vehicle_type: "manual" | "auto" | "both" | null;
-            hourly_rate: number | null;
-            gender: "male" | "female" | "other" | null;
-            lat: number | null;
-            lng: number | null;
-            profiles: { name: string | null; avatar_url: string | null } | null;
-          }
-
-          let rows: InstructorCard[] =
-            (data as unknown as SupabaseRow[])?.map((r: SupabaseRow) => {
-              const fullName = r.profiles?.name ?? null;
-              const firstName = fullName ? fullName.split(' ')[0] : null;
-              console.log(`Instructor ${r.id}: fullName=`, fullName, 'firstName=', firstName);
-              return {
-                id: r.id,
-                description: r.description,
-                base_postcode: r.base_postcode,
-                vehicle_type: r.vehicle_type,
-                hourly_rate: r.hourly_rate,
-                gender: r.gender,
-                lat: r.lat,
-                lng: r.lng,
-                name: firstName,
-                avatar_url: r.profiles?.avatar_url ?? null,
-              };
-            }) ?? [];
-
-          if (vehicle !== "both") rows = rows.filter(r => (r.vehicle_type ?? "manual") === vehicle);
-          if (gender !== "any") rows = rows.filter(r => (r.gender ?? "other") === gender);
-
-          let filtered = rows;
-
-          // Apply availability filtering
-          if (selectedDays.length > 0 && selectedDays.length < 7 && timeOfDay) {
-            // Filter by specific days and time of day
-            filtered = filtered.filter(r => {
-              // This is a simplified availability check
-              // In a real app, you'd check against the availability table
-              return true; // For now, return all instructors
-            });
-          }
-
-          // Apply lesson duration filtering
-          if (lessonDurationMins > 0) {
-            // Filter by lesson duration preference
-            // This would typically check instructor preferences or availability
-            filtered = filtered.filter(r => {
-              return true; // For now, return all instructors
-            });
-          }
-
-          const radiusKm = 20; // Default radius
-          const withDistance = filtered
-            .map(r => {
-              const d = r.lat != null && r.lng != null ? haversineKm(origin.lat, origin.lng, r.lat, r.lng) : Infinity;
-              return { ...r, distanceKm: d };
-            })
-            .filter(r => r.distanceKm! <= radiusKm)
-            .sort((a, b) => {
-              // Primary sort: by price (lowest first)
-              const priceA = a.hourly_rate ?? 30;
-              const priceB = b.hourly_rate ?? 30;
-              if (priceA !== priceB) {
-                return priceA - priceB;
-              }
-              // Secondary sort: by distance (closest first)
-              return a.distanceKm! - b.distanceKm!;
-            });
-
-          setResults(withDistance);
-        } catch (e: unknown) {
-          setErr(e instanceof Error ? e.message : "Search failed");
-        } finally {
-          setLoading(false);
-        }
-      }, 100);
-      return () => clearTimeout(timer);
+    
+    if (query && query.trim() && !hasSearched) {
+      const normalizedQuery = normalisePostcode(query.trim());
+      
+      setPostcode(normalizedQuery);
+      setHasSearched(true);
+      
+      // Use the existing performSearch function instead of duplicating logic
+      performSearch(normalizedQuery);
     }
-  }, [searchParams]);
+  }, [searchParams, hasSearched]);
 
   // Filter chips configuration
-  const vehicleFilters = [
-    { id: "both", label: "Auto & Manual", active: vehicle === "both" },
-    { id: "manual", label: "Manual", active: vehicle === "manual" },
-    { id: "auto", label: "Auto", active: vehicle === "auto" }
-  ];
-
-  const genderFilters = [
-    { id: "male", label: "Male", active: gender === "male" },
-    { id: "female", label: "Female", active: gender === "female" },
-    { id: "any", label: "Either", active: gender === "any" }
-  ];
 
   // Filter configurations for ToggleGroup
   const vehicleToggleOptions = [
@@ -226,18 +241,16 @@ export default function SearchPage() {
     let s = pc.trim().toUpperCase().replace(/\s+/g, "");
     
     // Handle different UK postcode formats
+    // UK postcodes are always outward (2-4 chars) + inward (3 chars)
     if (s.length >= 5) {
-      if (s.length === 6) {
-        // Format: ABC123 -> ABC 123 (3 + 3)
+      if (s.length === 5) {
+        // Format: AB123 -> AB 123 (2 + 3)
+        s = s.slice(0, 2) + " " + s.slice(2);
+      } else if (s.length === 6) {
+        // Format: ABC123 -> ABC 123 (3 + 3) - most common
         s = s.slice(0, 3) + " " + s.slice(3);
       } else if (s.length === 7) {
         // Format: ABCD123 -> ABCD 123 (4 + 3)
-        s = s.slice(0, 4) + " " + s.slice(4);
-      } else if (s.length === 5) {
-        // Format: AB123 -> AB 123 (2 + 3)
-        s = s.slice(0, 2) + " " + s.slice(2);
-      } else if (s.length === 8) {
-        // Format: ABCD1234 -> ABCD 1234 (4 + 4)
         s = s.slice(0, 4) + " " + s.slice(4);
       }
     }
@@ -248,7 +261,7 @@ export default function SearchPage() {
   function maskPostcode(pc: string | null) {
     if (!pc) return "Bristol";
     
-    // Split postcode into parts (e.g., "BS16 2NR" -> ["BS16", "2NR"])
+    // Split postcode into parts (e.g., "BS1 3BD" -> ["BS1", "3BD"])
     const parts = pc.trim().split(' ');
     if (parts.length >= 2) {
       // Show only first part (e.g., "BS16")
@@ -273,154 +286,6 @@ export default function SearchPage() {
     return { lat: j.result.latitude as number, lng: j.result.longitude as number };
   }
 
-  async function search(e?: React.FormEvent) {
-    if (e) e.preventDefault();
-    setErr(null);
-    setLoading(true);
-    setResults([]);
-
-    try {
-      const origin = await geocode(postcode);
-
-      const { data, error } = await sb
-        .from("instructors")
-        .select(`
-          id, 
-          description, 
-          base_postcode, 
-          vehicle_type, 
-          hourly_rate, 
-          gender, 
-          lat, 
-          lng, 
-          profiles!inner(name, avatar_url)
-        `)
-        .eq("verification_status", "approved")
-        .not("lat", "is", null)
-        .not("lng", "is", null);
-
-      if (error) throw error;
-
-      console.log("Raw instructor data:", data);
-
-      interface SupabaseRow {
-        id: string;
-        description: string | null;
-        base_postcode: string | null;
-        vehicle_type: "manual" | "auto" | "both" | null;
-        hourly_rate: number | null;
-        gender: "male" | "female" | "other" | null;
-        lat: number | null;
-        lng: number | null;
-        profiles: { name: string | null; avatar_url: string | null } | null;
-      }
-
-      let rows: InstructorCard[] =
-        (data as unknown as SupabaseRow[])?.map((r: SupabaseRow) => {
-          const fullName = r.profiles?.name ?? null;
-          const firstName = fullName ? fullName.split(' ')[0] : null;
-          console.log(`Instructor ${r.id}: fullName=`, fullName, 'firstName=', firstName);
-          return {
-            id: r.id,
-            description: r.description,
-            base_postcode: r.base_postcode,
-            vehicle_type: r.vehicle_type,
-            hourly_rate: r.hourly_rate,
-            gender: r.gender,
-            lat: r.lat,
-            lng: r.lng,
-            name: firstName,
-            avatar_url: r.profiles?.avatar_url ?? null,
-          };
-        }) ?? [];
-
-      if (vehicle !== "both") rows = rows.filter(r => (r.vehicle_type ?? "manual") === vehicle);
-      if (gender !== "any") rows = rows.filter(r => (r.gender ?? "other") === gender);
-
-      let filtered = rows;
-
-      // Optional availability filter
-      if (selectedDays.length > 0 && selectedDays.length < 7 && timeOfDay) {
-        let startHour: number, endHour: number;
-        switch (timeOfDay) {
-          case "morning":
-            startHour = 7;
-            endHour = 12;
-            break;
-          case "afternoon":
-            startHour = 12;
-            endHour = 17;
-            break;
-          case "evening":
-            startHour = 17;
-            endHour = 23;
-            break;
-          default:
-            startHour = 9;
-            endHour = 17;
-        }
-
-        if (filtered.length > 0) {
-          const instructorIds = filtered.map(r => r.id);
-          const { data: avail, error: availErr } = await sb
-            .from("availability")
-            .select("instructor_id, start_at, end_at, is_recurring")
-            .in("instructor_id", instructorIds)
-            .eq("is_recurring", true);
-          if (availErr) throw availErr;
-
-          interface AvailabilitySlot {
-            instructor_id: string;
-            start_at: string;
-            end_at: string;
-            is_recurring: boolean;
-          }
-
-          filtered = filtered.filter(inst => {
-            const slots = (avail as AvailabilitySlot[])?.filter(a => a.instructor_id === inst.id) || [];
-            return slots.some(s => {
-              const sStart = new Date(s.start_at);
-              const sEnd = new Date(s.end_at);
-              const slotIsoDow = ((sStart.getDay() + 6) % 7) + 1;
-              
-              // Check if this slot matches any of the selected days
-              if (!selectedDays.includes(slotIsoDow.toString())) return false;
-              
-              const sStartMinutes = sStart.getHours() * 60 + sStart.getMinutes();
-              const sEndMinutes = sEnd.getHours() * 60 + sEnd.getMinutes();
-              const reqStartMinutes = startHour * 60;
-              const reqEndMinutes = endHour * 60;
-              
-              return reqStartMinutes >= sStartMinutes && reqEndMinutes <= sEndMinutes;
-            });
-          });
-        }
-      }
-
-      const withDistance = filtered
-        .map(r => {
-          const d = r.lat != null && r.lng != null ? haversineKm(origin.lat, origin.lng, r.lat, r.lng) : Infinity;
-          return { ...r, distanceKm: d };
-        })
-        .filter(r => r.distanceKm! <= radiusKm)
-        .sort((a, b) => {
-          // Primary sort: by price (lowest first)
-          const priceA = a.hourly_rate ?? 30;
-          const priceB = b.hourly_rate ?? 30;
-          if (priceA !== priceB) {
-            return priceA - priceB;
-          }
-          // Secondary sort: by distance (closest first)
-          return a.distanceKm! - b.distanceKm!;
-        });
-
-      setResults(withDistance);
-    } catch (e: unknown) {
-      setErr(e instanceof Error ? e.message : "Search failed");
-    } finally {
-      setLoading(false);
-    }
-  }
 
   const handleFilterChange = (filterType: string, filterId: string) => {
     switch (filterType) {
@@ -464,7 +329,8 @@ export default function SearchPage() {
           {/* Search Bar */}
           <div className="mb-6">
             <SearchBar 
-              placeholder="e.g. BS16 2NR or BS162NR"
+              placeholder="e.g. BS1 3BD or BS13BD"
+              value={postcode}
               onSearch={(query) => {
                 setPostcode(query);
                 search();
@@ -499,23 +365,23 @@ export default function SearchPage() {
                 options={genderToggleOptions}
                 onOptionChange={(id) => handleFilterChange("gender", id)}
                 className="text-xs"
-              />
-            </div>
+                  />
+                </div>
 
-            <div>
+                <div>
               <h3 className="text-xs font-semibold text-gray-700 mb-2">Time of Day</h3>
               <ToggleGroup 
                 options={timeToggleOptions}
                 onOptionChange={(id) => handleFilterChange("time", id)}
                 className="text-xs"
               />
+              </div>
             </div>
-          </div>
 
-          <div>
+            <div>
             <h3 className="text-sm font-semibold text-gray-700 mb-2">Days Available</h3>
-            <div className="space-y-2">
-              <div>
+              <div className="space-y-2">
+                <div>
                 <div className="flex items-center justify-between mb-1">
                   <h4 className="text-xs font-medium text-gray-500">
                     {selectedDays.length === 7 ? "Any Day" : "Days"}
@@ -529,10 +395,10 @@ export default function SearchPage() {
                     </button>
                   )}
                 </div>
-                <FilterChips 
+                  <FilterChips 
                   filters={dayFilters}
                   onFilterChange={(id) => handleFilterChange("day", id)}
-                />
+                  />
               </div>
             </div>
           </div>
@@ -579,7 +445,7 @@ export default function SearchPage() {
                         />
                       ) : (
                         <div className="w-full h-full bg-green-500 flex items-center justify-center text-white font-bold text-3xl">
-                          {(r.name ?? "I").split(' ').map(n => n[0]).join('')}
+                      {(r.name ?? "I").split(' ').map(n => n[0]).join('')}
                         </div>
                       )}
                     </div>
@@ -624,5 +490,13 @@ export default function SearchPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <SearchPageContent />
+    </Suspense>
   );
 }

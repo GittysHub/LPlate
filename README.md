@@ -116,6 +116,7 @@ src/
 | `verification_status` | text | 'pending', 'approved', 'rejected' |
 | `lat` | float8 | Latitude for distance calculation |
 | `lng` | float8 | Longitude for distance calculation |
+| `service_radius_miles` | integer | Maximum distance instructor will travel (1-50 miles) |
 
 #### `bookings`
 | Column | Type | Description |
@@ -315,9 +316,19 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 - **Social Media Integration**: Footer-style social links with brand colors and hover animations
 - **Homepage Flow Optimization**: Strategic section placement for improved user journey and conversion
 
-### 🔄 Latest Updates (v2.6) - Enhanced Instructor Search
+### 🔄 Latest Updates (v2.7) - Service Radius System
+- **Service Radius Filtering**: Instructors can now set their service radius (1-50 miles) in their profile
+- **Smart Distance Filtering**: Search only shows instructors willing to travel to the learner's location
+- **Instructor Profile Enhancement**: Added service radius input field with validation and helpful description
+- **Database Schema Update**: Added `service_radius_miles` column with constraints and indexes
+- **Instant Search Fix**: Resolved issue where homepage search required manual re-trigger
+- **Efficient Querying**: Only instructors within their service radius are returned from database
+- **Better User Experience**: Learners only see instructors who will actually come to them
+- **Instructor Control**: Instructors have full control over their service area coverage
+
+### 🔄 Previous Updates (v2.6) - Enhanced Instructor Search
 - **Advanced Search Functionality**: Complete overhaul of instructor search with modern filtering system
-- **Postcode Normalization**: Smart handling of UK postcodes with or without spaces (e.g., "BS16 2NR" or "BS162NR")
+- **Postcode Normalization**: Smart handling of UK postcodes with or without spaces (e.g., "BS1 3BD" or "BS13BD")
 - **Instant Search Results**: Homepage search automatically redirects to search page with immediate results
 - **Modern Filter System**: Segmented toggle controls for Vehicle Type, Gender, Duration, and Time of Day
 - **Multi-Day Availability**: Support for selecting multiple days (e.g., Monday & Wednesday) with "Any Day" when all selected

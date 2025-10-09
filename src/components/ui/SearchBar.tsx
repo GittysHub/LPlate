@@ -1,21 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface SearchBarProps {
   placeholder?: string;
   onSearch: (query: string) => void;
   loading?: boolean;
   className?: string;
+  value?: string;
 }
 
 export default function SearchBar({ 
   placeholder = "Enter postcode", 
   onSearch, 
   loading = false,
-  className = ""
+  className = "",
+  value = ""
 }: SearchBarProps) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(value);
+
+  // Update internal state when value prop changes
+  useEffect(() => {
+    setQuery(value);
+  }, [value]);
 
   // Format postcode as user types
   const formatPostcode = (input: string) => {
@@ -75,7 +82,7 @@ export default function SearchBar({
           value={query}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          placeholder="e.g. BS16 2NR or BS162NR"
+          placeholder="e.g. BS1 3BD or BS13BD"
           className="w-full border-0 rounded-xl pl-12 pr-24 py-4 text-base md:text-lg text-gray-900 placeholder-gray-500 focus:ring-4 focus:ring-green-700 transition-all duration-300 bg-white rounded-l-xl outline-none"
           disabled={loading}
         />
