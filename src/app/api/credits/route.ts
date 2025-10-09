@@ -243,7 +243,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Calculate payment amounts (platform fee added to instructor's rate)
-    const { totalAmountPence, platformFeePence, instructorAmountPence } = calculatePaymentAmounts(hoursToUse * hourlyRatePence);
+    const { totalAmountPence, platformFeePence, instructorAmountPence } = CommissionCalculator.calculatePaymentAmounts(hoursToPurchase * hourlyRatePence);
 
     // Create payment intent for credit purchase
     const stripe = (await import('stripe')).default(process.env.STRIPE_SECRET_KEY!);
