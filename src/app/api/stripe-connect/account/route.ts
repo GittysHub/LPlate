@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     // Verify instructor exists and is authenticated
     const { data: instructor, error: instructorError } = await supabase
@@ -116,7 +116,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     // Get account info from database
     const { data: account, error: dbError } = await supabase
@@ -183,7 +183,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     // Get account info from database
     const { data: account, error: dbError } = await supabase

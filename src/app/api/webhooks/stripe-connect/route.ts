@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 // Handle account updates (charges_enabled, payouts_enabled, etc.)
 async function handleAccountUpdated(account: Record<string, unknown>) {
   try {
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     const { error } = await supabase
       .from('stripe_connect_accounts')
@@ -91,7 +91,7 @@ async function handleAccountUpdated(account: Record<string, unknown>) {
 // Handle account deauthorization
 async function handleAccountDeauthorized(account: Record<string, unknown>) {
   try {
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     const { error } = await supabase
       .from('stripe_connect_accounts')
@@ -115,7 +115,7 @@ async function handleAccountDeauthorized(account: Record<string, unknown>) {
 // Handle transfer creation (payouts to instructors)
 async function handleTransferCreated(transfer: Record<string, unknown>) {
   try {
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     // Find the payout record
     const { data: payout, error: payoutError } = await supabase
@@ -151,7 +151,7 @@ async function handleTransferCreated(transfer: Record<string, unknown>) {
 // Handle transfer updates (payout status changes)
 async function handleTransferUpdated(transfer: Record<string, unknown>) {
   try {
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     // Find the payout record
     const { data: payout, error: payoutError } = await supabase

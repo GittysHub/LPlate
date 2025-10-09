@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     let query = supabase
       .from('learner_credits')
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
 
     // Check if learner has sufficient credit
     const { data: credit, error: creditError } = await supabase
@@ -226,7 +226,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
 
     // Verify instructor exists
     const { data: instructor, error: instructorError } = await supabase

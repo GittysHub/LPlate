@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     // Calculate the lesson period (previous Friday to Thursday)
     const lessonPeriodEnd = new Date(targetPayoutDate);
@@ -289,7 +289,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     const { data: payouts, error: payoutsError } = await supabase
       .from('payouts')

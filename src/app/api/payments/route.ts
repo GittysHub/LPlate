@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
 
     // Verify learner and instructor exist
     const { data: learner, error: learnerError } = await supabase
@@ -292,7 +292,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     const { data: payment, error: paymentError } = await supabase
       .from('payments')

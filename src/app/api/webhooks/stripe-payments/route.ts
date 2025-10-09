@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
 // Handle successful payment
 async function handlePaymentSucceeded(paymentIntent: Record<string, unknown>) {
   try {
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     // Update payment status
     const { error: updateError } = await supabase
@@ -94,7 +94,7 @@ async function handlePaymentSucceeded(paymentIntent: Record<string, unknown>) {
 // Handle failed payment
 async function handlePaymentFailed(paymentIntent: Record<string, unknown>) {
   try {
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     // Update payment status
     const { error: updateError } = await supabase
@@ -118,7 +118,7 @@ async function handlePaymentFailed(paymentIntent: Record<string, unknown>) {
 // Handle dispute creation
 async function handleDisputeCreated(charge: Record<string, unknown>) {
   try {
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     // Find the payment record
     const { data: payment, error: paymentError } = await supabase
@@ -146,7 +146,7 @@ async function handleDisputeCreated(charge: Record<string, unknown>) {
 // Handle charge refunded
 async function handleChargeRefunded(charge: Record<string, unknown>) {
   try {
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     // Find the payment record
     const { data: payment, error: paymentError } = await supabase
@@ -206,7 +206,7 @@ async function handleChargeRefunded(charge: Record<string, unknown>) {
 // Handle credit purchase from payment webhook
 async function handleCreditPurchaseFromPayment(paymentIntent: Record<string, unknown>) {
   try {
-    const supabase = createSupabaseServer();
+    const supabase = await createSupabaseServer();
     
     const { learnerId, instructorId, hours } = paymentIntent.metadata;
     
