@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import SocialProofSubmissionForm from "@/components/ui/SocialProofSubmissionForm";
 
 const sb = createClient();
 
@@ -313,10 +314,38 @@ export default function MyBookingsPage() {
                   </div>
                 </div>
               </div>
-            ))}
+            )}
           </div>
         )}
       </div>
+
+      {/* Share Your Success Section */}
+      {bookings.some(b => b.status === 'completed') && (
+        <div className="max-w-4xl mx-auto px-4 py-8">
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-8 border border-green-200">
+            <div className="text-center mb-6">
+              <div className="text-4xl mb-3">🎉</div>
+              <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+                Congratulations on Your Success!
+              </h2>
+              <p className="text-gray-600">
+                Share your driving test certificate to inspire other learners
+              </p>
+            </div>
+            
+            <div className="max-w-md mx-auto">
+              <SocialProofSubmissionForm 
+                instructorId="placeholder" // This would need to be dynamic based on completed bookings
+                instructorName="Your Instructor"
+                onSuccess={() => {
+                  // Refresh or show success message
+                  console.log("Certificate submitted successfully!");
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -45,7 +45,50 @@ export default function Home() {
           .not("lng", "is", null)
           .limit(8);
 
-        if (error) throw error;
+        if (error) {
+          console.error("Supabase query error:", error);
+          // If Supabase is not configured, show mock data
+          if (error.message.includes("Missing") || error.message.includes("environment")) {
+            console.log("Using mock data due to missing Supabase configuration");
+            const mockInstructors = [
+              {
+                id: "mock-1",
+                name: "Sarah",
+                avatar_url: null,
+                hourly_rate: 35,
+                location: "Bristol",
+                vehicle_type: "manual",
+                description: "Experienced instructor with 10+ years",
+                rating: 4.8
+              },
+              {
+                id: "mock-2", 
+                name: "James",
+                avatar_url: null,
+                hourly_rate: 30,
+                location: "Bath",
+                vehicle_type: "both",
+                description: "Patient and friendly instructor",
+                rating: 4.9
+              },
+              {
+                id: "mock-3",
+                name: "Emma",
+                avatar_url: null,
+                hourly_rate: 32,
+                location: "Bristol",
+                vehicle_type: "auto",
+                description: "Specializes in nervous learners",
+                rating: 4.7
+              }
+            ];
+            setInstructors(mockInstructors);
+            return;
+          }
+          throw error;
+        }
+        
+        console.log("Raw instructor data:", data);
 
         interface SupabaseInstructorRow {
           id: string;
@@ -56,17 +99,18 @@ export default function Home() {
           gender: string | null;
           lat: number | null;
           lng: number | null;
-          profiles: { name: string | null; avatar_url: string | null }[] | null;
+          profiles: { name: string | null; avatar_url: string | null } | null;
         }
 
         const instructorData = (data as SupabaseInstructorRow[])?.map((r: SupabaseInstructorRow) => {
           const location = r.base_postcode ? getTownFromPostcode(r.base_postcode) : "Unknown";
-          const profile = r.profiles?.[0]; // Get the first profile since it's an array
+          // Fix: profiles is a single object with !inner join, not an array
+          const profile = r.profiles;
           const fullName = profile?.name || "Instructor";
           const firstName = fullName.split(' ')[0]; // Get only the first name
           const avatarUrl = profile?.avatar_url || null;
           
-          console.log('Instructor:', firstName, 'Postcode:', r.base_postcode, 'Location:', location);
+          console.log('Instructor:', firstName, 'Postcode:', r.base_postcode, 'Location:', location, 'Profile:', profile);
           
           return {
             id: r.id,
@@ -409,9 +453,12 @@ export default function Home() {
          {/* Social Proof Section */}
          <section className="px-6 py-6 bg-white">
            <div className="max-w-6xl mx-auto">
-             <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
-               Qualified learners
-             </h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
+              Qualified learners
+            </h2>
+            <p className="text-gray-600 mb-6 text-center">
+              Join thousands of successful learners who found their perfect instructor.
+            </p>
              
             <SocialProofCarousel />
           </div>
@@ -421,12 +468,9 @@ export default function Home() {
       {/* CTA Section */}
       <section className="px-6 py-12 bg-gray-50">
         <div className="max-w-md mx-auto text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
+          <h2 className="text-xl font-semibold text-gray-900 mb-8">
             Ready to Start Your Driving Journey?
           </h2>
-          <p className="text-gray-600 mb-8">
-            Join thousands of successful learners who found their perfect instructor.
-          </p>
           <div className="space-y-4">
             <Link href="/search" className="block bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-4 rounded-2xl transition-colors">
               Find Your Instructor
@@ -446,7 +490,7 @@ export default function Home() {
           </p>
           <div className="flex justify-center space-x-6">
             <a 
-              href="https://instagram.com/lplate" 
+              href="https://instagram.com/lplateapp" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300"
@@ -458,7 +502,7 @@ export default function Home() {
             </a>
             
             <a 
-              href="https://tiktok.com/@lplate" 
+              href="https://www.tiktok.com/@lplateapp" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center space-x-2 px-4 py-2 bg-black text-white rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300"
@@ -470,15 +514,15 @@ export default function Home() {
             </a>
             
             <a 
-              href="https://twitter.com/lplate" 
+              href="https://www.facebook.com/LPlateApp" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300"
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
               </svg>
-              <span className="font-medium">Twitter</span>
+              <span className="font-medium">Facebook</span>
             </a>
           </div>
         </div>

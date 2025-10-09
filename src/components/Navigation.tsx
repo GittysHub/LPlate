@@ -80,7 +80,7 @@ export default function Navigation() {
             <div className="flex items-center space-x-6">
               <Link
                 href="/search"
-                className="border border-gray-300 hover:border-green-500 text-gray-600 hover:text-green-500 px-4 py-1.5 rounded-lg font-medium transition-all duration-200 text-sm"
+                className="border border-gray-300 hover:border-green-500 text-gray-600 hover:text-green-500 px-3 py-1.5 rounded-lg font-medium transition-all duration-200 text-xs whitespace-nowrap"
               >
                 Find Instructors
               </Link>

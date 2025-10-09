@@ -10,7 +10,7 @@ interface SearchBarProps {
 }
 
 export default function SearchBar({ 
-  placeholder = "Enter your postcode...", 
+  placeholder = "Enter postcode", 
   onSearch, 
   loading = false,
   className = ""
@@ -35,13 +35,13 @@ export default function SearchBar({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
-          className="w-full border-0 rounded-xl pl-12 pr-24 py-4 text-lg text-gray-900 placeholder-gray-500 focus:ring-4 focus:ring-green-700 transition-all duration-300 bg-white rounded-l-xl outline-none"
+          className="w-full border-0 rounded-xl pl-12 pr-24 py-4 text-base md:text-lg text-gray-900 placeholder-gray-500 focus:ring-4 focus:ring-green-700 transition-all duration-300 bg-white rounded-l-xl outline-none"
           disabled={loading}
         />
         <button
           type="submit"
           disabled={loading || !query.trim()}
-          className={`absolute right-0 top-0 bottom-0 px-8 py-0 rounded-r-xl font-bold text-lg transition-all duration-300 ${
+          className={`absolute right-0 top-0 bottom-0 px-6 md:px-8 py-0 rounded-r-xl font-bold text-sm md:text-lg transition-all duration-300 ${
             loading || !query.trim()
               ? "bg-green-800 text-white cursor-not-allowed opacity-70"
               : "bg-green-600 hover:bg-green-700 text-white hover:scale-110 hover:shadow-xl hover:shadow-green-200"
