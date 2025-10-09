@@ -102,10 +102,10 @@ export default function Home() {
           profiles: { name: string | null; avatar_url: string | null };
         }
 
-        const instructorData = (data as SupabaseInstructorRow[])?.map((r: SupabaseInstructorRow) => {
+        const instructorData = (data as any[])?.map((r: any) => {
           const location = r.base_postcode ? getTownFromPostcode(r.base_postcode) : "Unknown";
           // Fix: profiles is a single object with !inner join, not an array
-          const profile = r.profiles;
+          const profile = r.profiles as { name: string | null; avatar_url: string | null };
           const fullName = profile?.name || "Instructor";
           const firstName = fullName.split(' ')[0]; // Get only the first name
           const avatarUrl = profile?.avatar_url || null;
