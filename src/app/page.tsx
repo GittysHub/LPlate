@@ -99,7 +99,7 @@ export default function Home() {
           gender: string | null;
           lat: number | null;
           lng: number | null;
-          profiles: { name: string | null; avatar_url: string | null } | null;
+          profiles: { name: string | null; avatar_url: string | null };
         }
 
         const instructorData = (data as SupabaseInstructorRow[])?.map((r: SupabaseInstructorRow) => {
