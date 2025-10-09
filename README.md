@@ -154,6 +154,32 @@ src/
 - pnpm (recommended) or npm
 - Supabase account
 
+## 🔧 Development Tools
+
+### Diagnostic Scripts
+The project includes comprehensive diagnostic tools to help with development:
+
+- **`CURSOR-SESSION-PROMPT.md`**: Complete prompt for AI assistants to quickly get up to speed on the project
+- **`diagnostic.bat`** (Windows) / **`diagnostic.sh`** (Linux/Mac): Automated project health checks
+- **`BUG-SOCIAL-PROOF-LEARNER-NAMES.md`**: Documented known issues for future resolution
+
+### Quick Health Check
+Run the diagnostic script to check project status:
+```bash
+# Windows
+diagnostic.bat
+
+# Linux/Mac  
+./diagnostic.sh
+```
+
+### TypeScript Validation
+Before deploying, always run:
+```bash
+npx tsc --noEmit  # Check for TypeScript errors
+pnpm run build    # Full build test
+```
+
 ### Installation
 
 1. **Clone the repository**
