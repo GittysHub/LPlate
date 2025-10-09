@@ -90,19 +90,7 @@ export default function Home() {
         
         console.log("Raw instructor data:", data);
 
-        interface SupabaseInstructorRow {
-          id: string;
-          description: string | null;
-          base_postcode: string | null;
-          vehicle_type: string | null;
-          hourly_rate: number | null;
-          gender: string | null;
-          lat: number | null;
-          lng: number | null;
-          profiles: { name: string | null; avatar_url: string | null };
-        }
-
-        const instructorData = (data as any[])?.map((r: any) => {
+        const instructorData = (data as unknown[])?.map((r: Record<string, unknown>) => {
           const location = r.base_postcode ? getTownFromPostcode(r.base_postcode) : "Unknown";
           // Fix: profiles is a single object with !inner join, not an array
           const profile = r.profiles as { name: string | null; avatar_url: string | null };
