@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { createSupabaseBrowser } from "@/lib/supabase";
 import SearchBar from "@/components/ui/SearchBar";
@@ -47,6 +48,128 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [results, setResults] = useState<Array<InstructorCard & { distanceKm?: number }>>([]);
+
+  // Get search params for automatic search
+  const searchParams = useSearchParams();
+
+  // Auto-search when page loads with query parameter
+  useEffect(() => {
+    const query = searchParams.get('q');
+    if (query && query.trim()) {
+      setPostcode(query.trim());
+      // Trigger search after a short delay to ensure component is mounted
+      const timer = setTimeout(async () => {
+        try {
+          setErr(null);
+          setLoading(true);
+          setResults([]);
+
+          const origin = await geocode(query.trim());
+
+          const { data, error } = await sb
+            .from("instructors")
+            .select(`
+              id, 
+              description, 
+              base_postcode, 
+              vehicle_type, 
+              hourly_rate, 
+              gender, 
+              lat, 
+              lng, 
+              profiles!inner(name, avatar_url)
+            `)
+            .eq("verification_status", "approved")
+            .not("lat", "is", null)
+            .not("lng", "is", null);
+
+          if (error) throw error;
+
+          console.log("Raw instructor data:", data);
+
+          interface SupabaseRow {
+            id: string;
+            description: string | null;
+            base_postcode: string | null;
+            vehicle_type: "manual" | "auto" | "both" | null;
+            hourly_rate: number | null;
+            gender: "male" | "female" | "other" | null;
+            lat: number | null;
+            lng: number | null;
+            profiles: { name: string | null; avatar_url: string | null } | null;
+          }
+
+          let rows: InstructorCard[] =
+            (data as unknown as SupabaseRow[])?.map((r: SupabaseRow) => {
+              const fullName = r.profiles?.name ?? null;
+              const firstName = fullName ? fullName.split(' ')[0] : null;
+              console.log(`Instructor ${r.id}: fullName=`, fullName, 'firstName=', firstName);
+              return {
+                id: r.id,
+                description: r.description,
+                base_postcode: r.base_postcode,
+                vehicle_type: r.vehicle_type,
+                hourly_rate: r.hourly_rate,
+                gender: r.gender,
+                lat: r.lat,
+                lng: r.lng,
+                name: firstName,
+                avatar_url: r.profiles?.avatar_url ?? null,
+              };
+            }) ?? [];
+
+          if (vehicle !== "both") rows = rows.filter(r => (r.vehicle_type ?? "manual") === vehicle);
+          if (gender !== "any") rows = rows.filter(r => (r.gender ?? "other") === gender);
+
+          let filtered = rows;
+
+          // Apply availability filtering
+          if (selectedDays.length > 0 && selectedDays.length < 7 && timeOfDay) {
+            // Filter by specific days and time of day
+            filtered = filtered.filter(r => {
+              // This is a simplified availability check
+              // In a real app, you'd check against the availability table
+              return true; // For now, return all instructors
+            });
+          }
+
+          // Apply lesson duration filtering
+          if (lessonDurationMins > 0) {
+            // Filter by lesson duration preference
+            // This would typically check instructor preferences or availability
+            filtered = filtered.filter(r => {
+              return true; // For now, return all instructors
+            });
+          }
+
+          const radiusKm = 20; // Default radius
+          const withDistance = filtered
+            .map(r => {
+              const d = r.lat != null && r.lng != null ? haversineKm(origin.lat, origin.lng, r.lat, r.lng) : Infinity;
+              return { ...r, distanceKm: d };
+            })
+            .filter(r => r.distanceKm! <= radiusKm)
+            .sort((a, b) => {
+              // Primary sort: by price (lowest first)
+              const priceA = a.hourly_rate ?? 30;
+              const priceB = b.hourly_rate ?? 30;
+              if (priceA !== priceB) {
+                return priceA - priceB;
+              }
+              // Secondary sort: by distance (closest first)
+              return a.distanceKm! - b.distanceKm!;
+            });
+
+          setResults(withDistance);
+        } catch (e: unknown) {
+          setErr(e instanceof Error ? e.message : "Search failed");
+        } finally {
+          setLoading(false);
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
 
   // Filter chips configuration
   const vehicleFilters = [
@@ -104,18 +227,17 @@ export default function SearchPage() {
     
     // Handle different UK postcode formats
     if (s.length >= 5) {
-      // For postcodes like "BS16 2NR" or "BS162NR" -> "BS16 2NR"
       if (s.length === 6) {
-        // Format: ABC123 -> ABC 123
+        // Format: ABC123 -> ABC 123 (3 + 3)
         s = s.slice(0, 3) + " " + s.slice(3);
       } else if (s.length === 7) {
-        // Format: ABCD123 -> ABCD 123  
+        // Format: ABCD123 -> ABCD 123 (4 + 3)
         s = s.slice(0, 4) + " " + s.slice(4);
       } else if (s.length === 5) {
-        // Format: AB123 -> AB 123
+        // Format: AB123 -> AB 123 (2 + 3)
         s = s.slice(0, 2) + " " + s.slice(2);
       } else if (s.length === 8) {
-        // Format: ABCD1234 -> ABCD 1234
+        // Format: ABCD1234 -> ABCD 1234 (4 + 4)
         s = s.slice(0, 4) + " " + s.slice(4);
       }
     }
@@ -143,8 +265,10 @@ export default function SearchPage() {
 
   async function geocode(pc: string) {
     const norm = normalisePostcode(pc);
+    console.log('Geocoding postcode:', pc, 'Normalized:', norm);
     const r = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(norm)}`);
     const j = await r.json();
+    console.log('API response:', j);
     if (j.status !== 200 || !j.result) throw new Error("Postcode not found");
     return { lat: j.result.latitude as number, lng: j.result.longitude as number };
   }

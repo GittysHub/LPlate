@@ -62,6 +62,7 @@ I'm working on **LPlate**, a UK learner driver marketplace connecting learners w
    - Confirm price sorting (lowest first) is working
    - Verify privacy protection (masked postcodes, miles display)
    - Test Enter key support in search bar
+   - Verify instant search results from homepage (no double-typing)
 
 2. **Instructor Card Display**
    - Check profile pictures are loading correctly (not just initials)
@@ -97,12 +98,13 @@ Please provide:
 
 - Instructor names showing as "Instructor" instead of actual names (FIXED)
 - Profile pictures not loading (showing initials instead)
-- Postcode normalization not working properly
+- Postcode normalization not working properly (FIXED)
 - Filter toggles not responding correctly
-- Price sorting not working (should be lowest first)
-- Enter key not triggering search
-- Distance showing in km instead of miles
-- Postcodes not being masked for privacy
+- Price sorting not working (should be lowest first) (FIXED)
+- Enter key not triggering search (FIXED)
+- Distance showing in km instead of miles (FIXED)
+- Postcodes not being masked for privacy (FIXED)
+- Homepage search requiring double-typing (FIXED)
 - Learner names showing as "Learner" instead of actual names
 - Build errors in bookings page
 - Supabase connection issues

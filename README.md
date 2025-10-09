@@ -318,6 +318,7 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 ### 🔄 Latest Updates (v2.6) - Enhanced Instructor Search
 - **Advanced Search Functionality**: Complete overhaul of instructor search with modern filtering system
 - **Postcode Normalization**: Smart handling of UK postcodes with or without spaces (e.g., "BS16 2NR" or "BS162NR")
+- **Instant Search Results**: Homepage search automatically redirects to search page with immediate results
 - **Modern Filter System**: Segmented toggle controls for Vehicle Type, Gender, Duration, and Time of Day
 - **Multi-Day Availability**: Support for selecting multiple days (e.g., Monday & Wednesday) with "Any Day" when all selected
 - **Privacy Protection**: Masked postcodes (BS16 ***) and distance display in miles for instructor safety
@@ -327,6 +328,7 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 - **Improved Information Flow**: Name → Location/Distance → Rating → Vehicle Type for better user experience
 - **Real-Time Formatting**: Postcode input automatically formats as user types
 - **Toggle Component**: New reusable segmented toggle with green branding and discrete shadows
+- **Seamless UX Flow**: No double-typing required - search from homepage shows instant results
 
 ### 🔄 Previous Updates (v2.5)
 - **Homepage Structure Optimization**: Reorganized sections for better user flow and conversion
