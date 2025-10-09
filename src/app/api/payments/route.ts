@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
         instructorAmount: finalInstructorAmountPence.toString(),
         totalAmount: totalAmountPence.toString(),
       },
-      description: description || `Driving lesson payment - ${instructor.profiles.name}`,
+      description: description || `Driving lesson payment - ${instructor.profiles[0]?.name || 'Instructor'}`,
     });
 
     // Store payment in database
@@ -164,7 +164,7 @@ export async function POST(request: NextRequest) {
         discount_amount_pence: discountAmountPence,
         payment_method: 'card',
         currency: 'gbp',
-        description: description || `Driving lesson payment - ${instructor.profiles.name}`,
+        description: description || `Driving lesson payment - ${instructor.profiles[0]?.name || 'Instructor'}`,
       })
       .select()
       .single();
