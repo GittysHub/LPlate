@@ -33,7 +33,7 @@ I'm working on **LPlate**, a UK learner driver marketplace connecting learners w
 
 ### 🎯 **Project Context:**
 
-**Tech Stack:** Next.js 15, TypeScript, TailwindCSS, Supabase (Postgres + Auth + Storage)
+**Tech Stack:** Next.js 15, TypeScript, TailwindCSS, Supabase (Postgres + Auth + Storage), Stripe Connect
 
 **Core Features:**
 - Enhanced instructor search with advanced filtering and postcode normalization
@@ -44,18 +44,33 @@ I'm working on **LPlate**, a UK learner driver marketplace connecting learners w
 - Profile management with photo uploads
 - Social proof system (learner certificate uploads)
 - Role-based authentication (learner vs instructor)
+- **Stripe Connect Integration**: Complete payment processing with automated payouts
+- **Prepaid Lesson Credits**: Multi-hour purchases with automatic deduction
+- **Discount & Referral Codes**: Promotional code support at checkout
 
 **Current Focus Areas:**
+- **Stripe Connect Integration**: Payment processing, automated payouts, and webhook handling
+- **Payment System**: Lesson payments, credit purchases, and commission management
+- **TypeScript Error Resolution**: Fixing remaining build issues for production deployment
+- **Database Schema**: Stripe Connect tables and payment tracking
+- **Webhook Processing**: Real-time payment updates and account status changes
 - Enhanced instructor search functionality with modern UI/UX
 - Advanced filtering system with segmented toggles
 - Privacy protection and user experience improvements
-- Social proof carousel displaying learner success stories
-- Certificate upload system for learners
-- Database schema for social_proof_submissions table
 
 ### 🔍 **Key Areas to Investigate:**
 
-1. **Enhanced Instructor Search System**
+1. **Stripe Connect Integration**
+   - Check webhook endpoints are deployed and responding
+   - Verify Stripe Connect account creation flow
+   - Test payment processing with test cards
+   - Confirm automated payout system is working
+   - Check commission calculation (18% added to instructor rate)
+   - Verify prepaid credit system functionality
+   - Test discount and referral code application
+   - Check dispute and refund handling
+
+2. **Enhanced Instructor Search System**
    - Verify postcode normalization is working (handles spaces/no spaces)
    - Test segmented toggle controls for all filter types
    - Check multi-day availability selection functionality
@@ -96,6 +111,17 @@ Please provide:
 
 ### 🚨 **Common Issues to Check:**
 
+**Stripe Connect Issues:**
+- Webhook endpoints returning 404 (check deployment)
+- TypeScript build errors preventing deployment
+- Stripe API key configuration issues
+- Webhook signature verification failures
+- Payment processing errors
+- Commission calculation incorrect (should be 18% added, not deducted)
+- Instructor payout failures
+- Credit system not deducting hours properly
+
+**Existing Issues:**
 - Instructor names showing as "Instructor" instead of actual names (FIXED)
 - Profile pictures not loading (showing initials instead)
 - Postcode normalization not working properly (FIXED)
@@ -115,6 +141,18 @@ Please provide:
 
 ### 📁 **Important File Locations:**
 
+**Stripe Connect Files:**
+- `src/lib/stripe.ts` - Stripe configuration and utilities
+- `src/app/api/stripe-connect/account/route.ts` - Account management
+- `src/app/api/payments/route.ts` - Payment processing
+- `src/app/api/payouts/route.ts` - Automated payout system
+- `src/app/api/credits/route.ts` - Prepaid credit management
+- `src/app/api/webhooks/stripe-connect/route.ts` - Connect webhooks
+- `src/app/api/webhooks/stripe-payments/route.ts` - Payment webhooks
+- `stripe-connect-schema.sql` - Payment database schema
+- `env-template.txt` - Environment variables template
+
+**Core Application Files:**
 - `README.md` - Project documentation with latest updates
 - `src/app/page.tsx` - Homepage with instructor carousel
 - `src/app/search/page.tsx` - Enhanced instructor search with modern filtering
@@ -126,6 +164,8 @@ Please provide:
 - `src/components/ui/SocialProofSubmissionForm.tsx` - Certificate upload
 - `src/app/bookings/page.tsx` - Learner booking management
 - `src/app/instructor/profile/page.tsx` - Instructor profile management with service radius
+
+**Database & Setup Files:**
 - `database-setup-social-proof.sql` - Database schema
 - `add-service-radius-to-instructors.sql` - Service radius migration
 - `update-test-instructors-service-radius.sql` - Test data updates

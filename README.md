@@ -14,6 +14,7 @@ A modern marketplace web app connecting UK learner drivers with qualified drivin
 - **Availability Calendar**: Instructors can set their weekly availability schedule with multi-day selection
 - **Real-time Filtering**: Search results filtered by instructor availability and preferences
 - **Social Proof System**: Learners can upload driving test certificates to showcase success stories
+- **Stripe Connect Integration**: Complete payment processing with automated instructor payouts
 
 ### 🎨 Modern UI/UX
 - **Apple-inspired design system** with Poppins font and clean aesthetics
@@ -39,6 +40,15 @@ A modern marketplace web app connecting UK learner drivers with qualified drivin
 - **Role-based access** (learner vs instructor)
 - **Profile photo uploads** to Supabase Storage
 
+### 💳 Payment Processing
+- **Stripe Connect Integration** for marketplace payments
+- **Automated Instructor Payouts** every Friday after lesson completion
+- **18% Platform Commission** added to instructor rates (not deducted)
+- **Prepaid Lesson Credits** with automatic hour deduction
+- **Discount & Referral Codes** support at checkout
+- **Dispute Resolution** with refund handling
+- **Webhook Processing** for real-time payment updates
+
 ## 🛠 Tech Stack
 
 | Layer | Technology |
@@ -50,6 +60,7 @@ A modern marketplace web app connecting UK learner drivers with qualified drivin
 | **File Storage** | Supabase Storage |
 | **Styling** | TailwindCSS with custom components |
 | **Fonts** | Poppins (Google Fonts) |
+| **Payments** | Stripe Connect for marketplace transactions |
 
 ## 📁 Project Structure
 
@@ -60,6 +71,15 @@ src/
 │   │   └── sign-in/           # Authentication pages
 │   ├── auth/
 │   │   └── callback/          # Auth callback handling
+│   ├── api/
+│   │   ├── stripe-connect/
+│   │   │   └── account/        # Stripe Connect account management
+│   │   ├── payments/          # Payment processing
+│   │   ├── payouts/           # Automated payout system
+│   │   ├── credits/           # Prepaid lesson credits
+│   │   └── webhooks/
+│   │       ├── stripe-connect/ # Stripe Connect webhooks
+│   │       └── stripe-payments/ # Payment webhooks
 │   ├── booking/
 │   │   └── request/           # Booking request flow
 │   ├── instructor/
@@ -85,7 +105,8 @@ src/
 └── lib/
     ├── supabase.ts           # Client-side Supabase client
     ├── supabase-browser.ts   # Browser-specific client
-    └── supabase-server.ts    # Server-side client
+    ├── supabase-server.ts    # Server-side client
+    └── stripe.ts             # Stripe Connect configuration and utilities
 ```
 
 ## 🗄 Database Schema
@@ -154,6 +175,62 @@ src/
 | `created_at` | timestamptz | Submission timestamp |
 | `updated_at` | timestamptz | Last update timestamp |
 
+#### `stripe_connect_accounts`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `instructor_id` | uuid | Foreign key to instructors.id |
+| `stripe_account_id` | text | Stripe Connect account ID |
+| `account_type` | text | 'express', 'standard', 'custom' |
+| `charges_enabled` | boolean | Can accept payments |
+| `payouts_enabled` | boolean | Can receive payouts |
+| `details_submitted` | boolean | Account setup complete |
+| `requirements` | jsonb | Stripe requirements for completion |
+| `created_at` | timestamptz | Account creation time |
+| `updated_at` | timestamptz | Last update time |
+
+#### `payments`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `learner_id` | uuid | Foreign key to profiles.id |
+| `instructor_id` | uuid | Foreign key to instructors.id |
+| `stripe_payment_intent_id` | text | Stripe payment intent ID |
+| `total_amount_pence` | integer | Total amount learner paid |
+| `platform_fee_pence` | integer | 18% commission (added to instructor rate) |
+| `instructor_amount_pence` | integer | Amount instructor receives |
+| `status` | text | 'pending', 'succeeded', 'failed', 'refunded' |
+| `payment_method` | text | 'card', 'credit' |
+| `currency` | text | 'gbp' |
+| `description` | text | Payment description |
+| `created_at` | timestamptz | Payment timestamp |
+
+#### `learner_credits`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `learner_id` | uuid | Foreign key to profiles.id |
+| `instructor_id` | uuid | Foreign key to instructors.id |
+| `total_hours_purchased` | integer | Total hours bought |
+| `hours_used` | integer | Hours consumed |
+| `hourly_rate_pence` | integer | Rate when purchased |
+| `is_active` | boolean | Credit account active |
+| `created_at` | timestamptz | Purchase timestamp |
+| `updated_at` | timestamptz | Last update time |
+
+#### `payouts`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `instructor_id` | uuid | Foreign key to instructors.id |
+| `stripe_transfer_id` | text | Stripe transfer ID |
+| `amount_pence` | integer | Total payout amount |
+| `platform_fee_pence` | integer | Platform commission |
+| `status` | text | 'pending', 'processing', 'paid', 'failed' |
+| `payout_date` | date | Scheduled payout date |
+| `processed_at` | timestamptz | Actual processing time |
+| `created_at` | timestamptz | Payout creation time |
+
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -203,8 +280,23 @@ pnpm install
 3. **Set up environment variables**
    Create a `.env.local` file in the project root:
    ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   # Supabase Configuration
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+   
+   # Site Configuration
+   NEXT_PUBLIC_BASE_URL=https://your-domain.com
+   NEXT_PUBLIC_SITE_URL=https://your-domain.com
+   
+   # Stripe Configuration
+   STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
+   STRIPE_PUBLISHABLE_KEY=pk_test_your_stripe_publishable_key
+   STRIPE_CONNECT_WEBHOOK_SECRET=whsec_your_connect_webhook_secret
+   STRIPE_PAYMENTS_WEBHOOK_SECRET=whsec_your_payments_webhook_secret
+   
+   # Platform Configuration
+   PLATFORM_FEE_PCT=18
    ```
 
 4. **Run the development server**
@@ -221,6 +313,24 @@ pnpm dev
 2. **Run the database migrations** (see Database Setup below)
 3. **Set up Storage bucket** named "avatars" for profile photos
 4. **Configure RLS policies** for data security
+
+### Stripe Connect Setup
+
+1. **Create Stripe Connect Account**
+   - Go to [Stripe Dashboard](https://dashboard.stripe.com)
+   - Enable Stripe Connect
+   - Choose "Marketplace" business model
+   - Select "Accounts v2 API"
+
+2. **Configure Webhooks**
+   - Create webhook endpoint: `https://your-domain.com/api/webhooks/stripe-connect`
+   - Events: `v2.core.account.created`, `v2.core.account.updated`, `transfer.created`, `transfer.updated`
+   - Create webhook endpoint: `https://your-domain.com/api/webhooks/stripe-payments`
+   - Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `charge.dispute.created`, `charge.refunded`
+
+3. **Run Database Schema**
+   - Execute `stripe-connect-schema.sql` in Supabase SQL editor
+   - This creates all payment-related tables
 
 ## 🗃 Database Setup
 
@@ -316,7 +426,19 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 - **Social Media Integration**: Footer-style social links with brand colors and hover animations
 - **Homepage Flow Optimization**: Strategic section placement for improved user journey and conversion
 
-### 🔄 Latest Updates (v2.7) - Service Radius System
+### 🔄 Latest Updates (v3.0) - Stripe Connect Integration
+- **Complete Payment Processing**: Full Stripe Connect integration for marketplace transactions
+- **Automated Instructor Payouts**: Instructors automatically paid every Friday after lesson completion
+- **18% Platform Commission**: Commission added to instructor rates (not deducted from their earnings)
+- **Prepaid Lesson Credits**: Learners can buy multiple hours with automatic deduction system
+- **Discount & Referral Codes**: Support for promotional codes at checkout
+- **Webhook Processing**: Real-time payment updates and account status changes
+- **Dispute Resolution**: Comprehensive refund and dispute handling system
+- **Database Schema**: Complete payment tables with audit logging and reconciliation
+- **TypeScript Integration**: Fully typed Stripe API with error handling
+- **Production Ready**: Webhook endpoints deployed and tested
+
+### 🔄 Previous Updates (v2.7) - Service Radius System
 - **Service Radius Filtering**: Instructors can now set their service radius (1-50 miles) in their profile
 - **Smart Distance Filtering**: Search only shows instructors willing to travel to the learner's location
 - **Instructor Profile Enhancement**: Added service radius input field with validation and helpful description
@@ -370,11 +492,12 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 ### 🔜 Next Features
 - **Learner Dashboard**: Progress tracking and lesson history
 - **Instructor Dashboard**: Earnings, student management, and analytics
-- **Payment Integration**: Stripe payment processing
 - **Email Notifications**: Booking confirmations and updates
 - **Advanced Scheduling**: Recurring lesson bookings
 - **Reviews & Ratings**: Instructor feedback system
 - **Mobile App**: React Native version
+- **Advanced Analytics**: Payment and booking insights
+- **Multi-currency Support**: International expansion
 
 ### 🛠 Technical Improvements
 - **Error Handling**: Comprehensive error boundaries and user feedback
