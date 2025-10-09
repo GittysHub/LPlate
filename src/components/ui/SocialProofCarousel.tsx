@@ -125,7 +125,7 @@ export default function SocialProofCarousel() {
         }
 
         // Transform Supabase data to our interface
-        const certificatesData: Certificate[] = (submissionsData || []).map((row: any) => {
+        const certificatesData: Certificate[] = (submissionsData || []).map((row: Record<string, unknown>) => {
           console.log("Processing row:", row);
           
           const learnerName = learnerMap.get(row.learner_id) || "Learner";

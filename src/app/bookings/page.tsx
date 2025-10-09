@@ -336,7 +336,6 @@ export default function MyBookingsPage() {
             <div className="max-w-md mx-auto">
               <SocialProofSubmissionForm 
                 instructorId="placeholder" // This would need to be dynamic based on completed bookings
-                instructorName="Your Instructor"
                 onSuccess={() => {
                   // Refresh or show success message
                   console.log("Certificate submitted successfully!");

@@ -5,13 +5,11 @@ import { createSupabaseBrowser } from "@/lib/supabase-browser";
 
 interface SocialProofSubmissionFormProps {
   instructorId: string;
-  instructorName: string;
   onSuccess?: () => void;
 }
 
 export default function SocialProofSubmissionForm({ 
   instructorId, 
-  instructorName, 
   onSuccess 
 }: SocialProofSubmissionFormProps) {
   const [file, setFile] = useState<File | null>(null);
@@ -66,7 +64,7 @@ export default function SocialProofSubmissionForm({
       const fileExt = file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
       
-      const { data: uploadData, error: uploadError } = await sb.storage
+      const { error: uploadError } = await sb.storage
         .from('avatars')
         .upload(fileName, file);
 
@@ -105,8 +103,9 @@ export default function SocialProofSubmissionForm({
       setTestLocation("");
       setTestimonial("");
       
-    } catch (err: any) {
-      setError(err.message || "Failed to submit certificate");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to submit certificate";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
