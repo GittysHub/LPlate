@@ -91,7 +91,7 @@ export default function Home() {
         console.log("Raw instructor data:", data);
 
         const instructorData = (data as Record<string, unknown>[])?.map((r: Record<string, unknown>) => {
-          const location = r.base_postcode ? getTownFromPostcode(r.base_postcode) : "Unknown";
+          const location = r.base_postcode && typeof r.base_postcode === 'string' ? getTownFromPostcode(r.base_postcode) : "Unknown";
           // Fix: profiles is a single object with !inner join, not an array
           const profile = r.profiles as { name: string | null; avatar_url: string | null };
           const fullName = profile?.name || "Instructor";
