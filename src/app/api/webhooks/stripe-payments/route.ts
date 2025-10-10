@@ -78,7 +78,7 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
     
     // Update payment status
     const { error: updateError } = await supabase
-      .from('payments')
+      .from('orders')
       .update({
         status: 'succeeded',
         updated_at: new Date().toISOString(),
@@ -107,7 +107,7 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
     
     // Update payment status
     const { error: updateError } = await supabase
-      .from('payments')
+      .from('orders')
       .update({
         status: 'failed',
         updated_at: new Date().toISOString(),
@@ -131,7 +131,7 @@ async function handleDisputeCreated(charge: Stripe.Dispute) {
     
     // Find the payment record
     const { data: payment, error: paymentError } = await supabase
-      .from('payments')
+      .from('orders')
       .select('id, learner_id, instructor_id, total_amount_pence')
       .eq('stripe_payment_intent_id', charge.payment_intent)
       .single();
@@ -159,8 +159,8 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
     
     // Find the payment record
     const { data: payment, error: paymentError } = await supabase
-      .from('payments')
-      .select('id, learner_id, instructor_id, total_amount_pence, platform_fee_pence, instructor_amount_pence')
+      .from('orders')
+      .select('id, learner_id, instructor_id, total_amount_pence, platform_fee_pence, instructor_rate_pence')
       .eq('stripe_payment_intent_id', charge.payment_intent)
       .single();
 
@@ -179,14 +179,11 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
     const { error: refundError } = await supabase
       .from('refunds')
       .insert({
-        payment_id: payment.id,
+        order_id: payment.id,
         stripe_refund_id: refunds.data[0]?.id,
-        refund_amount_pence: refundAmountPence,
-        platform_fee_refund_pence: platformFeeRefundPence,
-        instructor_refund_pence: instructorRefundPence,
+        amount_pence: refundAmountPence,
         reason: 'requested_by_customer',
         status: 'succeeded',
-        processed_at: new Date().toISOString(),
       });
 
     if (refundError) {
@@ -197,7 +194,7 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
 
     // Update payment status
     const { error: updateError } = await supabase
-      .from('payments')
+      .from('orders')
       .update({
         status: 'refunded',
         updated_at: new Date().toISOString(),
@@ -227,44 +224,21 @@ async function handleCreditPurchaseFromPayment(paymentIntent: Stripe.PaymentInte
     }
 
     const hoursToAdd = Number(hours ?? 0);
+    const minutesToAdd = hoursToAdd * 60; // Convert hours to minutes
     
-    // Find existing credit account
-    const { data: existingCredit, error: existingError } = await supabase
-      .from('learner_credits')
-      .select('*')
-      .eq('learner_id', learnerId)
-      .eq('instructor_id', instructorId)
-      .single();
+    // Add credit ledger entry for purchase
+    const { error: insertError } = await supabase
+      .from('credit_ledger')
+      .insert({
+        learner_id: learnerId as string,
+        instructor_id: instructorId as string,
+        delta_minutes: minutesToAdd,
+        source: 'PURCHASE',
+        order_id: null, // Will be linked when order is created
+        note: `Credit purchase: ${hoursToAdd} hours`,
+      });
 
-    if (existingError && existingError.code !== 'PGRST116') {
-      throw existingError;
-    }
-
-    if (existingCredit) {
-      // Update existing credit
-      const { error: updateError } = await supabase
-        .from('learner_credits')
-        .update({
-          total_hours_purchased: existingCredit.total_hours_purchased + hoursToAdd,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', existingCredit.id);
-
-      if (updateError) throw updateError;
-    } else {
-      // Create new credit account
-      const { error: insertError } = await supabase
-        .from('learner_credits')
-        .insert({
-          learner_id: learnerId,
-          instructor_id: instructorId,
-          total_hours_purchased: hoursToAdd,
-          hours_used: 0,
-          hourly_rate_pence: (paymentIntent.amount as number) / hoursToAdd, // Calculate rate from payment
-        });
-
-      if (insertError) throw insertError;
-    }
+    if (insertError) throw insertError;
 
     console.log(`Credit purchase processed: ${hoursToAdd} hours for learner ${learnerId} with instructor ${instructorId}`);
     

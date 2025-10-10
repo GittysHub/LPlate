@@ -1,0 +1,148 @@
+erDiagram
+    USERS ||--o{ INSTRUCTORS : has
+    USERS ||--o{ ORDERS : places
+    USERS ||--o{ LESSONS : attends
+    INSTRUCTORS ||--o{ LESSONS : teaches
+    INSTRUCTORS ||--|| STRIPE_CONNECT_ACCOUNTS : has
+    ORDERS ||--o{ LESSONS : may_fund
+    ORDERS ||--o{ REFUNDS : may_have
+    LESSONS ||--|| PAYOUT_INSTRUCTIONS : generates
+    USERS ||--o{ CREDIT_LEDGER : owns
+    INSTRUCTORS ||--o{ CREDIT_LEDGER : credited_against
+
+    USERS {
+        uuid id PK
+        string email
+        string name
+        string role
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    
+    INSTRUCTORS {
+        uuid id PK
+        uuid user_id FK
+        int hourly_rate_pence
+        bool is_active
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    
+    STRIPE_CONNECT_ACCOUNTS {
+        uuid id PK
+        uuid instructor_id FK
+        string stripe_account_id
+        bool charges_enabled
+        bool payouts_enabled
+        string country
+        string default_currency
+        smallint requirements_due
+        string disabled_reason
+        timestamptz onboarding_completed_at
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    
+    ORDERS {
+        uuid id PK
+        uuid learner_id FK
+        uuid instructor_id FK
+        string stripe_payment_intent_id
+        string stripe_balance_txn_id
+        string transfer_group
+        int instructor_rate_pence
+        int platform_fee_pence
+        int total_amount_pence
+        int hours_booked_minutes
+        string currency
+        string status
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    
+    LESSONS {
+        uuid id PK
+        uuid instructor_id FK
+        uuid learner_id FK
+        timestamptz start_time
+        timestamptz end_time
+        int duration_minutes
+        string status
+        timestamptz completed_at
+        int price_pence
+        uuid order_id FK
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    
+    CREDIT_LEDGER {
+        uuid id PK
+        uuid learner_id FK
+        uuid instructor_id FK
+        int delta_minutes
+        string source
+        uuid order_id
+        uuid lesson_id
+        string note
+        timestamptz created_at
+    }
+    
+    PAYOUT_INSTRUCTIONS {
+        uuid id PK
+        uuid instructor_id FK
+        uuid lesson_id UNIQUE
+        int amount_pence
+        date eligible_on
+        string status
+        string stripe_transfer_id
+        string idempotency_key
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    
+    REFUNDS {
+        uuid id PK
+        uuid order_id FK
+        string stripe_refund_id
+        int amount_pence
+        string reason
+        string status
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    
+    DISCOUNT_CODES {
+        uuid id PK
+        string code
+        int discount_amount_pence
+        int discount_percentage
+        int max_uses
+        int uses_count
+        timestamptz expires_at
+        bool is_active
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    
+    AUDIT_LOGS {
+        uuid id PK
+        string entity_type
+        uuid entity_id
+        string action
+        jsonb old_values
+        jsonb new_values
+        uuid user_id FK
+        string event_source
+        string stripe_event_id
+        timestamptz created_at
+    }
+    
+    WEBHOOK_LOG {
+        uuid id PK
+        string stripe_event_id UNIQUE
+        string type
+        jsonb payload
+        timestamptz received_at
+        timestamptz processed_at
+        int attempts
+    }
