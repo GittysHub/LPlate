@@ -192,10 +192,9 @@ export async function POST(request: NextRequest) {
 
     // Update discount code usage
     if (discountCode && discountAmountPence > 0) {
-      await supabase
-        .from('discount_codes')
-        .update({ uses_count: supabase.sql`uses_count + 1` })
-        .eq('code', discountCode);
+      await supabase.rpc('increment_discount_usage', {
+        p_code: discountCode,
+      });
     }
 
     return NextResponse.json({

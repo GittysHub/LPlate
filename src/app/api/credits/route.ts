@@ -157,13 +157,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Update credit usage
-    const { error: updateError } = await supabase
-      .from('learner_credits')
-      .update({
-        hours_used: credit.hours_used + hoursToUse,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', credit.id);
+    const { error: updateError } = await supabase.rpc('add_lesson_hours', {
+      p_learner_id: learnerId,
+      p_instructor_id: instructorId,
+      p_hours: hoursToUse,
+    });
 
     if (updateError) {
       console.error('Credit update error:', updateError);

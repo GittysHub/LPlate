@@ -2,6 +2,7 @@
 // Handles payment events, refunds, and disputes
 
 import { NextRequest, NextResponse } from 'next/server';
+import Stripe from 'stripe';
 import { WebhookVerifier, StripeErrorHandler } from '@/lib/stripe';
 import { createSupabaseServer } from '@/lib/supabase-server';
 
@@ -29,21 +30,29 @@ export async function POST(request: NextRequest) {
 
     // Handle different event types
     switch (event.type) {
-      case 'payment_intent.succeeded':
-        await handlePaymentSucceeded(event.data.object as Record<string, unknown>);
+      case 'payment_intent.succeeded': {
+        const pi = event.data.object as Stripe.PaymentIntent;
+        await handlePaymentSucceeded(pi);
         break;
+      }
         
-      case 'payment_intent.payment_failed':
-        await handlePaymentFailed(event.data.object as Record<string, unknown>);
+      case 'payment_intent.payment_failed': {
+        const pi = event.data.object as Stripe.PaymentIntent;
+        await handlePaymentFailed(pi);
         break;
+      }
         
-      case 'charge.dispute.created':
-        await handleDisputeCreated(event.data.object as Record<string, unknown>);
+      case 'charge.dispute.created': {
+        const dispute = event.data.object as Stripe.Dispute;
+        await handleDisputeCreated(dispute);
         break;
+      }
         
-      case 'charge.refunded':
-        await handleChargeRefunded(event.data.object as Record<string, unknown>);
+      case 'charge.refunded': {
+        const charge = event.data.object as Stripe.Charge;
+        await handleChargeRefunded(charge);
         break;
+      }
         
       default:
         console.log(`Unhandled payment event type: ${event.type}`);
@@ -63,7 +72,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Handle successful payment
-async function handlePaymentSucceeded(paymentIntent: Record<string, unknown>) {
+async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   try {
     const supabase = await createSupabaseServer();
     
@@ -92,7 +101,7 @@ async function handlePaymentSucceeded(paymentIntent: Record<string, unknown>) {
 }
 
 // Handle failed payment
-async function handlePaymentFailed(paymentIntent: Record<string, unknown>) {
+async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
   try {
     const supabase = await createSupabaseServer();
     
@@ -116,7 +125,7 @@ async function handlePaymentFailed(paymentIntent: Record<string, unknown>) {
 }
 
 // Handle dispute creation
-async function handleDisputeCreated(charge: Record<string, unknown>) {
+async function handleDisputeCreated(charge: Stripe.Dispute) {
   try {
     const supabase = await createSupabaseServer();
     
@@ -133,7 +142,7 @@ async function handleDisputeCreated(charge: Record<string, unknown>) {
     }
 
     // Create dispute record (you might want to add a disputes table)
-    console.log(`Dispute created for payment ${payment.id}: ${(charge.dispute as Record<string, unknown>)?.reason}`);
+    console.log(`Dispute created for payment ${payment.id}: ${charge.reason}`);
     
     // You could send notifications to instructors, admins, etc.
     // await notifyDisputeCreated(payment, charge.dispute);
@@ -144,7 +153,7 @@ async function handleDisputeCreated(charge: Record<string, unknown>) {
 }
 
 // Handle charge refunded
-async function handleChargeRefunded(charge: Record<string, unknown>) {
+async function handleChargeRefunded(charge: Stripe.Charge) {
   try {
     const supabase = await createSupabaseServer();
     
@@ -205,7 +214,7 @@ async function handleChargeRefunded(charge: Record<string, unknown>) {
 }
 
 // Handle credit purchase from payment webhook
-async function handleCreditPurchaseFromPayment(paymentIntent: Record<string, unknown>) {
+async function handleCreditPurchaseFromPayment(paymentIntent: Stripe.PaymentIntent) {
   try {
     const supabase = await createSupabaseServer();
     
@@ -217,7 +226,7 @@ async function handleCreditPurchaseFromPayment(paymentIntent: Record<string, unk
       return;
     }
 
-    const hoursToAdd = parseFloat(hours);
+    const hoursToAdd = Number(hours ?? 0);
     
     // Find existing credit account
     const { data: existingCredit, error: existingError } = await supabase

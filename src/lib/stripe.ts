@@ -253,8 +253,4 @@ export class WebhookVerifier {
 }
 
 // Export types for use in other files
-export type {
-  StripeAccountType,
-  PaymentStatus,
-  PayoutStatus,
-};
+// Note: Types are already exported above, no need to re-export
