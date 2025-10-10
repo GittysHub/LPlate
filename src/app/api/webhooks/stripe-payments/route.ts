@@ -172,8 +172,6 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
     // Calculate refund amounts
     const refunds = charge.refunds as { data: Array<{ amount: number; id: string }> };
     const refundAmountPence = refunds.data[0]?.amount || 0;
-    const platformFeeRefundPence = Math.round(refundAmountPence * 0.18);
-    const instructorRefundPence = refundAmountPence - platformFeeRefundPence;
 
     // Create refund record
     const { error: refundError } = await supabase
