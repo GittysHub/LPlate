@@ -49,26 +49,27 @@ I'm working on **LPlate**, a UK learner driver marketplace connecting learners w
 - **Discount & Referral Codes**: Promotional code support at checkout
 
 **Current Focus Areas:**
-- **Stripe Connect Integration**: Payment processing, automated payouts, and webhook handling
-- **Payment System**: Lesson payments, credit purchases, and commission management
-- **TypeScript Error Resolution**: Fixing remaining build issues for production deployment
-- **Database Schema**: Stripe Connect tables and payment tracking
-- **Webhook Processing**: Real-time payment updates and account status changes
+- **Production-Ready Stripe Connect**: Complete payment processing with improved database schema
+- **ChatGPT-Improved Schema**: Concurrency-safe credit ledger and clear payout instructions
+- **Webhook Integration**: Real-time payment updates using new schema tables (orders, credit_ledger)
+- **Database Migration**: Migration script that works with existing LPlate tables
+- **TypeScript Build**: All build errors resolved for successful deployment
+- **Admin Dashboard**: Materialized views and comprehensive audit trails
 - Enhanced instructor search functionality with modern UI/UX
 - Advanced filtering system with segmented toggles
 - Privacy protection and user experience improvements
 
 ### 🔍 **Key Areas to Investigate:**
 
-1. **Stripe Connect Integration**
-   - Check webhook endpoints are deployed and responding
-   - Verify Stripe Connect account creation flow
-   - Test payment processing with test cards
-   - Confirm automated payout system is working
-   - Check commission calculation (18% added to instructor rate)
-   - Verify prepaid credit system functionality
+1. **Production-Ready Stripe Connect Integration**
+   - Verify webhook endpoints are deployed and processing events successfully
+   - Check new database schema is properly migrated (orders, lessons, credit_ledger, payout_instructions)
+   - Test payment processing with improved schema tables
+   - Confirm automated Friday payout system with lesson completion tracking
+   - Verify concurrency-safe credit ledger system (append-only delta_minutes)
    - Test discount and referral code application
-   - Check dispute and refund handling
+   - Check dispute and refund handling with new schema
+   - Verify admin dashboard views and audit trails are working
 
 2. **Enhanced Instructor Search System**
    - Verify postcode normalization is working (handles spaces/no spaces)
@@ -148,8 +149,10 @@ Please provide:
 - `src/app/api/payouts/route.ts` - Automated payout system
 - `src/app/api/credits/route.ts` - Prepaid credit management
 - `src/app/api/webhooks/stripe-connect/route.ts` - Connect webhooks
-- `src/app/api/webhooks/stripe-payments/route.ts` - Payment webhooks
-- `stripe-connect-schema.sql` - Payment database schema
+- `src/app/api/webhooks/stripe-payments/route.ts` - Payment webhooks (updated for new schema)
+- `stripe-connect-migration.sql` - Database migration script (works with existing tables)
+- `stripe-connect-functions.sql` - Helper functions and views
+- `stripe-schema-improved.mmd` - Visual schema diagram
 - `env-template.txt` - Environment variables template
 
 **Core Application Files:**

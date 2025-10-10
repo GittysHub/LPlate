@@ -185,8 +185,7 @@ export async function POST(request: NextRequest) {
         instructorId,
         payment.id,
         hours,
-        instructorAmountPence, // Use the instructor's listed rate
-        totalAmountPence
+        instructorAmountPence // Use the instructor's listed rate
       );
     }
 
@@ -227,8 +226,7 @@ async function handleCreditPurchase(
   instructorId: string,
   paymentId: string,
   hours: number,
-  hourlyRatePence: number,
-  _totalAmountPence: number
+  hourlyRatePence: number
 ) {
   try {
     // Check if learner already has credits with this instructor

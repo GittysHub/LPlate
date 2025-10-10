@@ -189,47 +189,119 @@ src/
 | `created_at` | timestamptz | Account creation time |
 | `updated_at` | timestamptz | Last update time |
 
-#### `payments`
+#### `orders` (Payment Orders)
 | Column | Type | Description |
 |--------|------|-------------|
 | `id` | uuid | Primary key |
 | `learner_id` | uuid | Foreign key to profiles.id |
 | `instructor_id` | uuid | Foreign key to instructors.id |
 | `stripe_payment_intent_id` | text | Stripe payment intent ID |
-| `total_amount_pence` | integer | Total amount learner paid |
+| `stripe_balance_txn_id` | text | Stripe balance transaction ID |
+| `transfer_group` | text | Stripe transfer group for linking |
+| `instructor_rate_pence` | integer | Instructor hourly rate (what they receive) |
 | `platform_fee_pence` | integer | 18% commission (added to instructor rate) |
-| `instructor_amount_pence` | integer | Amount instructor receives |
-| `status` | text | 'pending', 'succeeded', 'failed', 'refunded' |
-| `payment_method` | text | 'card', 'credit' |
+| `total_amount_pence` | integer | Total amount learner pays |
+| `hours_booked_minutes` | integer | Hours booked in minutes |
 | `currency` | text | 'gbp' |
-| `description` | text | Payment description |
-| `created_at` | timestamptz | Payment timestamp |
+| `status` | text | 'pending', 'succeeded', 'failed', 'cancelled' |
+| `created_at` | timestamptz | Order timestamp |
+| `updated_at` | timestamptz | Last update time |
 
-#### `learner_credits`
+#### `lessons` (Lesson Tracking)
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `instructor_id` | uuid | Foreign key to instructors.id |
+| `learner_id` | uuid | Foreign key to profiles.id |
+| `start_time` | timestamptz | Lesson start time |
+| `end_time` | timestamptz | Lesson end time |
+| `duration_minutes` | integer | Lesson duration in minutes |
+| `status` | text | 'scheduled', 'in_progress', 'completed', 'cancelled', 'no_show' |
+| `completed_at` | timestamptz | Lesson completion timestamp |
+| `price_pence` | integer | Lesson price in pence |
+| `order_id` | uuid | Foreign key to orders.id |
+| `booking_id` | uuid | Foreign key to bookings.id |
+| `created_at` | timestamptz | Lesson creation time |
+| `updated_at` | timestamptz | Last update time |
+
+#### `credit_ledger` (Concurrency-Safe Credit System)
 | Column | Type | Description |
 |--------|------|-------------|
 | `id` | uuid | Primary key |
 | `learner_id` | uuid | Foreign key to profiles.id |
 | `instructor_id` | uuid | Foreign key to instructors.id |
-| `total_hours_purchased` | integer | Total hours bought |
-| `hours_used` | integer | Hours consumed |
-| `hourly_rate_pence` | integer | Rate when purchased |
-| `is_active` | boolean | Credit account active |
-| `created_at` | timestamptz | Purchase timestamp |
-| `updated_at` | timestamptz | Last update time |
+| `delta_minutes` | integer | Credit change (+ for purchases, - for consumption) |
+| `source` | text | 'PURCHASE', 'CONSUMPTION', 'REFUND', 'ADJUSTMENT' |
+| `order_id` | uuid | Foreign key to orders.id |
+| `lesson_id` | uuid | Foreign key to lessons.id |
+| `note` | text | Transaction note |
+| `created_at` | timestamptz | Transaction timestamp |
 
-#### `payouts`
+#### `payout_instructions` (Friday Payout System)
 | Column | Type | Description |
 |--------|------|-------------|
 | `id` | uuid | Primary key |
 | `instructor_id` | uuid | Foreign key to instructors.id |
+| `lesson_id` | uuid | Unique foreign key to lessons.id |
+| `amount_pence` | integer | Payout amount in pence |
+| `eligible_on` | date | Next Friday after lesson completion |
+| `status` | text | 'PENDING', 'QUEUED', 'SENT', 'FAILED', 'REVERSED' |
 | `stripe_transfer_id` | text | Stripe transfer ID |
-| `amount_pence` | integer | Total payout amount |
-| `platform_fee_pence` | integer | Platform commission |
-| `status` | text | 'pending', 'processing', 'paid', 'failed' |
-| `payout_date` | date | Scheduled payout date |
-| `processed_at` | timestamptz | Actual processing time |
-| `created_at` | timestamptz | Payout creation time |
+| `idempotency_key` | text | Transfer idempotency key |
+| `created_at` | timestamptz | Instruction creation time |
+| `updated_at` | timestamptz | Last update time |
+
+#### `refunds`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `order_id` | uuid | Foreign key to orders.id |
+| `stripe_refund_id` | text | Stripe refund ID |
+| `amount_pence` | integer | Refund amount in pence |
+| `reason` | text | Refund reason |
+| `status` | text | 'pending', 'succeeded', 'failed', 'cancelled' |
+| `created_at` | timestamptz | Refund timestamp |
+| `updated_at` | timestamptz | Last update time |
+
+#### `discount_codes`
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `code` | text | Unique discount code |
+| `discount_amount_pence` | integer | Fixed discount amount |
+| `discount_percentage` | integer | Percentage discount (1-100) |
+| `max_uses` | integer | Maximum usage limit |
+| `uses_count` | integer | Current usage count |
+| `expires_at` | timestamptz | Expiration date |
+| `is_active` | boolean | Code active status |
+| `created_at` | timestamptz | Creation timestamp |
+| `updated_at` | timestamptz | Last update time |
+
+#### `audit_logs` (Enhanced Audit Trail)
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `entity_type` | text | Type of entity changed |
+| `entity_id` | uuid | ID of changed entity |
+| `action` | text | Action performed |
+| `old_values` | jsonb | Previous values |
+| `new_values` | jsonb | New values |
+| `user_id` | uuid | Foreign key to profiles.id |
+| `event_source` | text | 'APP' or 'WEBHOOK' |
+| `stripe_event_id` | text | Stripe event ID (if webhook) |
+| `description` | text | Action description |
+| `created_at` | timestamptz | Action timestamp |
+
+#### `webhook_log` (Webhook Debugging)
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | uuid | Primary key |
+| `stripe_event_id` | text | Unique Stripe event ID |
+| `type` | text | Event type |
+| `payload` | jsonb | Full event payload |
+| `received_at` | timestamptz | Webhook receipt time |
+| `processed_at` | timestamptz | Processing completion time |
+| `attempts` | integer | Processing attempts count |
 
 ## 🚀 Getting Started
 
@@ -329,8 +401,9 @@ pnpm dev
    - Events: `payment_intent.succeeded`, `payment_intent.payment_failed`, `charge.dispute.created`, `charge.refunded`
 
 3. **Run Database Schema**
-   - Execute `stripe-connect-schema.sql` in Supabase SQL editor
-   - This creates all payment-related tables
+   - Execute `stripe-connect-migration.sql` in Supabase SQL editor
+   - This creates all Stripe Connect tables and enhances existing ones
+   - Execute `stripe-connect-functions.sql` for helper functions and views
 
 ## 🗃 Database Setup
 
@@ -426,7 +499,19 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 - **Social Media Integration**: Footer-style social links with brand colors and hover animations
 - **Homepage Flow Optimization**: Strategic section placement for improved user journey and conversion
 
-### 🔄 Latest Updates (v3.0) - Stripe Connect Integration
+### 🔄 Latest Updates (v3.1) - Improved Stripe Connect Schema
+- **ChatGPT-Improved Database Schema**: Implemented production-ready schema with proper lesson tracking
+- **Concurrency-Safe Credit System**: Replaced counter-based credits with append-only ledger system
+- **Clear Payout Logic**: Friday payout instructions generated from completed lessons
+- **Enhanced Audit Trails**: Webhook event tracking and comprehensive audit logging
+- **Production-Ready Functions**: Helper functions for Friday calculations, credit balances, and payout processing
+- **Webhook Integration**: Fixed webhook code to use new schema tables (orders, credit_ledger)
+- **TypeScript Build Fixes**: Resolved all build errors for successful deployment
+- **Database Migration**: Complete migration script that works with existing LPlate tables
+- **Admin Dashboard Views**: Materialized views for performance and admin reporting
+- **Webhook Debugging**: Comprehensive webhook log table for troubleshooting
+
+### 🔄 Previous Updates (v3.0) - Stripe Connect Integration
 - **Complete Payment Processing**: Full Stripe Connect integration for marketplace transactions
 - **Automated Instructor Payouts**: Instructors automatically paid every Friday after lesson completion
 - **18% Platform Commission**: Commission added to instructor rates (not deducted from their earnings)

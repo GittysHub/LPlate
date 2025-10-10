@@ -59,7 +59,16 @@ function SearchPageContent() {
     setResults([]);
 
     try {
-      const origin = await geocode(searchPostcode);
+      // Geocode function moved inside useCallback to avoid dependency issues
+      const origin = await (async (pc: string) => {
+        const norm = normalisePostcode(pc);
+        console.log('Geocoding postcode:', pc, 'Normalized:', norm);
+        const r = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(norm)}`);
+        const j = await r.json();
+        console.log('API response:', j);
+        if (j.status !== 200 || !j.result) throw new Error("Postcode not found");
+        return { lat: j.result.latitude as number, lng: j.result.longitude as number };
+      })(searchPostcode);
 
       const { data, error } = await sb
         .from("instructors")
@@ -171,7 +180,7 @@ function SearchPageContent() {
     } finally {
       setLoading(false);
     }
-  }, [vehicle, gender, selectedDays, timeOfDay, lessonDurationMins, sb, geocode]);
+  }, [vehicle, gender, selectedDays, timeOfDay, lessonDurationMins, sb]);
 
   // Search function wrapped in useCallback
   const search = useCallback(async (e?: React.FormEvent) => {
@@ -273,15 +282,6 @@ function SearchPageContent() {
     return pc;
   }
 
-  async function geocode(pc: string) {
-    const norm = normalisePostcode(pc);
-    console.log('Geocoding postcode:', pc, 'Normalized:', norm);
-    const r = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(norm)}`);
-    const j = await r.json();
-    console.log('API response:', j);
-    if (j.status !== 200 || !j.result) throw new Error("Postcode not found");
-    return { lat: j.result.latitude as number, lng: j.result.longitude as number };
-  }
 
 
   const handleFilterChange = (filterType: string, filterId: string) => {
