@@ -404,6 +404,7 @@ pnpm dev
    - Execute `stripe-connect-migration.sql` in Supabase SQL editor
    - This creates all Stripe Connect tables and enhances existing ones
    - Execute `stripe-connect-functions.sql` for helper functions and views
+   - **Note**: Migration works with existing LPlate tables (profiles, instructors, bookings)
 
 ## 🗃 Database Setup
 
@@ -562,15 +563,18 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 
 ### ✅ Production Deployment
 - **Platform**: Vercel
-- **Status**: Successfully deployed and accessible
-- **Environment**: Production with Supabase backend
-- **URL**: Available through Vercel dashboard
+- **Status**: Successfully deployed with Stripe Connect integration
+- **Environment**: Production with Supabase backend and Stripe Connect
+- **URL**: `https://lplate-khaki.vercel.app`
+- **Database**: PostgreSQL with Stripe Connect schema migrated
+- **Webhooks**: Stripe Connect and Payment webhooks deployed and tested
 
 ### 🔧 Deployment Configuration
 - **Build Command**: `pnpm run build`
 - **Output Directory**: `.next`
 - **Framework**: Next.js 15
-- **Environment Variables**: Configured for Supabase connection
+- **Environment Variables**: Configured for Supabase and Stripe Connect
+- **Database Migration**: `stripe-connect-migration.sql` ready for execution
 
 ## 🚧 Roadmap
 
