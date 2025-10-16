@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { createSupabaseBrowser } from "@/lib/supabase";
 import SearchBar from "@/components/ui/SearchBar";
 import { FilterChips } from "@/components/ui/FilterChips";
@@ -473,12 +474,18 @@ function SearchPageContent() {
                   
                   {/* Action Buttons */}
                   <div className="flex gap-3 mt-4">
-                    <button className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-xl transition-colors">
+                    <Link
+                      href={`/booking/request?instructor=${r.id}`}
+                      className="flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold py-3 rounded-xl transition-colors text-center"
+                    >
                       Book Lesson
-                    </button>
-                    <button className="flex-1 bg-white border-2 border-gray-200 hover:border-green-500 text-gray-700 font-semibold py-3 rounded-xl transition-colors">
+                    </Link>
+                    <Link
+                      href={`/instructor/${r.id}`}
+                      className="flex-1 bg-white border-2 border-gray-200 hover:border-green-500 text-gray-700 font-semibold py-3 rounded-xl transition-colors text-center"
+                    >
                       View Profile
-                    </button>
+                    </Link>
                   </div>
                 </div>
               ))}

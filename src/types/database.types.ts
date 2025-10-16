@@ -29,6 +29,7 @@ export interface Database {
           lat: number | null
           lng: number | null
           service_radius_miles: number
+          languages: string[]
           created_at: string
         }
         Insert: Omit<Database['public']['Tables']['instructors']['Row'], 'id' | 'created_at'>

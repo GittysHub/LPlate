@@ -27,6 +27,7 @@ type Instructor = {
   lat: number | null;
   lng: number | null;
   service_radius_miles: number | null;
+  languages: string[] | null;
 };
 
 export default function InstructorProfilePage() {
@@ -120,6 +121,7 @@ export default function InstructorProfilePage() {
       lat: lat ?? inst?.lat ?? null,
       lng: lng ?? inst?.lng ?? null,
       service_radius_miles: inst.service_radius_miles ?? 10,
+      languages: inst.languages ?? ["English"],
     });
 
     setSaving(false);
@@ -304,6 +306,109 @@ export default function InstructorProfilePage() {
           />
           <span>ADI Badge</span>
         </label>
+
+        {/* Languages */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">Languages (max 3)</label>
+          <div className="space-y-2">
+            {[0, 1, 2].map((index) => (
+              <select
+                key={index}
+                className="w-full border border-gray-300 rounded-lg px-4 py-3"
+                value={inst.languages?.[index] || ""}
+                onChange={(e) => {
+                  const newLanguages = [...(inst.languages || [])];
+                  if (e.target.value) {
+                    newLanguages[index] = e.target.value;
+                  } else {
+                    newLanguages.splice(index, 1);
+                  }
+                  setInstructor({ ...instructor!, languages: newLanguages });
+                }}
+              >
+                <option value="">Select language...</option>
+                <option value="English">English</option>
+                <option value="Welsh">Welsh</option>
+                <option value="French">French</option>
+                <option value="German">German</option>
+                <option value="Spanish">Spanish</option>
+                <option value="Italian">Italian</option>
+                <option value="Portuguese">Portuguese</option>
+                <option value="Polish">Polish</option>
+                <option value="Romanian">Romanian</option>
+                <option value="Bulgarian">Bulgarian</option>
+                <option value="Lithuanian">Lithuanian</option>
+                <option value="Latvian">Latvian</option>
+                <option value="Estonian">Estonian</option>
+                <option value="Czech">Czech</option>
+                <option value="Slovak">Slovak</option>
+                <option value="Hungarian">Hungarian</option>
+                <option value="Slovenian">Slovenian</option>
+                <option value="Croatian">Croatian</option>
+                <option value="Serbian">Serbian</option>
+                <option value="Bosnian">Bosnian</option>
+                <option value="Macedonian">Macedonian</option>
+                <option value="Albanian">Albanian</option>
+                <option value="Turkish">Turkish</option>
+                <option value="Arabic">Arabic</option>
+                <option value="Urdu">Urdu</option>
+                <option value="Hindi">Hindi</option>
+                <option value="Punjabi">Punjabi</option>
+                <option value="Bengali">Bengali</option>
+                <option value="Gujarati">Gujarati</option>
+                <option value="Tamil">Tamil</option>
+                <option value="Telugu">Telugu</option>
+                <option value="Malayalam">Malayalam</option>
+                <option value="Kannada">Kannada</option>
+                <option value="Marathi">Marathi</option>
+                <option value="Chinese">Chinese</option>
+                <option value="Japanese">Japanese</option>
+                <option value="Korean">Korean</option>
+                <option value="Thai">Thai</option>
+                <option value="Vietnamese">Vietnamese</option>
+                <option value="Russian">Russian</option>
+                <option value="Ukrainian">Ukrainian</option>
+                <option value="Belarusian">Belarusian</option>
+                <option value="Moldovan">Moldovan</option>
+                <option value="Georgian">Georgian</option>
+                <option value="Armenian">Armenian</option>
+                <option value="Azerbaijani">Azerbaijani</option>
+                <option value="Kazakh">Kazakh</option>
+                <option value="Kyrgyz">Kyrgyz</option>
+                <option value="Tajik">Tajik</option>
+                <option value="Turkmen">Turkmen</option>
+                <option value="Uzbek">Uzbek</option>
+                <option value="Mongolian">Mongolian</option>
+                <option value="Hebrew">Hebrew</option>
+                <option value="Persian">Persian</option>
+                <option value="Dari">Dari</option>
+                <option value="Pashto">Pashto</option>
+                <option value="Kurdish">Kurdish</option>
+                <option value="Amharic">Amharic</option>
+                <option value="Swahili">Swahili</option>
+                <option value="Yoruba">Yoruba</option>
+                <option value="Igbo">Igbo</option>
+                <option value="Hausa">Hausa</option>
+                <option value="Zulu">Zulu</option>
+                <option value="Afrikaans">Afrikaans</option>
+                <option value="Dutch">Dutch</option>
+                <option value="Flemish">Flemish</option>
+                <option value="Danish">Danish</option>
+                <option value="Norwegian">Norwegian</option>
+                <option value="Swedish">Swedish</option>
+                <option value="Finnish">Finnish</option>
+                <option value="Icelandic">Icelandic</option>
+                <option value="Greek">Greek</option>
+                <option value="Maltese">Maltese</option>
+                <option value="Irish">Irish</option>
+                <option value="Scottish Gaelic">Scottish Gaelic</option>
+                <option value="Cornish">Cornish</option>
+                <option value="Manx">Manx</option>
+              </select>
+            ))}
+          </div>
+          <p className="text-xs text-gray-500 mt-1">Select up to 3 languages you can teach in</p>
+        </div>
 
         {/* Save */}
         <button

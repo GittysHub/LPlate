@@ -24,6 +24,10 @@ A modern marketplace web app connecting UK learner drivers with qualified drivin
 - **Enhanced instructor cards** with large profile pictures, prominent pricing, and optimized information hierarchy
 - **Horizontal instructor carousel** with 295px uniform cards and smooth scrolling
 - **Modern card designs** with shadows, hover effects, and optimized spacing
+- **Professional instructor profiles** with large profile pictures, integrated info bars, and comprehensive details
+- **Smart content management** with truncated About sections and expandable "Read more" functionality
+- **Multi-language support** allowing instructors to specify up to 3 teaching languages
+- **Elegant share functionality** with pill-shaped buttons and URL copying
 - **Hamburger menu navigation** with role-based dropdown menus
 - **Enhanced search bar** with real-time postcode formatting and Enter key support
 - **3-step journey visualization** with animated icons and connecting arrows
@@ -83,7 +87,8 @@ src/
 │   ├── booking/
 │   │   └── request/           # Booking request flow
 │   ├── instructor/
-│   │   ├── profile/           # Instructor profile management
+│   │   ├── [id]/             # Public instructor profile pages
+│   │   ├── profile/          # Instructor profile management
 │   │   ├── availability/     # Weekly availability calendar
 │   │   ├── bookings/         # Instructor's booking management
 │   │   └── layout.tsx        # Instructor-specific layout

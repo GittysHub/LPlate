@@ -294,7 +294,7 @@ export default function Home() {
             <div className="relative overflow-hidden">
               <div className="flex space-x-4 animate-scroll" style={{ width: 'max-content' }}>
                 {instructors.map((instructor) => (
-                  <Link key={instructor.id} href={`/instructor/profile/${instructor.id}`} className="flex-shrink-0 w-[295px] bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-pointer relative">
+                  <Link key={instructor.id} href={`/instructor/${instructor.id}`} className="flex-shrink-0 w-[295px] bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-pointer relative">
                     <div className="flex items-start space-x-4">
                       {/* Content - Left side */}
                       <div className="w-48 min-w-0 flex flex-col items-start text-left">
@@ -348,7 +348,7 @@ export default function Home() {
                 ))}
                 {/* Duplicate for seamless loop */}
                 {instructors.map((instructor) => (
-                  <Link key={`${instructor.id}-duplicate`} href={`/instructor/profile/${instructor.id}`} className="flex-shrink-0 w-[295px] bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-pointer relative">
+                  <Link key={`${instructor.id}-duplicate`} href={`/instructor/${instructor.id}`} className="flex-shrink-0 w-[295px] bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:-translate-y-1 transition-all duration-200 cursor-pointer relative">
                     <div className="flex items-start space-x-4">
                       {/* Content - Left side */}
                       <div className="w-48 min-w-0 flex flex-col items-start text-left">
