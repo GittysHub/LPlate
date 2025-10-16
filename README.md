@@ -511,6 +511,13 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 - **Production Deployment**: Successfully deployed to Vercel via GitHub integration
 - **Final Testing**: All smoke tests and health checks passing
 
+### 🔄 Next Development Phase (v3.6) - Complete Booking Flow
+- **Instructor Profile Completion**: Finish profile setup, validation, and photo upload
+- **Booking Flow Enhancement**: Complete first stage with improved UX and date/time selection
+- **Stripe API Integration**: Implement complete booking flow with payment processing
+- **Payment Processing**: Connect booking requests to Stripe payment intents
+- **Instructor Payouts**: Add automated payout calculations and processing
+
 ### 🔄 Previous Updates (v3.4) - MVP Production Ready
 - **Production-Ready Build**: All TypeScript errors resolved, successful compilation and deployment
 - **Environment Validation**: Comprehensive env variable validation with Zod for production safety
