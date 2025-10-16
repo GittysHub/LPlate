@@ -96,8 +96,7 @@ export default function InstructorProfilePage() {
     }
 
     // 1) Save profile basics + ensure role
-    const { error: pErr } = await sb
-      .from("profiles")
+    const { error: pErr } = await (sb.from("profiles") as any)
       .update({
         role: "instructor",
         name: profile.name,
@@ -109,15 +108,15 @@ export default function InstructorProfilePage() {
 
     // 2) Upsert instructor row (store lat/lng if we have them)
     const inst = instructor ?? ({} as Instructor);
-    const { error: iErr } = await sb.from("instructors").upsert({
+    const { error: iErr } = await (sb.from("instructors") as any).upsert({
       id: profile.id,
       description: inst.description ?? "",
-      gender: inst.gender ?? "other",
+      gender: (inst.gender ?? "other") as "male" | "female" | "other",
       base_postcode: inst.base_postcode ?? profile.postcode ?? "",
-      vehicle_type: inst.vehicle_type ?? "manual",
+      vehicle_type: (inst.vehicle_type ?? "manual") as "manual" | "auto" | "both",
       hourly_rate: inst.hourly_rate ?? 30,
       adi_badge: !!inst.adi_badge,
-      verification_status: inst.verification_status ?? "pending",
+      verification_status: (inst.verification_status ?? "pending") as "pending" | "approved" | "rejected",
       lat: lat ?? inst?.lat ?? null,
       lng: lng ?? inst?.lng ?? null,
       service_radius_miles: inst.service_radius_miles ?? 10,

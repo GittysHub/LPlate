@@ -104,3 +104,24 @@ html, body {
 .shadow-green-200 {
   box-shadow: 0 10px 25px -5px rgba(34, 197, 94, 0.2), 0 0 0 1px rgba(34, 197, 94, 0.1);
 }
+
+/* Hide native browser clock icons for time inputs */
+input[type="time"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+
+input[type="time"]::-webkit-inner-spin-button {
+  display: none;
+  -webkit-appearance: none;
+}
+
+input[type="time"]::-webkit-outer-spin-button {
+  display: none;
+  -webkit-appearance: none;
+}
+
+/* Firefox */
+input[type="time"] {
+  -moz-appearance: textfield;
+}

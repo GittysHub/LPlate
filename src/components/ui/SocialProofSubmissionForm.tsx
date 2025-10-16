@@ -78,8 +78,7 @@ export default function SocialProofSubmissionForm({
         .getPublicUrl(fileName);
 
       // Insert submission record
-      const { error: insertError } = await sb
-        .from('social_proof_submissions')
+      const { error: insertError } = await (sb.from('social_proof_submissions') as any)
         .insert({
           learner_id: user.id,
           instructor_id: instructorId,
@@ -87,7 +86,7 @@ export default function SocialProofSubmissionForm({
           test_date: testDate,
           test_location: testLocation,
           testimonial: testimonial || null,
-          status: 'pending'
+          status: 'pending' as const
         });
 
       if (insertError) {

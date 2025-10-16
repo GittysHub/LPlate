@@ -44,14 +44,14 @@ export default function SignUp() {
           Welcome to L Plate! 🎊
         </h1>
 
-        {/* CarSprout Image */}
+        {/* Dynamic Car Image */}
         <div className="flex justify-center mb-8">
           <Image 
-            src="/CarSprout.png" 
-            alt="Eco-friendly car with leaves" 
+            src={role === "learner" ? "/CarSprout.png" : "/CarPro.png"} 
+            alt={role === "learner" ? "Learner car with graduation cap" : "Instructor car"} 
             width={128}
             height={128}
-            className="w-32 h-32 object-contain"
+            className="w-32 h-32 object-contain transition-all duration-300"
           />
         </div>
 
@@ -91,26 +91,36 @@ export default function SignUp() {
               />
             </div>
 
-            {/* Role Selection */}
+            {/* Role Selection - Toggle Switch */}
             <div className="flex items-center justify-center">
-              <div className="relative bg-gray-100 rounded-full p-1 flex">
+              <div className="relative bg-gray-200 rounded-full p-1 flex w-80">
+                {/* Sliding Background */}
+                <div 
+                  className={`absolute top-1 bottom-1 w-1/2 bg-green-500 rounded-full transition-transform duration-300 ease-in-out ${
+                    role === "instructor" ? "translate-x-full" : "translate-x-0"
+                  }`}
+                />
+                
+                {/* Learner Button */}
                 <button
                   type="button"
                   onClick={() => setRole("learner")}
-                  className={`px-6 py-3 rounded-full text-lg font-semibold transition-all duration-300 ${
+                  className={`relative z-10 flex-1 py-3 px-6 rounded-full text-lg font-semibold transition-colors duration-300 ${
                     role === "learner"
-                      ? "bg-green-500 text-white shadow-md transform scale-105"
+                      ? "text-white"
                       : "text-gray-600 hover:text-gray-900"
                   }`}
                 >
                   Learner
                 </button>
+                
+                {/* Instructor Button */}
                 <button
                   type="button"
                   onClick={() => setRole("instructor")}
-                  className={`px-6 py-3 rounded-full text-lg font-semibold transition-all duration-300 ${
+                  className={`relative z-10 flex-1 py-3 px-6 rounded-full text-lg font-semibold transition-colors duration-300 ${
                     role === "instructor"
-                      ? "bg-green-500 text-white shadow-md transform scale-105"
+                      ? "text-white"
                       : "text-gray-600 hover:text-gray-900"
                   }`}
                 >

@@ -121,14 +121,14 @@ export default function InstructorBookingsPage() {
       newStart.setDate(newStart.getDate() + 7);
       const newEnd = new Date(newStart.getTime() + durationMs);
 
-      const { error } = await sb.from("bookings").insert({
+      const { error } = await (sb.from("bookings") as any).insert({
         learner_id: booking.learnerId,
         instructor_id: booking.instructorId,
         start_at: newStart.toISOString(),
         end_at: newEnd.toISOString(),
         price: booking.price,
         note: booking.note,
-        status: "pending",
+        status: "pending" as const,
       });
       if (error) throw error;
 
@@ -144,9 +144,8 @@ export default function InstructorBookingsPage() {
   async function updateBookingStatus(bookingId: string, newStatus: string) {
     setActionLoading(bookingId);
     try {
-      const { error } = await sb
-        .from("bookings")
-        .update({ status: newStatus })
+      const { error } = await (sb.from("bookings") as any)
+        .update({ status: newStatus as any })
         .eq("id", bookingId);
 
       if (error) throw error;
@@ -242,12 +241,11 @@ export default function InstructorBookingsPage() {
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">My Bookings</h1>
-              <p className="text-gray-600 mt-1">Manage your student bookings</p>
+              <h1 className="text-2xl font-bold text-gray-900">Manage Bookings</h1>
             </div>
             <Link
               href="/instructor/availability"
-              className="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-lg transition-colors"
+              className="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-lg transition-colors whitespace-nowrap"
             >
               Set Availability
             </Link>
@@ -278,88 +276,106 @@ export default function InstructorBookingsPage() {
                 key={booking.id}
                 className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
               >
-                <div className="p-6">
-                  <div className="flex items-start justify-between">
-                    {/* Learner Info */}
-                    <div className="flex items-center space-x-4">
-                      <div className="w-16 h-16 rounded-full flex items-center justify-center overflow-hidden bg-gray-50">
+                <div className="p-4">
+                  {/* Header Row - Student Info & Status */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden bg-gray-50">
                         {booking.learner.avatar_url ? (
                           <Image
                             src={booking.learner.avatar_url}
                             alt={`${booking.learner.name}'s avatar`}
-                            width={64}
-                            height={64}
+                            width={48}
+                            height={48}
                             className="object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-semibold text-xl">
+                          <div className="w-full h-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-semibold text-lg">
                             {(booking.learner.name ?? "L").charAt(0).toUpperCase()}
                           </div>
                         )}
                       </div>
                       
                       <div>
-                        <h3 className="text-xl font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold text-gray-900">
                           {booking.learner.name}
                         </h3>
-                        <p className="text-gray-600">
+                        <p className="text-sm text-gray-600">
                           {booking.learner.postcode && `Near ${booking.learner.postcode}`}
                         </p>
-                        {booking.learner.phone && (
-                          <p className="text-sm text-gray-500">
-                            📞 {booking.learner.phone}
-                          </p>
-                        )}
                       </div>
                     </div>
 
                     {/* Status Badge */}
-                    <div className="flex flex-col items-end space-y-2">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}>
-                        <span className="mr-1">{getStatusIcon(booking.status)}</span>
-                        {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                      </span>
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}>
+                      <span className="mr-1">{getStatusIcon(booking.status)}</span>
+                      {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                    </span>
+                  </div>
+
+                  {/* Two Column Layout - Key Info */}
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    {/* Left Column - Date & Time */}
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-900">
+                        <span className="font-medium text-gray-600">Date:</span> {formatDate(booking.start_at)}
+                      </p>
+                      <p className="text-sm text-gray-900">
+                        <span className="font-medium text-gray-600">Time:</span> {formatTime(booking.start_at)} - {formatTime(booking.end_at)}
+                      </p>
+                    </div>
+
+                    {/* Right Column - Pickup & Phone */}
+                    <div className="space-y-2">
+                      <p className="text-sm text-gray-900">
+                        <span className="font-medium text-gray-600">Pick Up:</span> {booking.learner.postcode ? `Near ${booking.learner.postcode}` : 'Location TBD'}
+                      </p>
+                      <p className="text-sm text-gray-900">
+                        <span className="font-medium text-gray-600">Phone:</span> {booking.learner.phone || 'Not provided'}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Lesson Details */}
-                  <div className="mt-6 pt-6 border-t border-gray-100">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <h4 className="text-sm font-medium text-gray-700 mb-2">Lesson Details</h4>
-                        <div className="space-y-1 text-sm text-gray-600">
-                          <p><strong>Date:</strong> {formatDate(booking.start_at)}</p>
-                          <p><strong>Time:</strong> {formatTime(booking.start_at)} - {formatTime(booking.end_at)}</p>
-                          <p><strong>Duration:</strong> 2 hours</p>
-                          <p><strong>Earnings:</strong> £{booking.price}</p>
-                        </div>
-                      </div>
-                      
-                      {booking.note && (
-                        <div>
-                          <h4 className="text-sm font-medium text-gray-700 mb-2">Student Notes</h4>
-                          <p className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                            {booking.note}
-                          </p>
-                        </div>
-                      )}
+                  {/* Student Notes - Full Width */}
+                  {booking.note && (
+                    <div className="mb-4">
+                      <p className="text-sm text-gray-900 bg-gray-50 p-3 rounded-lg">
+                        <span className="font-medium text-gray-600">Student Notes:</span> {booking.note}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex justify-between items-center">
+                    {/* Earnings */}
+                    <div className="flex items-center">
+                      <p className={`text-base font-semibold flex items-center ${
+                        booking.status === 'confirmed' ? 'text-green-600' :
+                        booking.status === 'pending' ? 'text-yellow-600' :
+                        booking.status === 'cancelled' ? 'text-red-600' :
+                        'text-gray-600'
+                      }`}>
+                        {booking.status === 'confirmed' && <span>+</span>}
+                        £{booking.price}
+                        {booking.status === 'cancelled' && <span className="ml-1">missed</span>}
+                      </p>
                     </div>
 
-                    {/* Actions */}
-                    <div className="mt-4 flex justify-end space-x-3">
+                    {/* Action Buttons */}
+                    <div className="flex space-x-2">
                       {booking.status === "pending" && (
                         <>
                           <button
                             onClick={() => updateBookingStatus(booking.id, "confirmed")}
                             disabled={actionLoading === booking.id}
-                            className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                            className="bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-3 py-2 rounded-lg text-sm font-medium"
                           >
                             {actionLoading === booking.id ? "Confirming..." : "Confirm"}
                           </button>
                           <button
                             onClick={() => updateBookingStatus(booking.id, "cancelled")}
                             disabled={actionLoading === booking.id}
-                            className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                            className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white px-3 py-2 rounded-lg text-sm font-medium"
                           >
                             {actionLoading === booking.id ? "Cancelling..." : "Decline"}
                           </button>
@@ -369,7 +385,7 @@ export default function InstructorBookingsPage() {
                         <button
                           onClick={() => updateBookingStatus(booking.id, "completed")}
                           disabled={actionLoading === booking.id}
-                          className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                          className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-3 py-2 rounded-lg text-sm font-medium"
                         >
                           {actionLoading === booking.id ? "Marking..." : "Mark Complete"}
                         </button>
@@ -379,7 +395,7 @@ export default function InstructorBookingsPage() {
                         <button
                           onClick={() => rescheduleBooking(booking)}
                           disabled={actionLoading === booking.id}
-                          className="bg-gray-800 hover:bg-gray-900 disabled:opacity-50 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                          className="bg-gray-800 hover:bg-gray-900 disabled:opacity-50 text-white px-3 py-2 rounded-lg text-sm font-medium"
                         >
                           {actionLoading === booking.id ? "Creating..." : "Reschedule"}
                         </button>

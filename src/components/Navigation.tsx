@@ -23,6 +23,7 @@ export default function Navigation() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScheduleOpen, setIsScheduleOpen] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -135,12 +136,12 @@ export default function Navigation() {
               
               {/* Dropdown Menu */}
               {isMenuOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50">
-                  <div className="px-4 py-2 border-b border-gray-100">
-                    <div className="text-sm font-semibold text-gray-900">
+                <div className="absolute right-0 mt-2 w-96 sm:w-80 bg-white rounded-xl shadow-xl border border-gray-200 py-4 z-50">
+                  <div className="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-blue-50">
+                    <div className="text-xl font-semibold text-gray-900">
                       Hi, {profile?.name || "User"}
                     </div>
-                    <div className="text-xs text-gray-500 capitalize">
+                    <div className="text-base text-gray-600 capitalize">
                       {profile?.role || "User"}
                     </div>
                   </div>
@@ -148,7 +149,7 @@ export default function Navigation() {
                   <div className="py-1">
                     <Link
                       href={isInstructor ? "/instructor" : "/dashboard"}
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      className="block px-8 py-5 text-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors border-l-4 border-transparent hover:border-green-500"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       📊 Dashboard
@@ -157,7 +158,7 @@ export default function Navigation() {
                     {isLearner && (
                       <Link
                         href="/bookings"
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        className="block px-8 py-5 text-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors border-l-4 border-transparent hover:border-green-500"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         📅 My Bookings
@@ -167,37 +168,74 @@ export default function Navigation() {
                     {isInstructor && (
                       <>
                         <Link
-                          href="/instructor/bookings"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          📅 My Bookings
-                        </Link>
-                        <Link
                           href="/instructor/profile"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          className="block px-8 py-5 text-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors border-l-4 border-transparent hover:border-green-500"
                           onClick={() => setIsMenuOpen(false)}
                         >
                           👤 Profile
                         </Link>
-                        <Link
-                          href="/instructor/availability"
-                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                          onClick={() => setIsMenuOpen(false)}
-                        >
-                          📅 Availability
-                        </Link>
+                        
+                        {/* Schedule Section */}
+                        <div>
+                          <button
+                            onClick={() => setIsScheduleOpen(!isScheduleOpen)}
+                            className="flex items-center justify-between w-full px-8 py-5 text-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors border-l-4 border-transparent hover:border-green-500"
+                          >
+                            <span className="flex items-center">
+                              📅 Schedule
+                            </span>
+                            <span className={`transform transition-transform duration-200 text-lg ${isScheduleOpen ? 'rotate-180' : ''}`}>
+                              ▼
+                            </span>
+                          </button>
+                          
+                          {isScheduleOpen && (
+                            <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-l-4 border-blue-200 ml-8">
+                              <Link
+                                href="/instructor/availability"
+                                className="block px-8 py-4 text-lg text-gray-600 hover:bg-blue-100 hover:text-blue-700 transition-colors"
+                                onClick={() => {
+                                  setIsMenuOpen(false);
+                                  setIsScheduleOpen(false);
+                                }}
+                              >
+                                ⏰ Working Hours
+                              </Link>
+                              <Link
+                                href="/instructor/calendar"
+                                className="block px-8 py-4 text-lg text-gray-600 hover:bg-blue-100 hover:text-blue-700 transition-colors"
+                                onClick={() => {
+                                  setIsMenuOpen(false);
+                                  setIsScheduleOpen(false);
+                                }}
+                              >
+                                📆 Calendar
+                              </Link>
+                              <Link
+                                href="/instructor/bookings"
+                                className="block px-8 py-4 text-lg text-gray-600 hover:bg-blue-100 hover:text-blue-700 transition-colors"
+                                onClick={() => {
+                                  setIsMenuOpen(false);
+                                  setIsScheduleOpen(false);
+                                }}
+                              >
+                                📋 Bookings
+                              </Link>
+                            </div>
+                          )}
+                        </div>
                       </>
                     )}
                   </div>
                   
-                  <div className="border-t border-gray-100 pt-1">
+                  <div className="border-t border-gray-200 pt-3">
                     <button
                       onClick={() => {
                         setIsMenuOpen(false);
+                        setIsScheduleOpen(false);
                         signOut();
                       }}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                      className="block w-full text-left px-8 py-5 text-lg font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors border-l-4 border-transparent hover:border-red-500"
                     >
                       🚪 Sign Out
                     </button>

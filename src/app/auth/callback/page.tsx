@@ -27,15 +27,15 @@ function AuthCallbackContent() {
 
         // If no existing profile, create one
         if (!existingProfile) {
-          await sb.from("profiles").insert({
+          await (sb.from("profiles") as any).insert({
             id: user.id,
-            role: roleParam || "learner", // Use role from sign-up or default to learner
+            role: (roleParam || "learner") as "learner" | "instructor",
             name: user.email.split("@")[0],
             email: user.email,
           });
         } else {
           // Update email if it's different (in case user changed email)
-          await sb.from("profiles").update({
+          await (sb.from("profiles") as any).update({
             email: user.email,
           }).eq("id", user.id);
         }

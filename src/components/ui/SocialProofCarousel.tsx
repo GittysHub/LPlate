@@ -25,8 +25,7 @@ export default function SocialProofCarousel() {
         const sb = createSupabaseBrowser();
         
         // Try a different approach - fetch data separately
-        const { data: submissionsData, error: submissionsError } = await sb
-          .from('social_proof_submissions')
+        const { data: submissionsData, error: submissionsError } = await (sb.from('social_proof_submissions') as any)
           .select(`
             id,
             certificate_image_url,
@@ -48,11 +47,10 @@ export default function SocialProofCarousel() {
         console.log("Submissions data:", submissionsData);
 
         // Now fetch learner names
-        const learnerIds = submissionsData?.map(s => s.learner_id) || [];
+        const learnerIds = submissionsData?.map((s: any) => s.learner_id) || [];
         console.log("Learner IDs to fetch:", learnerIds);
         
-        const { data: learnerData, error: learnerError } = await sb
-          .from('profiles')
+        const { data: learnerData, error: learnerError } = await (sb.from('profiles') as any)
           .select('id, name')
           .in('id', learnerIds);
 
@@ -65,15 +63,11 @@ export default function SocialProofCarousel() {
         console.log("Learner data length:", learnerData?.length);
 
         // Fetch instructor names
-        const instructorIds = submissionsData?.map(s => s.instructor_id) || [];
+        const instructorIds = submissionsData?.map((s: any) => s.instructor_id) || [];
         console.log("Instructor IDs to fetch:", instructorIds);
         
-        const { data: instructorData, error: instructorError } = await sb
-          .from('instructors')
-          .select(`
-            id,
-            profiles!instructors_id_fkey(name)
-          `)
+        const { data: instructorData, error: instructorError } = await (sb.from('profiles') as any)
+          .select('id, name')
           .in('id', instructorIds);
 
         if (instructorError) {
@@ -85,8 +79,8 @@ export default function SocialProofCarousel() {
         console.log("Instructor data length:", instructorData?.length);
 
         // Create lookup maps
-        const learnerMap = new Map(learnerData?.map(l => [l.id, l.name]) || []);
-        const instructorMap = new Map(instructorData?.map(i => [i.id, i.profiles?.[0]?.name]) || []);
+        const learnerMap = new Map(learnerData?.map((l: any) => [l.id, l.name]) || []);
+        const instructorMap = new Map(instructorData?.map((i: any) => [i.id, i.name]) || []);
 
         console.log("Learner map:", learnerMap);
         console.log("Instructor map:", instructorMap);

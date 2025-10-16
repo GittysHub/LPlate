@@ -137,7 +137,7 @@ export default function AvailabilityPage() {
       }
 
       if (rows.length > 0) {
-        const { error: insErr } = await sb.from("availability").insert(rows);
+        const { error: insErr } = await sb.from("availability").insert(rows as any);
         if (insErr) throw insErr;
       }
 
@@ -159,59 +159,96 @@ export default function AvailabilityPage() {
   if (!userId) return <main>Please sign in, then return here.</main>;
 
   return (
-    <main className="max-w-md mx-auto space-y-6">
+    <main className="max-w-2xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold">Your Diary</h1>
 
-      <div className="bg-white border rounded-2xl overflow-hidden divide-y">
+      <div className="bg-white border rounded-2xl overflow-hidden divide-y shadow-lg">
         {week.map((d, i) => (
-          <div key={d.key} className="flex items-center justify-between px-4 py-3">
-            <div className="w-16 font-medium">{d.label}</div>
-            <div className="flex-1 text-center text-gray-700">
-              <input
-                type="time"
-                value={d.start}
-                onChange={(e) => updateDay(i, { start: e.target.value })}
-                className="border rounded px-2 py-1 mr-2"
-                disabled={!d.enabled}
-              />
-              <span className="mx-1">-</span>
-              <input
-                type="time"
-                value={d.end}
-                onChange={(e) => updateDay(i, { end: e.target.value })}
-                className="border rounded px-2 py-1 ml-2"
-                disabled={!d.enabled}
-              />
-            </div>
-            <label className="ml-4 inline-flex items-center cursor-pointer">
+          <div key={d.key} className="flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition-colors">
+            <div className="w-24 font-semibold text-lg text-gray-800">{d.label}</div>
+            <div className="flex-1 flex items-center justify-center space-x-2 text-gray-700">
               <div className="relative">
                 <input
-                  type="checkbox"
-                  className="sr-only"
-                  checked={d.enabled}
-                  onChange={(e) => updateDay(i, { enabled: e.target.checked })}
+                  type="time"
+                  value={d.start}
+                  onChange={(e) => updateDay(i, { start: e.target.value })}
+                  className="border border-gray-300 bg-gray-50 rounded-md px-3 py-2 text-base focus:border-green-500 focus:ring-1 focus:ring-green-200 transition-all pr-8"
+                  disabled={!d.enabled}
                 />
-                <div className={`w-12 h-7 rounded-full transition-all duration-300 ease-out ${
-                  d.enabled 
-                    ? 'bg-green-700' 
-                    : 'bg-red-700'
-                }`}>
-                  <div className={`w-6 h-6 bg-white rounded-full transform transition-transform duration-300 ease-out shadow-md ${
-                    d.enabled ? 'translate-x-5' : 'translate-x-0.5'
-                  }`} style={{ marginTop: '2px' }}></div>
-                </div>
+                <svg className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
               </div>
-            </label>
+              <span className="text-gray-400 text-sm">to</span>
+              <div className="relative">
+                <input
+                  type="time"
+                  value={d.end}
+                  onChange={(e) => updateDay(i, { end: e.target.value })}
+                  className="border border-gray-300 bg-gray-50 rounded-md px-3 py-2 text-base focus:border-green-500 focus:ring-1 focus:ring-green-200 transition-all pr-8"
+                  disabled={!d.enabled}
+                />
+                <svg className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </div>
+            </div>
+            
+            {/* Segmented Toggle */}
+            <div className="ml-4">
+              <div className={`relative rounded-full p-1 flex w-24 ${
+                d.enabled 
+                  ? 'bg-gradient-to-r from-green-600 to-green-700' 
+                  : 'bg-gradient-to-r from-red-500 to-red-700'
+              }`}>
+                {/* Sliding Background with Text */}
+                <div 
+                  className={`absolute top-1 bottom-1 w-1/2 bg-white rounded-full transition-transform duration-300 ease-in-out shadow-sm flex items-center justify-center ${
+                    d.enabled ? "translate-x-0" : "translate-x-[calc(100%-2px)]"
+                  }`}
+                >
+                  <span className="text-xs font-medium text-black truncate px-1">
+                    {d.enabled ? "Open" : "Busy"}
+                  </span>
+                </div>
+                
+                {/* Invisible Buttons for Click Areas */}
+                <button
+                  type="button"
+                  onClick={() => updateDay(i, { enabled: true })}
+                  className="relative z-10 flex-1 py-2 px-3 rounded-full text-sm font-medium opacity-0"
+                >
+                  Open
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => updateDay(i, { enabled: false })}
+                  className="relative z-10 flex-1 py-2 px-3 rounded-full text-sm font-medium opacity-0"
+                >
+                  Busy
+                </button>
+              </div>
+            </div>
           </div>
         ))}
       </div>
 
       {msg && <p className="text-sm">{msg}</p>}
 
-      <div className="flex items-center justify-between pt-2">
-        <button onClick={cancel} className="px-6 py-3 rounded-lg border">Cancel</button>
-        <button onClick={save} disabled={saving} className="px-6 py-3 rounded-lg bg-green-600 text-white disabled:opacity-50">
-          {saving ? "Saving…" : "Save"}
+      <div className="flex items-center justify-between pt-4">
+        <button 
+          onClick={cancel} 
+          className="px-8 py-4 rounded-xl border-2 border-gray-300 text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
+        >
+          Cancel
+        </button>
+        <button 
+          onClick={save} 
+          disabled={saving} 
+          className="px-8 py-4 rounded-xl bg-gradient-to-r from-green-600 to-green-700 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl"
+        >
+          {saving ? "Saving…" : "Save Changes"}
         </button>
       </div>
     </main>

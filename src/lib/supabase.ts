@@ -1,4 +1,5 @@
 import { createClient as createSupabaseJsClient } from "@supabase/supabase-js";
+import type { Database } from "@/types/database.types";
 
 // Validate environment variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -13,7 +14,7 @@ if (!supabaseAnonKey) {
 }
 
 export const createSupabaseBrowser = () =>
-  createSupabaseJsClient(
+  createSupabaseJsClient<Database>(
     supabaseUrl,
     supabaseAnonKey,
     { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } }

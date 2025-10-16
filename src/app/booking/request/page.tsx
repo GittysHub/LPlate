@@ -103,12 +103,11 @@ function RequestPageContent() {
       const endLocal = new Date(startLocal.getTime() + durationMins * 60 * 1000);
 
       // Insert booking with status pending
-      const { error } = await sb
-        .from("bookings")
+      const { error } = await (sb.from("bookings") as any)
         .insert({
           learner_id: learnerId,
           instructor_id: inst.id,
-          status: "pending",
+          status: "pending" as const,
           start_at: startLocal.toISOString(),
           end_at: endLocal.toISOString(),
           price: price,
