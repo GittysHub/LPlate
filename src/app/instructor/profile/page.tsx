@@ -94,7 +94,12 @@ export default function InstructorProfilePage() {
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    if (!profile) return;
+    console.log('[PROFILE] Save button clicked');
+    if (!profile) {
+      console.log('[PROFILE] No profile found, cannot save');
+      return;
+    }
+    console.log('[PROFILE] Starting save process...');
     setSaving(true);
     setMsg(null);
 
@@ -147,9 +152,10 @@ export default function InstructorProfilePage() {
 
     setSaving(false);
     if (pErr || iErr) {
-      console.error("Save errors - Profile:", pErr, "Instructor:", iErr);
+      console.error('[PROFILE] Save errors - Profile:', pErr, 'Instructor:', iErr);
       setMsg(pErr?.message || iErr?.message || "Save failed");
     } else {
+      console.log('[PROFILE] Save successful, redirecting to dashboard...');
       setMsg("Profile saved successfully! Redirecting to dashboard...");
       // Redirect to instructor dashboard after successful save
       setTimeout(() => {
