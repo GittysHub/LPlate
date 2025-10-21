@@ -33,8 +33,23 @@ export default function Home() {
         // If we have a session and we're on the homepage, check if this is a password reset
         if (session && window.location.hash.includes('access_token')) {
           console.log('[HOME] Password reset detected, redirecting to reset page');
-          window.location.href = '/auth/reset-password';
-          return;
+          
+          // Check if this is a new user (no profile exists)
+          const { data: profile } = await sb
+            .from("profiles")
+            .select("id")
+            .eq("id", session.user.id)
+            .maybeSingle();
+          
+          if (!profile) {
+            console.log('[HOME] New user detected, redirecting to password reset');
+            window.location.href = '/auth/reset-password';
+            return;
+          } else {
+            console.log('[HOME] Existing user password reset');
+            window.location.href = '/auth/reset-password';
+            return;
+          }
         }
       } catch (error) {
         console.error('[HOME] Error checking for password reset:', error);
