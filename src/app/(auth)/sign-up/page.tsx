@@ -20,7 +20,7 @@ export default function SignUp() {
     try {
       const { error } = await sb.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: `${location.origin}/auth/callback?role=${role}` }
+        options: { emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || location.origin}/auth/callback?role=${role}` }
       });
       if (error) setErr(error.message);
       else setSent(true);
