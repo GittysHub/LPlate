@@ -8,6 +8,7 @@ function ResetPasswordForm() {
   const sb = createSupabaseBrowser();
   const router = useRouter();
   const params = useSearchParams();
+  const roleParam = params.get("role");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [err, setErr] = useState<string | null>(null);
@@ -66,8 +67,45 @@ function ResetPasswordForm() {
       });
       if (error) setErr(error.message);
       else {
-        // Password updated successfully, redirect to dashboard
-        router.push("/");
+        // Password updated successfully
+        console.log('[RESET] Password updated successfully');
+        
+        // If this is a new user sign-up (has role param), create profile and redirect to profile setup
+        if (roleParam) {
+          console.log('[RESET] Creating profile for new user with role:', roleParam);
+          
+          // Get the current user
+          const { data: { user } } = await sb.auth.getUser();
+          if (user) {
+            // Create profile for new user
+            const { error: profileError } = await (sb.from("profiles") as any).insert({
+              id: user.id,
+              role: roleParam as "learner" | "instructor",
+              name: user.email?.split("@")[0] || "User",
+              email: user.email,
+            });
+            
+            if (profileError) {
+              console.error('[RESET] Profile creation error:', profileError);
+              setErr("Password updated but failed to create profile. Please contact support.");
+              return;
+            }
+            
+            console.log('[RESET] Profile created successfully, redirecting to profile setup');
+            // Redirect to appropriate profile setup page
+            if (roleParam === "instructor") {
+              router.push("/instructor/profile");
+            } else {
+              router.push("/learner/profile");
+            }
+          } else {
+            setErr("Password updated but user not found. Please try signing in.");
+          }
+        } else {
+          // Existing user password reset - redirect to dashboard
+          console.log('[RESET] Existing user password reset, redirecting to dashboard');
+          router.push("/");
+        }
       }
     } catch {
       setErr("An unexpected error occurred");
@@ -124,8 +162,14 @@ function ResetPasswordForm() {
 
         {/* Welcome Message */}
         <h1 className="text-3xl font-semibold text-gray-900 text-center mb-8">
-          🔑 Set New Password
+          {roleParam ? "🎉 Complete Your Account" : "🔑 Set New Password"}
         </h1>
+        
+        {roleParam && (
+          <p className="text-gray-600 text-center mb-6">
+            Welcome to L Plate! Set your password to complete your {roleParam} account setup.
+          </p>
+        )}
 
         <form onSubmit={submit} className="space-y-6">
           {/* New Password Field */}
@@ -167,7 +211,10 @@ function ResetPasswordForm() {
             disabled={loading || !password || !confirmPassword}
             className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white font-bold py-5 px-6 rounded-xl text-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:cursor-not-allowed transform hover:scale-105 disabled:hover:scale-100"
           >
-            {loading ? "Updating password..." : "Update Password"}
+            {loading 
+              ? (roleParam ? "Creating account..." : "Updating password...") 
+              : (roleParam ? "Complete Account Setup" : "Update Password")
+            }
           </button>
 
           {/* Back to Sign In Link */}

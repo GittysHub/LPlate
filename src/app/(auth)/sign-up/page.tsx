@@ -21,7 +21,7 @@ export default function SignUp() {
     try {
       const { error } = await sb.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: absUrl(`/auth/callback?role=${role}`) }
+        options: { emailRedirectTo: absUrl(`/auth/reset-password?role=${role}`) }
       });
       if (error) setErr(error.message);
       else setSent(true);
