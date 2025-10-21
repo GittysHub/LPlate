@@ -315,6 +315,9 @@ src/
 - pnpm (recommended) or npm
 - Supabase account
 
+### 📋 Pre-Deployment Guide
+For deployment best practices and troubleshooting, see **[PRE-DEPLOYMENT-GUIDE.md](./PRE-DEPLOYMENT-GUIDE.md)** - Essential reading before pushing to production!
+
 ## 🔧 Development Tools
 
 ### Diagnostic Scripts
