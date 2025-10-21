@@ -20,19 +20,39 @@ function ResetPasswordForm() {
     // Check if we have a valid session for password reset
     const checkSession = async () => {
       try {
-        const { data: { session } } = await sb.auth.getSession();
+        console.log('[RESET] Checking session for password reset...');
+        
+        // First, try to get session from URL hash (for password reset links)
+        const { data: { session }, error: sessionError } = await sb.auth.getSession();
+        
+        if (sessionError) {
+          console.error('[RESET] Session error:', sessionError);
+          setErr("Invalid or expired reset link. Please request a new password reset.");
+          return;
+        }
+        
         if (session) {
+          console.log('[RESET] Valid session found:', { user: session.user?.email });
           setIsValidSession(true);
         } else {
-          // Try to get session from URL hash
-          const { data: { session: urlSession } } = await sb.auth.getSession();
-          if (urlSession) {
+          // If no session, check if we're coming from a password reset redirect
+          // and try to extract session from URL hash
+          console.log('[RESET] No session found, checking URL hash...');
+          
+          // Wait a moment for Supabase to process the URL hash
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          const { data: { session: retrySession } } = await sb.auth.getSession();
+          if (retrySession) {
+            console.log('[RESET] Session found on retry:', { user: retrySession.user?.email });
             setIsValidSession(true);
           } else {
+            console.log('[RESET] No valid session found');
             setErr("Invalid or expired reset link. Please request a new password reset.");
           }
         }
       } catch (error) {
+        console.error('[RESET] Unexpected error:', error);
         setErr("Invalid or expired reset link. Please request a new password reset.");
       } finally {
         setCheckingSession(false);

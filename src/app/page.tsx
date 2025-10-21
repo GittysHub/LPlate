@@ -24,6 +24,25 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check if we're coming from a password reset redirect
+    const checkForPasswordReset = async () => {
+      try {
+        const sb = createSupabaseBrowser();
+        const { data: { session } } = await sb.auth.getSession();
+        
+        // If we have a session and we're on the homepage, check if this is a password reset
+        if (session && window.location.hash.includes('access_token')) {
+          console.log('[HOME] Password reset detected, redirecting to reset page');
+          window.location.href = '/auth/reset-password';
+          return;
+        }
+      } catch (error) {
+        console.error('[HOME] Error checking for password reset:', error);
+      }
+    };
+
+    checkForPasswordReset();
+    
     const fetchTopInstructors = async () => {
       try {
         const sb = createSupabaseBrowser();
