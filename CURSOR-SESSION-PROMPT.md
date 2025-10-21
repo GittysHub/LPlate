@@ -8,7 +8,20 @@ Use this prompt when starting a new Cursor session to quickly get up to speed on
 
 I'm working on **LPlate**, a UK learner driver marketplace connecting learners with qualified driving instructors. **PRODUCTION STATUS: Stripe Connect integration is complete and deployed!** 🎉
 
-### 🎯 **Current Status (Latest - Homepage Mobile Optimization)**
+### 🎯 **Current Status (Latest - v3.13 Pre-Deployment Setup)**
+- ✅ **Pre-Deployment Infrastructure**: Complete CI/CD setup with health endpoint and verification scripts
+- ✅ **Health Monitoring**: `/api/health` endpoint for uptime monitoring and deployment verification
+- ✅ **CI Verification Scripts**: `ci:verify`, `ci:verify-full`, and `ci:verify-server` for different testing levels
+- ✅ **Package Manager Fix**: Updated scripts to use `pnpm install --frozen-lockfile` instead of `npm ci`
+- ✅ **External Image Support**: Enhanced `next.config.ts` to allow all HTTPS external images
+- ✅ **Suspense Boundary Fix**: Resolved Next.js build error by wrapping `useSearchParams()` in Suspense
+- ✅ **Comprehensive Documentation**: Created PRE-DEPLOYMENT-GUIDE.md with complete deployment process
+- ✅ **Mobile UI Enhancements**: Instructor carousel location truncation (12 chars) for better mobile fit
+- ✅ **Code Quality**: Fixed TypeScript errors, React apostrophe issues, and cleaned up unused imports
+- ✅ **Windows Compatibility**: Documented Windows-specific build issues and workarounds
+- ✅ **Deployment Ready**: Successfully pushed to GitHub and deployed to Vercel
+
+### 🎯 **Previous Status (Homepage Mobile Optimization)**
 - ✅ **Enhanced Social Media Links**: Fixed social links to fit properly on 375px mobile screens with responsive spacing and text sizing
 - ✅ **Optimized Social Layout**: Changed from horizontal wrapping to single-row layout with "Insta" abbreviation for better fit
 - ✅ **Redesigned Stats Section**: Converted from horizontal grid to vertical stacked cards with horizontal icon-stat-text layout
@@ -400,6 +413,7 @@ Please provide:
 
 **Core Application Files:**
 - `README.md` - Project documentation with latest updates
+- `PRE-DEPLOYMENT-GUIDE.md` - Comprehensive deployment guide with troubleshooting
 - `src/app/page.tsx` - Homepage with instructor carousel
 - `src/app/search/page.tsx` - Enhanced instructor search with modern filtering
 - `src/components/ui/SearchBar.tsx` - Enhanced search with postcode formatting
@@ -414,6 +428,7 @@ Please provide:
 - `src/app/instructor/calendar/page.tsx` - Instructor calendar with monthly view and booking integration
 - `src/app/instructor/availability/page.tsx` - Weekly availability management with modern toggles
 - `src/app/instructor/bookings/page.tsx` - Instructor booking management with status-based earnings
+- `src/app/api/health/route.ts` - Health endpoint for monitoring and deployment verification
 
 **Database & Setup Files:**
 - `database-setup-social-proof.sql` - Database schema
