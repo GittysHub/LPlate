@@ -19,9 +19,15 @@ export default function SignUp() {
     setLoading(true);
     
     try {
+      const redirectUrl = absUrl(`/auth/reset-password?role=${role}`);
+      console.log('[SIGNUP] Generated redirect URL:', redirectUrl);
+      
       const { error } = await sb.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: absUrl(`/auth/reset-password?role=${role}`) }
+        options: { 
+          emailRedirectTo: redirectUrl,
+          redirectTo: redirectUrl
+        }
       });
       if (error) setErr(error.message);
       else setSent(true);
