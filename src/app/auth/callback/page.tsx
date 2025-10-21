@@ -84,8 +84,7 @@ function AuthCallbackContent() {
         console.log('[AUTH] Callback processing complete, checking profile completion');
         
         // Check if user needs to complete profile setup
-        const { data: profileData } = await sb
-          .from("profiles")
+        const { data: profileData } = await (sb.from("profiles") as any)
           .select("name, phone, postcode, avatar_url")
           .eq("id", user.id)
           .single();
