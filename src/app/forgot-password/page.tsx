@@ -17,7 +17,7 @@ export default function ForgotPassword() {
     
     try {
       const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || location.origin}/auth/reset-password`,
+        redirectTo: `${window.location.origin}/auth/reset-password`,
       });
       if (error) setErr(error.message);
       else setSent(true);

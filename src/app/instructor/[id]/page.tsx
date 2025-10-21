@@ -36,7 +36,7 @@ export default function PublicInstructorProfilePage() {
   const [shareCopied, setShareCopied] = useState(false);
 
   const handleShare = async () => {
-    const url = `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/instructor/${instructorId}`;
+    const url = `${window.location.origin}/instructor/${instructorId}`;
     try {
       await navigator.clipboard.writeText(url);
       setShareCopied(true);
