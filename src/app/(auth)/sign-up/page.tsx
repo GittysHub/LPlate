@@ -19,10 +19,18 @@ export default function SignUp() {
     setLoading(true);
     
     try {
+      const redirectUrl = absUrl('/auth/reset-password');
+      console.log('[SIGNUP] Generated redirect URL:', redirectUrl);
+      console.log('[SIGNUP] Environment check:', {
+        NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+        VERCEL_URL: process.env.VERCEL_URL,
+        NODE_ENV: process.env.NODE_ENV
+      });
+      
       const { error } = await sb.auth.signInWithOtp({
         email,
         options: { 
-          emailRedirectTo: absUrl('/auth/reset-password')
+          emailRedirectTo: redirectUrl
         }
       });
       if (error) setErr(error.message);

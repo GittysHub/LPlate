@@ -126,7 +126,7 @@ function ResetPasswordForm() {
         } else {
           // Existing user password reset - redirect to dashboard
           console.log('[RESET] Existing user password reset, redirecting to dashboard');
-          router.push("/");
+        router.push("/");
         }
       }
     } catch {
