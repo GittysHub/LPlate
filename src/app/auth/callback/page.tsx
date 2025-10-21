@@ -89,13 +89,32 @@ function AuthCallbackContent() {
           .eq("id", user.id)
           .single();
 
+        console.log('[AUTH] Profile data:', profileData);
+        console.log('[AUTH] Role param:', roleParam);
+        
         // If user is missing essential profile info, redirect to appropriate profile page
-        if (!profileData?.name || !profileData?.phone || !profileData?.postcode) {
+        // Check for meaningful profile completion (not just email-derived name)
+        const hasCompleteProfile = profileData?.name && 
+                                 profileData?.phone && 
+                                 profileData?.postcode &&
+                                 profileData?.name !== user.email.split("@")[0]; // Not just email-derived name
+
+        console.log('[AUTH] Has complete profile:', hasCompleteProfile);
+        console.log('[AUTH] Profile check details:', {
+          hasName: !!profileData?.name,
+          hasPhone: !!profileData?.phone,
+          hasPostcode: !!profileData?.postcode,
+          nameNotEmail: profileData?.name !== user.email.split("@")[0]
+        });
+
+        if (!hasCompleteProfile) {
           console.log('[AUTH] User needs to complete profile setup');
           // Redirect to role-specific profile page
           if (roleParam === "instructor") {
+            console.log('[AUTH] Redirecting to instructor profile');
             router.replace("/instructor/profile");
           } else {
+            console.log('[AUTH] Redirecting to learner profile');
             router.replace("/learner/profile");
           }
         } else {
