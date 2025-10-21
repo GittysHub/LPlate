@@ -81,9 +81,28 @@ function AuthCallbackContent() {
           }
         }
 
-        console.log('[AUTH] Callback processing complete, redirecting to home');
-        // Go home
-        router.replace("/");
+        console.log('[AUTH] Callback processing complete, checking profile completion');
+        
+        // Check if user needs to complete profile setup
+        const { data: profileData } = await sb
+          .from("profiles")
+          .select("name, phone, postcode, avatar_url")
+          .eq("id", user.id)
+          .single();
+
+        // If user is missing essential profile info, redirect to appropriate profile page
+        if (!profileData?.name || !profileData?.phone || !profileData?.postcode) {
+          console.log('[AUTH] User needs to complete profile setup');
+          // Redirect to role-specific profile page
+          if (roleParam === "instructor") {
+            router.replace("/instructor/profile");
+          } else {
+            router.replace("/learner/profile");
+          }
+        } else {
+          console.log('[AUTH] User profile complete, redirecting to dashboard');
+          router.replace("/dashboard");
+        }
       } catch (error) {
         console.error('[AUTH] Unexpected error in auth callback:', error);
         router.replace("/sign-in?error=unexpected");
