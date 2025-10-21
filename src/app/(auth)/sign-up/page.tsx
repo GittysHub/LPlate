@@ -19,7 +19,7 @@ export default function SignUp() {
     setLoading(true);
     
     try {
-      const redirectUrl = absUrl('/auth/reset-password');
+      const redirectUrl = absUrl(`/auth/reset-password?role=${role}`);
       console.log('[SIGNUP] Generated redirect URL:', redirectUrl);
       console.log('[SIGNUP] Environment check:', {
         NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
