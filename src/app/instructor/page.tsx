@@ -65,6 +65,25 @@ export default function InstructorDashboard() {
           </p>
         </div>
 
+        {/* Quick Stats */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Stats</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">0</div>
+              <div className="text-sm text-gray-600">Lessons This Week</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">£0</div>
+              <div className="text-sm text-gray-600">Earnings This Week</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">0</div>
+              <div className="text-sm text-gray-600">Active Students</div>
+            </div>
+          </div>
+        </div>
+
         {/* Quick Actions Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {/* Profile Card */}
@@ -172,25 +191,6 @@ export default function InstructorDashboard() {
             </p>
             <div className="mt-3 text-sm text-gray-500">
               Coming soon
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Stats</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">0</div>
-              <div className="text-sm text-gray-600">Lessons This Week</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">£0</div>
-              <div className="text-sm text-gray-600">Earnings This Week</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">0</div>
-              <div className="text-sm text-gray-600">Active Students</div>
             </div>
           </div>
         </div>
