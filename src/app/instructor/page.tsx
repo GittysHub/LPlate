@@ -58,7 +58,7 @@ export default function InstructorDashboard() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back, {profile?.name || "Instructor"}! 👋
+            Hi {profile?.name || "Instructor"}! 👋
           </h1>
           <p className="text-gray-600">
             Manage your driving lessons and grow your business
