@@ -26,6 +26,7 @@ export default function SignUp() {
         VERCEL_URL: process.env.VERCEL_URL,
         NODE_ENV: process.env.NODE_ENV
       });
+      alert('Debug: Redirect URL = ' + redirectUrl);
       
       const { error } = await sb.auth.signInWithOtp({
         email,
