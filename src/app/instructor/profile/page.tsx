@@ -177,7 +177,7 @@ export default function InstructorProfilePage() {
             ← Back
           </Link>
           <h1 className="text-2xl font-bold text-gray-900 mb-0">
-            {profile.name ? `${profile.name.split(' ')[0]}&apos;s Profile` : 'Edit Profile'}
+            {profile.name ? `${profile.name.split(' ')[0]}'s Profile` : 'Edit Profile'}
           </h1>
         </div>
 
