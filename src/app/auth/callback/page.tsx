@@ -81,45 +81,15 @@ function AuthCallbackContent() {
           }
         }
 
-        console.log('[AUTH] Callback processing complete, checking profile completion');
+        console.log('[AUTH] Callback processing complete, redirecting to profile setup');
         
-        // Check if user needs to complete profile setup
-        const { data: profileData } = await (sb.from("profiles") as any)
-          .select("name, phone, postcode, avatar_url")
-          .eq("id", user.id)
-          .single();
-
-        console.log('[AUTH] Profile data:', profileData);
-        console.log('[AUTH] Role param:', roleParam);
-        
-        // If user is missing essential profile info, redirect to appropriate profile page
-        // Check for meaningful profile completion (not just email-derived name)
-        const hasCompleteProfile = profileData?.name && 
-                                 profileData?.phone && 
-                                 profileData?.postcode &&
-                                 profileData?.name !== user.email.split("@")[0]; // Not just email-derived name
-
-        console.log('[AUTH] Has complete profile:', hasCompleteProfile);
-        console.log('[AUTH] Profile check details:', {
-          hasName: !!profileData?.name,
-          hasPhone: !!profileData?.phone,
-          hasPostcode: !!profileData?.postcode,
-          nameNotEmail: profileData?.name !== user.email.split("@")[0]
-        });
-
-        if (!hasCompleteProfile) {
-          console.log('[AUTH] User needs to complete profile setup');
-          // Redirect to role-specific profile page
-          if (roleParam === "instructor") {
-            console.log('[AUTH] Redirecting to instructor profile');
-            router.replace("/instructor/profile");
-          } else {
-            console.log('[AUTH] Redirecting to learner profile');
-            router.replace("/learner/profile");
-          }
+        // Always redirect new users to profile setup - let the profile page handle the completion check
+        if (roleParam === "instructor") {
+          console.log('[AUTH] Redirecting to instructor profile');
+          router.replace("/instructor/profile");
         } else {
-          console.log('[AUTH] User profile complete, redirecting to dashboard');
-          router.replace("/dashboard");
+          console.log('[AUTH] Redirecting to learner profile');
+          router.replace("/learner/profile");
         }
       } catch (error) {
         console.error('[AUTH] Unexpected error in auth callback:', error);
