@@ -3,7 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import Logo from "@/components/ui/Logo";
-import { absUrl } from "@/lib/baseUrl";
+import { absUrl } from "@/lib/url";
 
 export default function SignUp() {
   const sb = createSupabaseBrowser();
@@ -19,14 +19,10 @@ export default function SignUp() {
     setLoading(true);
     
     try {
-      const redirectUrl = absUrl(`/auth/reset-password?role=${role}`);
-      console.log('[SIGNUP] Generated redirect URL:', redirectUrl);
-      
       const { error } = await sb.auth.signInWithOtp({
         email,
         options: { 
-          emailRedirectTo: redirectUrl,
-          redirectTo: redirectUrl
+          emailRedirectTo: absUrl('/auth/reset-password')
         }
       });
       if (error) setErr(error.message);

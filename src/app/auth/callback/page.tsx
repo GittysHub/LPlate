@@ -3,7 +3,7 @@
 import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
-import { absUrl } from "@/lib/baseUrl";
+import { absUrl } from "@/lib/url";
 
 // Prevent prerender errors
 export const dynamic = 'force-dynamic';

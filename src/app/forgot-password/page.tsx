@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import Logo from "@/components/ui/Logo";
-import { absUrl } from "@/lib/baseUrl";
+import { absUrl } from "@/lib/url";
 
 export default function ForgotPassword() {
   const sb = createSupabaseBrowser();

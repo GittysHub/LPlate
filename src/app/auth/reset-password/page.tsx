@@ -4,6 +4,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import Logo from "@/components/ui/Logo";
 
+export const dynamic = 'force-dynamic';
+
 function ResetPasswordForm() {
   const sb = createSupabaseBrowser();
   const router = useRouter();
