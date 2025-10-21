@@ -166,12 +166,24 @@ function RequestPageContent() {
 
           <label className="block">
             <div className="text-sm mb-1">Start time</div>
-            <input
-              type="time"
+            <select
               className="w-full border rounded p-2"
               value={time}
               onChange={(e) => setTime(e.target.value)}
-            />
+            >
+              <option value="">Select time</option>
+              {Array.from({ length: 48 }, (_, i) => {
+                const hour = Math.floor(i / 2);
+                const minute = (i % 2) * 30;
+                const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+                const displayTime = `${hour === 0 ? '12' : hour > 12 ? hour - 12 : hour}:${minute === 0 ? '00' : '30'} ${hour < 12 ? 'AM' : 'PM'}`;
+                return (
+                  <option key={timeString} value={timeString}>
+                    {displayTime}
+                  </option>
+                );
+              })}
+            </select>
           </label>
 
           <label className="block">
@@ -181,8 +193,8 @@ function RequestPageContent() {
               value={durationMins}
               onChange={(e) => setDurationMins(Number(e.target.value))}
             >
-              <option value={60}>60 minutes</option>
-              <option value={120}>120 minutes</option>
+              <option value={60}>1 hour</option>
+              <option value={120}>2 hours</option>
             </select>
           </label>
         </div>

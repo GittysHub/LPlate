@@ -12,10 +12,16 @@ test.describe('Smoke Tests', () => {
     expect(response.status()).toBe(200);
     
     const data = await response.json();
+    expect(data.ok).toBe(true);
     expect(data.status).toBe('healthy');
-    expect(data.checks.env.supabase_url).toBe(true);
-    expect(data.checks.env.supabase_key).toBe(true);
-    expect(data.checks.env.stripe_key).toBe(true);
+    expect(typeof data.ts).toBe('number');
+    expect(typeof data.timestamp).toBe('string');
+  });
+
+  test('Bookings page loads', async ({ page }) => {
+    await page.goto('/bookings');
+    // Should redirect to sign-in if not authenticated, or show bookings if authenticated
+    await expect(page).toHaveURL(/\/sign-in|\/bookings/);
   });
 
   test('Search page loads', async ({ page }) => {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createSupabaseBrowser } from "@/lib/supabase";
+import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Logo from "@/components/ui/Logo";
@@ -36,12 +36,17 @@ export default function Navigation() {
       setUser(user);
       
       if (user) {
-        const { data: profile } = await sb
+        const { data: profile, error } = await sb
           .from("profiles")
           .select("role, name")
           .eq("id", user.id)
           .single();
-        setProfile(profile);
+        
+        if (error) {
+          console.error("Profile fetch error:", error);
+        } else {
+          setProfile(profile);
+        }
       }
     } catch (e) {
       console.error("Failed to load user:", e);
@@ -78,10 +83,10 @@ export default function Navigation() {
             <Link href="/" className="flex items-center">
               <Logo size="sm" variant="horizontal" />
             </Link>
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-4">
               <Link
                 href="/search"
-                className="border border-gray-300 hover:border-green-500 text-gray-600 hover:text-green-500 px-3 py-1.5 rounded-lg font-medium transition-all duration-200 text-xs whitespace-nowrap"
+                className="border border-gray-300 hover:border-green-500 text-gray-600 hover:text-green-500 px-2 sm:px-3 py-1.5 rounded-lg font-medium transition-all duration-200 text-xs whitespace-nowrap"
               >
                 Find Instructors
               </Link>
@@ -109,10 +114,10 @@ export default function Navigation() {
             <Logo size="sm" variant="horizontal" />
           </Link>
           
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-4">
             <Link
               href="/search"
-              className={`border border-gray-300 hover:border-green-500 px-4 py-1.5 rounded-lg font-medium transition-all duration-200 text-sm ${
+              className={`border border-gray-300 hover:border-green-500 px-2 sm:px-4 py-1.5 rounded-lg font-medium transition-all duration-200 text-xs sm:text-sm whitespace-nowrap ${
                 pathname === "/search" 
                   ? "border-green-500 text-green-500" 
                   : "text-gray-600 hover:text-green-500"
@@ -134,17 +139,37 @@ export default function Navigation() {
                 </div>
               </button>
               
-              {/* Dropdown Menu */}
+              {/* Mobile Menu Overlay */}
               {isMenuOpen && (
-                <div className="absolute right-0 mt-2 w-96 sm:w-80 bg-white rounded-xl shadow-xl border border-gray-200 py-4 z-50">
-                  <div className="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-blue-50">
-                    <div className="text-xl font-semibold text-gray-900">
-                      Hi, {profile?.name || "User"}
+                <>
+                  {/* Backdrop */}
+                  <div 
+                    className="fixed inset-0 bg-black bg-opacity-50 z-40"
+                    onClick={() => setIsMenuOpen(false)}
+                  />
+                  
+                  {/* Menu Panel */}
+                  <div className={`fixed top-0 right-0 h-full w-full max-w-sm bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+                    {/* Header with close button */}
+                    <div className="px-8 py-6 border-b border-gray-100 bg-gradient-to-r from-green-50 to-blue-50 flex items-center justify-between">
+                      <div>
+                        <div className="text-xl font-semibold text-gray-900">
+                          Hi, {profile?.name || "User"}
+                        </div>
+                        <div className="text-base text-gray-600 capitalize">
+                          {profile?.role || "User"}
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => setIsMenuOpen(false)}
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        aria-label="Close menu"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
                     </div>
-                    <div className="text-base text-gray-600 capitalize">
-                      {profile?.role || "User"}
-                    </div>
-                  </div>
                   
                   <div className="py-1">
                     <Link
@@ -156,13 +181,22 @@ export default function Navigation() {
                     </Link>
                     
                     {isLearner && (
-                      <Link
-                        href="/bookings"
-                        className="block px-8 py-5 text-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors border-l-4 border-transparent hover:border-green-500"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        📅 My Bookings
-                      </Link>
+                      <>
+                        <Link
+                          href="/learner/profile"
+                          className="block px-8 py-5 text-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors border-l-4 border-transparent hover:border-green-500"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          👤 Profile
+                        </Link>
+                        <Link
+                          href="/bookings"
+                          className="block px-8 py-5 text-lg font-medium text-gray-700 hover:bg-green-50 hover:text-green-700 transition-colors border-l-4 border-transparent hover:border-green-500"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          📅 My Bookings
+                        </Link>
+                      </>
                     )}
                     
                     {isInstructor && (
@@ -240,7 +274,8 @@ export default function Navigation() {
                       🚪 Sign Out
                     </button>
                   </div>
-                </div>
+                  </div>
+                </>
               )}
             </div>
           </div>

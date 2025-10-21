@@ -8,7 +8,50 @@ Use this prompt when starting a new Cursor session to quickly get up to speed on
 
 I'm working on **LPlate**, a UK learner driver marketplace connecting learners with qualified driving instructors. **PRODUCTION STATUS: Stripe Connect integration is complete and deployed!** 🎉
 
-### 🎯 **Current Status (Latest - Production Deployed & Cleaned)**
+### 🎯 **Current Status (Latest - Homepage Mobile Optimization)**
+- ✅ **Enhanced Social Media Links**: Fixed social links to fit properly on 375px mobile screens with responsive spacing and text sizing
+- ✅ **Optimized Social Layout**: Changed from horizontal wrapping to single-row layout with "Insta" abbreviation for better fit
+- ✅ **Redesigned Stats Section**: Converted from horizontal grid to vertical stacked cards with horizontal icon-stat-text layout
+- ✅ **Improved Stats Alignment**: Fixed misalignment issues with proper spacing and text sizing for mobile compatibility
+- ✅ **Mobile-First Stats Design**: Icon on left, statistic in center, description on right with consistent spacing
+- ✅ **Compact Text Sizing**: Reduced text sizes to ensure "Qualified Instructors" fits on one line
+- ✅ **Professional Stats Layout**: Clean horizontal flow with proper alignment and mobile optimization
+- ✅ **Enhanced Mobile Menu**: Fixed mobile menu to be properly adaptive with full-screen overlay and smooth slide-in animations
+- ✅ **Improved Mobile UX**: Menu now covers entire screen on mobile with backdrop and close button for better usability
+- ✅ **Request Change Feature**: Added duration dropdown (1 or 2 hours) to reschedule modal for complete lesson modification
+- ✅ **Smart Duration Detection**: Reschedule modal automatically detects and pre-fills current lesson duration
+- ✅ **Enhanced Booking Actions**: Conditional action buttons based on lesson timing (cancel >72hrs, request change <72hrs, leave feedback if completed)
+- ✅ **Mobile-First Design**: All booking interactions optimized for mobile devices with proper spacing and touch targets
+- ✅ **Professional Animations**: Smooth slide-in/out transitions for mobile menu with proper z-index layering
+- ✅ **Fixed Profile Picture Upload**: Resolved RLS policy issues preventing instructor profile picture uploads
+- ✅ **Simplified Storage Policies**: Updated Supabase storage policies to use authentication-only approach
+- ✅ **Enhanced Upload Flow**: Streamlined profile picture upload with proper error handling
+- ✅ **Production-Ready Code**: Cleaned up debugging code for production deployment
+- ✅ **Verified Persistence**: Profile pictures now upload and persist correctly across sessions
+- ✅ **Clean White Background**: Pure white page background with gradient content panels for visual hierarchy
+- ✅ **Enhanced Share Button**: Black text and icons on green background for better readability and contrast
+- ✅ **Streamlined Rating Badge**: Reduced height black container with golden shimmer star for premium feel
+- ✅ **Unified Visual Design**: Consistent styling across header, panels, and interactive elements
+- ✅ **Professional Appearance**: Clean, modern design that enhances instructor credibility and trust
+- ✅ **Database Integration**: Successfully added badge_type and badge_number fields to instructors table
+- ✅ **Enhanced Public Profiles**: Clean, professional instructor profile display with prominent rating badges
+- ✅ **Improved Search Results**: Vehicle type now sits alongside rating badges for better information hierarchy
+- ✅ **Privacy-First Design**: Personal details (phone, email, badge numbers) remain private to learners
+- ✅ **Mobile-Optimized Layout**: Consistent text sizes and balanced header layouts across all views
+- ✅ **Professional Badge System**: Training Instructor → PDI → ADI progression with 6-8 digit validation
+- ✅ **Visual Consistency**: Unified rating badge styling with golden shimmer stars across all components
+- ✅ **Enhanced Instructor Profile Form**: Complete redesign with mobile-first layout and logical field grouping
+- ✅ **Badge Type System**: Training Instructor → PDI → ADI progression with badge number validation
+- ✅ **Mobile-Optimized Layout**: Side-by-side fields with smaller labels for better mobile experience
+- ✅ **Form Flow Optimization**: Personal info → instructor details → bio → languages logical progression
+- ✅ **Input Validation**: Badge number field with 6-8 digit numeric validation and real-time filtering
+- ✅ **Professional Badge Management**: Comprehensive instructor certification tracking system
+- ✅ **Password-Based Authentication**: Complete sign-up, login, and password reset flow
+- ✅ **Enhanced Rating Badges**: Premium black badges with golden shimmer stars
+- ✅ **Improved Location Icons**: Larger pin icons in green-600 containers matching price styling
+- ✅ **Mobile-Optimized Design**: Compact rating badges with perfect centering
+- ✅ **Brand Consistency**: Location icons match price color, rating badges use sophisticated black
+- ✅ **Production-Ready Auth**: Email verification, secure password requirements, and proper error handling
 - ✅ **Stripe Connect**: Fully integrated with production-ready schema
 - ✅ **Database**: ChatGPT-improved schema with concurrency-safe credit ledger
 - ✅ **Webhooks**: Deployed and processing events successfully
@@ -79,39 +122,113 @@ Please help me get up to speed by running these diagnostics and providing a comp
 - **Elegant Share Functionality**: Pill-shaped share buttons with URL copying
 
 **Current Focus Areas:**
-- **Instructor Profile Completion**: Finish instructor profile setup and validation
-- **Booking Flow Enhancement**: Complete first stage of booking page with improved UX
+- **Instructor Bookings Page**: Make instructor bookings page work like the learner one with consistent UI/UX
+- **Learner Dashboard Accuracy**: Fix learner dashboard to show accurate information and real-time updates
+- **Calendar Feature Management**: Toggle off/remove calendar feature while preserving existing work
+- **Availability Page Mobile Review**: Review and optimize mobile UI for working hours page
+- **Instructor Dashboard Creation**: Establish basic instructor dashboard based on learner dashboard
+- **Mobile Experience Polish**: ✅ COMPLETED - Enhanced mobile interactions with proper touch targets and animations
 - **Stripe API Integration**: Implement complete booking flow with payment processing
 - **Production Monitoring**: Monitor live application performance and user feedback
-- **Database Migration**: Execute Stripe Connect migrations in production Supabase
-- **Webhook Configuration**: Update Stripe webhook URLs to production domain
 - **User Testing**: Gather feedback from real users and instructors
 - **Performance Optimization**: Monitor and optimize based on production usage
 - **Feature Enhancement**: Plan next iteration based on user needs
 - **Security Monitoring**: Monitor for any security issues or vulnerabilities
 
+### 🎯 **Next Session Priorities (v3.12):**
+
+**High Priority Tasks:**
+1. **Instructor Bookings Page Enhancement**
+   - Make instructor bookings page work like the learner one
+   - Ensure consistent UI/UX between learner and instructor booking views
+   - Add proper data fetching and display logic
+
+2. **Learner Dashboard Accuracy**
+   - Fix learner dashboard to show accurate information
+   - Ensure data consistency and proper real-time updates
+   - Verify all dashboard metrics and statistics
+
+3. **Calendar Feature Management**
+   - Toggle off or remove "Calendar" feature temporarily
+   - Store/preserve existing calendar work for future use
+   - Clean up navigation and remove calendar references
+
+4. **Availability Page Mobile Review**
+   - Review "working hours" (/availability) page for mobile UI issues
+   - Optimize mobile responsiveness and touch interactions
+   - Ensure proper mobile layout and usability
+
+5. **Instructor Dashboard Creation**
+   - Establish a basic instructor dashboard based on the learner one
+   - Create instructor-specific metrics and information display
+   - Ensure role-based dashboard functionality
+
+**Technical Focus Areas:**
+- **Data Consistency**: Ensure instructor and learner booking pages show consistent data
+- **Mobile Optimization**: Focus on mobile UI improvements across key pages
+- **Feature Management**: Clean up unused features while preserving work
+- **Dashboard Development**: Create instructor-specific dashboard functionality
+
 ### 🎯 **Next Development Priorities:**
 
-1. **Instructor Profile Completion**
-   - Complete instructor profile setup and validation forms
-   - Add profile photo upload functionality
-   - Implement profile verification system
-   - Add instructor bio and specializations
-   - Complete service radius and pricing setup
+1. **Booking Flow Enhancement** ✅ **COMPLETED**
+   - ✅ Complete first stage of booking page with improved UX
+   - ✅ Add lesson duration selection (1 or 2 hours)
+   - ✅ Implement date/time picker with instructor availability
+   - ✅ Add special requests/notes functionality
+   - ✅ Improve booking confirmation flow
+   - ✅ Add reschedule functionality with duration modification
 
-2. **Booking Flow Enhancement**
-   - Complete first stage of booking page with improved UX
-   - Add lesson duration selection
-   - Implement date/time picker with instructor availability
-   - Add special requests/notes functionality
-   - Improve booking confirmation flow
+2. **Mobile Experience Optimization** ✅ **COMPLETED**
+   - ✅ Fix mobile menu to be properly adaptive
+   - ✅ Enhance mobile booking interactions
+   - ✅ Optimize touch targets and spacing
+   - ✅ Add smooth animations and transitions
 
-3. **Stripe API Integration**
+3. **Stripe API Integration** (Next Phase)
    - Implement complete booking flow with payment processing
    - Connect booking requests to Stripe payment intents
    - Add instructor payout calculations
    - Implement booking confirmation after payment
    - Add refund and cancellation handling
+
+4. **User Experience Polish** (Ongoing)
+   - Gather feedback from real users and instructors
+   - Optimize mobile experience based on usage patterns
+   - Enhance accessibility features
+   - Improve loading states and error handling
+
+**Key Areas to Investigate:**
+
+1. **Instructor Bookings Page Status**
+   - Current location: `src/app/instructor/bookings/page.tsx`
+   - Compare with learner bookings: `src/app/bookings/page.tsx`
+   - Check data fetching logic and UI consistency
+   - Verify instructor-specific booking actions and status handling
+
+2. **Learner Dashboard Issues**
+   - Current location: `src/app/dashboard/page.tsx`
+   - Check data accuracy and real-time updates
+   - Verify dashboard metrics and statistics display
+   - Compare with expected vs actual data
+
+3. **Calendar Feature Management**
+   - Current location: `src/app/instructor/calendar/page.tsx`
+   - Navigation references in `src/components/Navigation.tsx`
+   - Preserve existing calendar work before removal
+   - Clean up menu items and routing
+
+4. **Availability Page Mobile Issues**
+   - Current location: `src/app/instructor/availability/page.tsx`
+   - Review mobile responsiveness and touch interactions
+   - Check toggle switches and mobile layout
+   - Optimize for mobile usability
+
+5. **Instructor Dashboard Creation**
+   - Reference learner dashboard: `src/app/dashboard/page.tsx`
+   - Create instructor-specific metrics and information
+   - Ensure role-based dashboard functionality
+   - Consider instructor-specific data needs
 
 ### 🔍 **Key Areas to Investigate:**
 
@@ -163,6 +280,59 @@ Please provide:
 3. **Technical Health** - Build status, dependencies, environment
 4. **Next Steps** - Recommended actions or priorities
 5. **Known Issues** - Any documented bugs or limitations
+
+### 🚨 **Session Issues & Lessons Learned (v3.12):**
+
+**Homepage Mobile Optimization Issues (RESOLVED):**
+- ⚠️ **Issue**: Social media links were wrapping to multiple rows on 375px mobile screens
+- ✅ **Solution**: Changed from `flex-wrap` to single-row layout with `gap-2` spacing and "Insta" abbreviation
+- ✅ **Key Learning**: Always test social links on actual mobile widths - wrapping can break layout
+
+**Stats Section Layout Issues (RESOLVED):**
+- ⚠️ **Issue**: Horizontal grid layout was cramped on mobile, text was wrapping
+- ✅ **Solution**: Converted to vertical stacked cards with horizontal icon-stat-text layout
+- ✅ **Key Learning**: Vertical stacking often works better for mobile than horizontal grids
+
+**Stats Alignment Issues (RESOLVED):**
+- ⚠️ **Issue**: `justify-between` was centering statistics in middle space, causing misalignment
+- ✅ **Solution**: Used `space-x-6` with `ml-auto` for proper spacing and right-aligned text
+- ✅ **Key Learning**: `justify-between` can cause floating elements - use controlled spacing instead
+
+**Text Sizing Issues (RESOLVED):**
+- ⚠️ **Issue**: "Qualified Instructors" text was too long for mobile layout
+- ✅ **Solution**: Reduced text sizes from `text-2xl`/`text-sm` to `text-xl`/`text-xs`
+- ✅ **Key Learning**: Always test text length on target mobile widths
+
+**Future Prevention:**
+- Test all layouts on actual mobile widths (375px) not just responsive breakpoints
+- Use controlled spacing instead of `justify-between` for predictable layouts
+- Consider text length when designing mobile layouts
+- Vertical stacking often better than horizontal grids for mobile
+
+### 🚨 **Session Issues & Lessons Learned (v3.11):**
+
+**Mobile Menu Issues (RESOLVED):**
+- ⚠️ **Issue**: Mobile menu was using `absolute` positioning with fixed width, leaving content partially visible behind it
+- ✅ **Solution**: Changed to `fixed` positioning with full-screen overlay (`inset-0`) and proper z-index layering
+- ✅ **Key Learning**: Always use `fixed` positioning for mobile overlays, not `absolute` - ensures proper full-screen coverage
+- ✅ **Animation**: Added smooth slide-in transitions with `transform` and `transition-transform` for professional feel
+
+**Reschedule Modal Enhancement (RESOLVED):**
+- ⚠️ **Issue**: User requested duration dropdown but modal only had date/time fields
+- ✅ **Solution**: Added duration state management and dropdown with 1/2 hour options
+- ✅ **Key Learning**: Always consider all aspects of a feature request - duration was missing from reschedule flow
+- ✅ **UX**: Pre-fill current duration for better user experience
+
+**Code Structure Issues (RESOLVED):**
+- ⚠️ **Issue**: Duplicate div elements created during mobile menu refactoring
+- ✅ **Solution**: Careful review of opening/closing tags and proper fragment usage (`<>`)
+- ✅ **Key Learning**: Always check for duplicate elements when refactoring complex JSX structures
+
+**Future Prevention:**
+- Always test mobile overlays with `fixed` positioning and full-screen coverage
+- Consider all aspects of feature requests (duration, timing, validation, etc.)
+- Use proper React fragments and check for duplicate elements during refactoring
+- Test animations and transitions on actual mobile devices for proper UX
 
 ### 🚨 **Current Known Issues (v3.5 - Production Deployed & Cleaned):**
 

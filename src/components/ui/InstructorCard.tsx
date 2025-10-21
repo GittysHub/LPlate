@@ -59,8 +59,17 @@ export default function InstructorCard({
                 {name}
               </h3>
               <div className="flex items-center gap-2 text-sm text-[var(--text-muted)] mb-2">
-                <span>⭐ {rating}</span>
-                <span>📍 {location}</span>
+                <span className="bg-black text-white px-2 py-0.5 rounded-full text-sm font-semibold flex items-center justify-center">
+                  <span className="leading-none">{rating}</span><span className="relative inline-block text-xl bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-300 bg-[length:200%_100%] bg-clip-text text-transparent animate-shimmer leading-none">★</span>
+                </span>
+                <div className="flex items-center">
+                  <div className="w-4 h-4 bg-green-600 rounded-full flex items-center justify-center mr-1">
+                    <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                  </div>
+                  <span className="font-medium">{location}</span>
+                </div>
                 {distance && <span>• {distance.toFixed(1)} km away</span>}
               </div>
             </div>

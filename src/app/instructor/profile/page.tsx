@@ -23,6 +23,8 @@ type Instructor = {
   vehicle_type: "manual" | "auto" | "both" | null;
   hourly_rate: number | null;
   adi_badge: boolean | null;
+  badge_type: "pdi" | "adi" | "training" | null;
+  badge_number: string | null;
   verification_status: "pending" | "approved" | "rejected" | null;
   lat: number | null;
   lng: number | null;
@@ -58,12 +60,29 @@ export default function InstructorProfilePage() {
         .select("*")
         .eq("id", user.id)
         .single();
-      if (!pErr && prof) setProfile(prof as Profile);
+      if (!pErr && prof) {
+        setProfile(prof as Profile);
+      }
 
       // load instructor (may not exist yet)
       const { data: inst } = await sb
         .from("instructors")
-        .select("*")
+        .select(`
+          id,
+          description,
+          gender,
+          base_postcode,
+          vehicle_type,
+          hourly_rate,
+          adi_badge,
+          badge_type,
+          badge_number,
+          verification_status,
+          service_radius_miles,
+          languages,
+          lat,
+          lng
+        `)
         .eq("id", user.id)
         .maybeSingle();
       if (inst) setInstructor(inst as Instructor);
@@ -117,6 +136,8 @@ export default function InstructorProfilePage() {
       vehicle_type: (inst.vehicle_type ?? "manual") as "manual" | "auto" | "both",
       hourly_rate: inst.hourly_rate ?? 30,
       adi_badge: !!inst.adi_badge,
+      badge_type: inst.badge_type ?? "pdi",
+      badge_number: inst.badge_number ?? null,
       verification_status: (inst.verification_status ?? "pending") as "pending" | "approved" | "rejected",
       lat: lat ?? inst?.lat ?? null,
       lng: lng ?? inst?.lng ?? null,
@@ -126,6 +147,7 @@ export default function InstructorProfilePage() {
 
     setSaving(false);
     if (pErr || iErr) {
+      console.error("Save errors - Profile:", pErr, "Instructor:", iErr);
       setMsg(pErr?.message || iErr?.message || "Save failed");
     } else {
       setMsg("Saved");
@@ -147,34 +169,52 @@ export default function InstructorProfilePage() {
   const inst = instructor ?? ({} as Instructor);
 
   return (
-    <main className="max-w-md mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold text-center mb-6">Edit Profile</h1>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+      <div className="max-w-md mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="mb-6">
+          <Link href="/instructor" className="text-gray-600 hover:text-gray-800 mb-4 inline-block">
+            ← Back
+          </Link>
+          <h1 className="text-2xl font-bold text-gray-900 mb-0">
+            {profile.name ? `${profile.name.split(' ')[0]}&apos;s Profile` : 'Edit Profile'}
+          </h1>
+        </div>
 
-      <form onSubmit={save} className="space-y-6">
-        {/* Avatar */}
-        <div className="flex justify-center">
-          <label className="relative cursor-pointer" title="Change photo">
-            <div className="w-32 h-32 rounded-full ring-2 ring-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center">
-              {previewUrl || profile.avatar_url ? (
-                <Image
-                  src={(previewUrl || profile.avatar_url) as string}
-                  alt="Avatar preview"
-                  width={128}
-                  height={128}
-                  className="rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-28 h-28 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-3xl">
-                  {(profile.name ?? "U").charAt(0).toUpperCase()}
+        {/* Profile Form Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-6 pt-0 pb-6">
+          <form onSubmit={save} className="space-y-3">
+            {/* Profile Photo */}
+            <div className="flex justify-center mb-2">
+              <div className="relative">
+                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                  {previewUrl || profile.avatar_url ? (
+                    <Image
+                      src={(previewUrl || profile.avatar_url) as string}
+                      alt="Profile"
+                      width={96}
+                      height={96}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-gray-300 to-gray-500 flex items-center justify-center">
+                      <img
+                        src="https://bvlilxbhipbworirvzcl.supabase.co/storage/v1/object/public/avatars/Leaf%20circle.png"
+                        alt="Profile placeholder"
+                        className="w-full h-full object-contain"
+                      />
                 </div>
               )}
             </div>
-            <input
-              type="file"
-              accept="image/*"
-              className="absolute inset-0 opacity-0"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
+                <button
+                  type="button"
+                  className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 hover:bg-green-600 text-black rounded-full flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-110"
+                  onClick={() => {
+                    const input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = 'image/*';
+                    input.onchange = async (e) => {
+                      const file = (e.target as HTMLInputElement).files?.[0];
                 if (!file || !profile) return;
                 const localUrl = URL.createObjectURL(file);
                 setPreviewUrl(localUrl);
@@ -182,151 +222,207 @@ export default function InstructorProfilePage() {
                 try {
                   const ext = file.name.split(".").pop() || "jpg";
                   const path = `${profile.id}-${Date.now()}.${ext}`;
-                  const { error: upErr } = await sb.storage
-                    .from("avatars")
-                    .upload(path, file, { cacheControl: "3600" });
-                  if (upErr) throw upErr;
+                        const { error: upErr } = await sb.storage
+                          .from("avatars")
+                          .upload(path, file, { cacheControl: "3600" });
+                        if (upErr) {
+                          throw upErr;
+                        }
                   const { data: pub } = sb.storage.from("avatars").getPublicUrl(path);
-                  setProfile({ ...profile, avatar_url: pub.publicUrl });
-                  setMsg("Photo uploaded");
+                        
+                        // Update the profile in the database
+                        const { error: updateError } = await (sb.from("profiles") as any)
+                          .update({ avatar_url: pub.publicUrl })
+                          .eq("id", profile.id);
+                        
+                        if (updateError) {
+                          setMsg("Photo uploaded but failed to save");
+                        } else {
+                          setProfile({ ...profile, avatar_url: pub.publicUrl });
+                          setMsg("Photo uploaded successfully");
+                        }
                 } catch (er: unknown) {
                   setMsg(er instanceof Error ? er.message : "Upload failed");
                 } finally {
                   setUploading(false);
                   setTimeout(() => localUrl && URL.revokeObjectURL(localUrl), 1000);
                 }
-              }}
-            />
-          </label>
+                    };
+                    input.click();
+                  }}
+                  title="Upload profile photo"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </button>
+              </div>
         </div>
-        {uploading && <p className="text-center text-xs text-gray-500">Uploading…</p>}
+            {uploading && <p className="text-center text-xs text-gray-500 mb-2">Uploading…</p>}
 
-        {/* Name */}
+            {/* Full Name */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
           <input
-            className="w-full border border-gray-300 rounded-lg px-4 py-3"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500"
             value={profile.name ?? ""}
             onChange={(e) => setProfile({ ...profile, name: e.target.value })}
           />
         </div>
 
-        {/* Email (read-only) */}
+            {/* Email Address */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
           <input
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 bg-gray-50"
+                className="w-full border border-gray-200 rounded-lg px-4 py-3 bg-gray-100 text-gray-500 cursor-not-allowed"
             value={profile.email ?? ""}
             readOnly
           />
         </div>
 
-        {/* Three columns: Hourly rate, Service radius, and Location (postcode) */}
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Hourly Rate (£)</label>
-            <input
-              type="number"
-              min={10}
-              max={100}
-              step="1"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3"
-              value={inst.hourly_rate ?? 30}
-              onChange={(e) => setInstructor({ ...instructor!, hourly_rate: Number(e.target.value) })}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Service Radius (miles)</label>
-            <input
-              type="number"
-              min={1}
-              max={50}
-              step="1"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3"
-              value={inst.service_radius_miles ?? 10}
-              onChange={(e) => setInstructor({ ...instructor!, service_radius_miles: Number(e.target.value) })}
-            />
-            <p className="text-xs text-gray-500 mt-1">How far you&apos;re willing to travel to meet learners</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-            <input
-              className="w-full border border-gray-300 rounded-lg px-4 py-3"
-              placeholder="Bristol or postcode"
-              value={profile.postcode ?? ""}
-              onChange={(e) => setProfile({ ...profile, postcode: e.target.value })}
-            />
-          </div>
-        </div>
+            {/* Phone Number and Gender */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-2">Phone Number</label>
+                <input
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  placeholder="Enter your phone number"
+                  value={profile.phone ?? ""}
+                  onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-700 mb-2">Gender</label>
+                <select
+                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  value={inst.gender ?? "other"}
+                  onChange={(e) => setInstructor({ ...instructor!, gender: e.target.value as "male" | "female" | "other" })}
+                >
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+            </div>
 
-        {/* Vehicle & Gender inline (kept simple) */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle</label>
-            <select
-              className="w-full border border-gray-300 rounded-lg px-4 py-3"
-              value={inst.vehicle_type ?? "manual"}
-              onChange={(e) => setInstructor({ ...instructor!, vehicle_type: e.target.value as "manual" | "auto" | "both" })}
-            >
-              <option value="manual">Manual</option>
-              <option value="auto">Auto</option>
-              <option value="both">Manual & Auto</option>
-            </select>
+            {/* Vehicle Type and Hourly Rate */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-2">Vehicle Type</label>
+              <select
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                value={inst.vehicle_type ?? "manual"}
+                onChange={(e) => setInstructor({ ...instructor!, vehicle_type: e.target.value as "manual" | "auto" | "both" })}
+              >
+                <option value="manual">Manual</option>
+                <option value="auto">Auto</option>
+                <option value="both">Manual & Auto</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-2">Hourly Rate (£)</label>
+              <input
+                type="number"
+                min={10}
+                max={100}
+                step="1"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                value={inst.hourly_rate ?? 30}
+                onChange={(e) => setInstructor({ ...instructor!, hourly_rate: Number(e.target.value) })}
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
-            <select
-              className="w-full border border-gray-300 rounded-lg px-4 py-3"
-              value={inst.gender ?? "other"}
-              onChange={(e) => setInstructor({ ...instructor!, gender: e.target.value as "male" | "female" | "other" })}
-            >
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
+
+            {/* Postcode and Service Radius */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-2">Postcode</label>
+              <input
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="Used to find instructors near you"
+                value={profile.postcode ?? ""}
+                onChange={(e) => setProfile({ ...profile, postcode: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-2">Service Radius (miles)</label>
+              <input
+                type="number"
+                min={1}
+                max={50}
+                step="1"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                value={inst.service_radius_miles ?? 10}
+                onChange={(e) => setInstructor({ ...instructor!, service_radius_miles: Number(e.target.value) })}
+              />
+            </div>
           </div>
-        </div>
+          <p className="text-xs text-gray-500 mt-1">How far you&apos;re willing to travel to meet learners</p>
+
+            {/* Badge Type and Badge Number */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-2">Badge Type</label>
+              <select
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                value={inst.badge_type ?? "pdi"}
+                onChange={(e) => setInstructor({ ...instructor!, badge_type: e.target.value as "pdi" | "adi" | "training" })}
+              >
+                <option value="training">Training Instructor</option>
+                <option value="pdi">PDI</option>
+                <option value="adi">ADI</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-2">Badge Number</label>
+              <input
+                type="text"
+                pattern="[0-9]{6,8}"
+                maxLength={8}
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                placeholder="6-8 digits"
+                value={inst.badge_number ?? ""}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9]/g, ''); // Only allow numbers
+                  if (value.length <= 8) {
+                    setInstructor({ ...instructor!, badge_number: value });
+                  }
+                }}
+              />
+            </div>
+          </div>
 
         {/* Bio */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Bio</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
           <textarea
-            className="w-full border border-gray-300 rounded-lg px-4 py-3 min-h-28"
+                className="w-full border border-gray-300 rounded-lg px-4 py-3 min-h-28 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                placeholder="Tell learners about your teaching style and experience..."
             value={inst.description ?? ""}
             onChange={(e) => setInstructor({ ...instructor!, description: e.target.value })}
           />
         </div>
 
-        {/* ADI toggle */}
-        <label className="inline-flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={!!inst.adi_badge}
-            onChange={(e) => setInstructor({ ...instructor!, adi_badge: e.target.checked })}
-          />
-          <span>ADI Badge</span>
-        </label>
-
-        {/* Languages */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Languages (max 3)</label>
-          <div className="space-y-2">
-            {[0, 1, 2].map((index) => (
-              <select
-                key={index}
-                className="w-full border border-gray-300 rounded-lg px-4 py-3"
-                value={inst.languages?.[index] || ""}
-                onChange={(e) => {
-                  const newLanguages = [...(inst.languages || [])];
-                  if (e.target.value) {
-                    newLanguages[index] = e.target.value;
-                  } else {
-                    newLanguages.splice(index, 1);
-                  }
-                  setInstructor({ ...instructor!, languages: newLanguages });
-                }}
-              >
-                <option value="">Select language...</option>
+            {/* Languages */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Languages (max 3)</label>
+              <div className="space-y-2">
+                {[0, 1, 2].map((index) => (
+                  <select
+                    key={index}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                    value={inst.languages?.[index] || ""}
+                    onChange={(e) => {
+                      const newLanguages = [...(inst.languages || [])];
+                      if (e.target.value) {
+                        newLanguages[index] = e.target.value;
+                      } else {
+                        newLanguages.splice(index, 1);
+                      }
+                      setInstructor({ ...instructor!, languages: newLanguages });
+                    }}
+                  >
+                    <option value="">Select language...</option>
                 <option value="English">English</option>
                 <option value="Welsh">Welsh</option>
                 <option value="French">French</option>
@@ -407,19 +503,25 @@ export default function InstructorProfilePage() {
               </select>
             ))}
           </div>
-          <p className="text-xs text-gray-500 mt-1">Select up to 3 languages you can teach in</p>
+              <p className="text-xs text-gray-500 mt-1">Select up to 3 languages you can teach in</p>
+            </div>
+
+            {/* Save Button */}
+        <button
+              type="submit"
+          disabled={saving}
+              className="w-full font-semibold py-3 px-6 rounded-lg transition-all duration-200 hover:scale-105 disabled:hover:scale-100 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white"
+        >
+              {saving ? "Saving..." : "Save Changes"}
+        </button>
+      </form>
         </div>
 
-        {/* Save */}
-        <button
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-3 rounded-xl"
-          disabled={saving}
-          type="submit"
-        >
-          {saving ? "Saving…" : "Save Changes"}
-        </button>
-        {msg && <p className="text-center text-sm">{msg}</p>}
-      </form>
-    </main>
+        {/* Additional Info */}
+        <div className="mt-6 text-center text-sm text-gray-600">
+          <p>Your profile information helps learners understand your teaching style, availability and location.</p>
+        </div>
+      </div>
+    </div>
   );
 }

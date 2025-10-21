@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { createClient } from "@/lib/supabase";
+import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
-const sb = createClient();
+const sb = createSupabaseBrowser();
 
 type Booking = {
   id: string;

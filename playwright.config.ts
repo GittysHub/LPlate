@@ -8,7 +8,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:3001',
+    baseURL: process.env.CI ? 'http://localhost:3002' : 'http://localhost:3001',
     trace: 'on-first-retry',
   },
   projects: [
@@ -19,7 +19,8 @@ export default defineConfig({
   ],
   webServer: {
     command: 'pnpm dev',
-    url: 'http://localhost:3001',
+    url: process.env.CI ? 'http://localhost:3002' : 'http://localhost:3001',
     reuseExistingServer: !process.env.CI,
+    port: process.env.CI ? 3002 : 3001,
   },
 });

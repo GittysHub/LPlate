@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { createSupabaseBrowser } from "@/lib/supabase";
+import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import SearchBar from "@/components/ui/SearchBar";
 import { FilterChips } from "@/components/ui/FilterChips";
 import ToggleGroup from "@/components/ui/ToggleGroup";
@@ -63,10 +63,8 @@ function SearchPageContent() {
       // Geocode function moved inside useCallback to avoid dependency issues
       const origin = await (async (pc: string) => {
         const norm = normalisePostcode(pc);
-        console.log('Geocoding postcode:', pc, 'Normalized:', norm);
         const r = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(norm)}`);
         const j = await r.json();
-        console.log('API response:', j);
         if (j.status !== 200 || !j.result) throw new Error("Postcode not found");
         return { lat: j.result.latitude as number, lng: j.result.longitude as number };
       })(searchPostcode);
@@ -453,20 +451,24 @@ function SearchPageContent() {
                       <h3 className="text-lg font-semibold text-gray-900 mb-1">
                         {r.name ?? "Instructor"}
                       </h3>
-                      <p className="text-sm text-gray-600 mb-2">
-                        📍 {maskPostcode(r.base_postcode)} • {Math.round((r.distanceKm || 0) * 0.621371)} miles away
-                      </p>
                       <div className="flex items-center space-x-2 mb-2">
-                        <div className="flex text-yellow-400">
-                          {[...Array(5)].map((_, i) => (
-                            <span key={i} className="text-sm">⭐</span>
-                          ))}
+                        <div className="flex items-center">
+                          <div className="w-4 h-4 bg-green-600 rounded-full flex items-center justify-center mr-1">
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                            </svg>
+                          </div>
+                          <span className="text-sm text-gray-600 font-medium">
+                            {maskPostcode(r.base_postcode)} • {Math.round((r.distanceKm || 0) * 0.621371)} miles away
+                          </span>
                         </div>
-                        <span className="text-sm text-gray-500">4.8</span>
                       </div>
-                      <div className="flex items-center">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <span className="bg-black text-white px-2 py-0.5 rounded-full text-sm font-semibold flex items-center justify-center">
+                          <span className="leading-none">4.8</span><span className="relative inline-block text-xl bg-gradient-to-r from-yellow-300 via-yellow-500 to-yellow-300 bg-[length:200%_100%] bg-clip-text text-transparent animate-shimmer leading-none">★</span>
+                        </span>
                         <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
-                          {r.vehicle_type === "both" ? "Auto & Manual" : (r.vehicle_type ?? "Manual")}
+                          {r.vehicle_type === "both" ? "Auto & Manual" : (r.vehicle_type === "auto" ? "Auto" : "Manual")}
                         </span>
                       </div>
                     </div>

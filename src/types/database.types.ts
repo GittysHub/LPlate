@@ -10,6 +10,7 @@ export interface Database {
           phone: string | null
           email: string | null
           avatar_url: string | null
+          experience_level: 'beginner' | 'intermediate' | 'advanced' | 'qualified' | null
           created_at: string
           updated_at: string
         }

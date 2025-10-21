@@ -16,6 +16,19 @@ module.exports = {
           'green-dark': '#059669',
         },
       },
+      animation: {
+        'shimmer': 'shimmer 5s ease-in-out infinite',
+      },
+      keyframes: {
+        shimmer: {
+          '0%, 100%': {
+            'background-position': '-200% 0',
+          },
+          '50%': {
+            'background-position': '200% 0',
+          },
+        },
+      },
     },
   },
   plugins: [],

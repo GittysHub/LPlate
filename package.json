@@ -7,8 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "type-check": "tsc --noEmit",
-    "test:smoke": "playwright test"
+    "typecheck": "tsc --noEmit",
+    "test:smoke": "playwright test",
+    "ci:verify": "pnpm install --frozen-lockfile && npm run typecheck && npm run lint",
+    "ci:verify-full": "pnpm install --frozen-lockfile && npm run typecheck && npm run lint && npm run build && npm run test:smoke",
+    "ci:verify-server": "pnpm install --frozen-lockfile && npm run typecheck && npm run lint && npm run test:smoke"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",

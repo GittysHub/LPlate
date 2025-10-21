@@ -509,7 +509,64 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 - **Dynamic Sign-up Images**: Role-based car images (CarSprout.png for learners, CarPro.png for instructors)
 - **Accessibility Improvements**: Larger text sizes, wider menus, and better contrast for mobile users
 
-### 🔄 Latest Updates (v3.5) - Production Cleanup & Final Polish
+### 🔄 Latest Updates (v3.12) - Homepage Mobile Optimization
+- **Enhanced Social Media Links**: Fixed social links to fit properly on 375px mobile screens with responsive spacing and text sizing
+- **Optimized Social Layout**: Changed from horizontal wrapping to single-row layout with "Insta" abbreviation for better fit
+- **Redesigned Stats Section**: Converted from horizontal grid to vertical stacked cards with horizontal icon-stat-text layout
+- **Improved Stats Alignment**: Fixed misalignment issues with proper spacing and text sizing for mobile compatibility
+- **Mobile-First Stats Design**: Icon on left, statistic in center, description on right with consistent spacing
+- **Compact Text Sizing**: Reduced text sizes to ensure "Qualified Instructors" fits on one line
+- **Professional Stats Layout**: Clean horizontal flow with proper alignment and mobile optimization
+
+### 🔄 Previous Updates (v3.11) - Mobile Menu & Booking Enhancements
+- **Enhanced Mobile Menu**: Fixed mobile menu to be properly adaptive with full-screen overlay and smooth slide-in animations
+- **Improved Mobile UX**: Menu now covers entire screen on mobile with backdrop and close button for better usability
+- **Request Change Feature**: Added duration dropdown (1 or 2 hours) to reschedule modal for complete lesson modification
+- **Smart Duration Detection**: Reschedule modal automatically detects and pre-fills current lesson duration
+- **Enhanced Booking Actions**: Conditional action buttons based on lesson timing (cancel >72hrs, request change <72hrs, leave feedback if completed)
+- **Mobile-First Design**: All booking interactions optimized for mobile devices with proper spacing and touch targets
+- **Professional Animations**: Smooth slide-in/out transitions for mobile menu with proper z-index layering
+
+### 🔄 Previous Updates (v3.10) - Profile Picture Upload Fix
+- **Fixed Profile Picture Upload**: Resolved RLS policy issues preventing instructor profile picture uploads
+- **Simplified Storage Policies**: Updated Supabase storage policies to use authentication-only approach
+- **Enhanced Upload Flow**: Streamlined profile picture upload with proper error handling
+- **Production-Ready Code**: Cleaned up debugging code for production deployment
+- **Verified Persistence**: Profile pictures now upload and persist correctly across sessions
+
+### 🔄 Previous Updates (v3.9) - Instructor Profile Visual Polish
+- **Clean White Background**: Pure white page background with gradient content panels for visual hierarchy
+- **Enhanced Share Button**: Black text and icons on green background for better readability and contrast
+- **Streamlined Rating Badge**: Reduced height black container with golden shimmer star for premium feel
+- **Unified Visual Design**: Consistent styling across header, panels, and interactive elements
+- **Professional Appearance**: Clean, modern design that enhances instructor credibility and trust
+
+### 🔄 Previous Updates (v3.8) - Instructor Profile & UI Polish Complete
+- **Database Integration**: Successfully added badge_type and badge_number fields to instructors table
+- **Enhanced Public Profiles**: Clean, professional instructor profile display with prominent rating badges
+- **Improved Search Results**: Vehicle type now sits alongside rating badges for better information hierarchy
+- **Privacy-First Design**: Personal details (phone, email, badge numbers) remain private to learners
+- **Mobile-Optimized Layout**: Consistent text sizes and balanced header layouts across all views
+- **Professional Badge System**: Training Instructor → PDI → ADI progression with 6-8 digit validation
+- **Visual Consistency**: Unified rating badge styling with golden shimmer stars across all components
+
+### 🔄 Previous Updates (v3.7) - Instructor Profile Form Enhancement
+- **Enhanced Instructor Profile Form**: Complete redesign with mobile-first layout and logical field grouping
+- **Badge Type System**: Training Instructor → PDI → ADI progression with badge number validation
+- **Mobile-Optimized Layout**: Side-by-side fields with smaller labels for better mobile experience
+- **Form Flow Optimization**: Personal info → instructor details → bio → languages logical progression
+- **Input Validation**: Badge number field with 6-8 digit numeric validation and real-time filtering
+- **Professional Badge Management**: Comprehensive instructor certification tracking system
+
+### 🔄 Previous Updates (v3.6) - Authentication & UI Polish
+- **Password-Based Authentication**: Complete sign-up, login, and password reset flow
+- **Enhanced Rating Badges**: Premium black badges with golden shimmer stars (5-second animation)
+- **Improved Location Icons**: Larger pin icons in green-600 containers matching price styling
+- **Mobile-Optimized Design**: Compact rating badges with perfect centering and spacing
+- **Brand Consistency**: Location icons match price color, rating badges use sophisticated black
+- **Production-Ready Auth**: Email verification, secure password requirements, and proper error handling
+
+### 🔄 Previous Updates (v3.5) - Production Cleanup & Final Polish
 - **Project Cleanup**: Removed unnecessary SQL files, test artifacts, and temporary files
 - **Documentation Finalization**: Updated README and CURSOR-SESSION-PROMPT for production state
 - **File Organization**: Streamlined project structure with only essential files

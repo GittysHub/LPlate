@@ -20,7 +20,6 @@ export default function SocialProofCarousel() {
 
   useEffect(() => {
     const fetchCertificates = async () => {
-      console.log("🚀 SocialProofCarousel fetchCertificates started - NEW VERSION");
       try {
         const sb = createSupabaseBrowser();
         
@@ -44,11 +43,9 @@ export default function SocialProofCarousel() {
           throw submissionsError;
         }
 
-        console.log("Submissions data:", submissionsData);
 
         // Now fetch learner names
         const learnerIds = submissionsData?.map((s: any) => s.learner_id) || [];
-        console.log("Learner IDs to fetch:", learnerIds);
         
         const { data: learnerData, error: learnerError } = await (sb.from('profiles') as any)
           .select('id, name')
@@ -59,12 +56,9 @@ export default function SocialProofCarousel() {
           console.error("Learner error details:", learnerError);
         }
 
-        console.log("Learner data:", learnerData);
-        console.log("Learner data length:", learnerData?.length);
 
         // Fetch instructor names
         const instructorIds = submissionsData?.map((s: any) => s.instructor_id) || [];
-        console.log("Instructor IDs to fetch:", instructorIds);
         
         const { data: instructorData, error: instructorError } = await (sb.from('profiles') as any)
           .select('id, name')
@@ -75,19 +69,14 @@ export default function SocialProofCarousel() {
           console.error("Instructor error details:", instructorError);
         }
 
-        console.log("Instructor data:", instructorData);
-        console.log("Instructor data length:", instructorData?.length);
 
         // Create lookup maps
         const learnerMap = new Map(learnerData?.map((l: any) => [l.id, l.name]) || []);
         const instructorMap = new Map(instructorData?.map((i: any) => [i.id, i.name]) || []);
 
-        console.log("Learner map:", learnerMap);
-        console.log("Instructor map:", instructorMap);
 
         // Check if we have any data
         if (!submissionsData || submissionsData.length === 0) {
-          console.log("No submissions data found, using mock data");
           const mockCertificates: Certificate[] = [
             {
               id: "mock-1",
@@ -120,12 +109,10 @@ export default function SocialProofCarousel() {
 
         // Transform Supabase data to our interface
         const certificatesData: Certificate[] = (submissionsData || []).map((row: Record<string, unknown>) => {
-          console.log("Processing row:", row);
           
           const learnerName = learnerMap.get(row.learner_id) || "Learner";
           const instructorName = instructorMap.get(row.instructor_id) || "Instructor";
           
-          console.log(`Final names - Learner: ${learnerName}, Instructor: ${instructorName}`);
           
           return {
             id: typeof row.id === 'string' ? row.id : String(row.id || ''),

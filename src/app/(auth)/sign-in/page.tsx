@@ -18,12 +18,15 @@ export default function SignIn() {
     setLoading(true);
     
     try {
-      const { error } = await sb.auth.signInWithOtp({
+      const { error } = await sb.auth.signInWithPassword({
         email,
-        options: { emailRedirectTo: `${location.origin}/auth/callback` }
+        password,
       });
       if (error) setErr(error.message);
-      else setSent(true);
+      else {
+        // Redirect to dashboard or home page
+        window.location.href = "/";
+      }
     } catch {
       setErr("An unexpected error occurred");
     } finally {
@@ -44,24 +47,7 @@ export default function SignIn() {
           🚗 Welcome back! 🚘
         </h1>
 
-        {sent ? (
-          <div className="text-center space-y-4">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-              <span className="text-green-600 text-2xl">✓</span>
-            </div>
-            <h2 className="text-xl font-semibold text-gray-900">Check your email</h2>
-            <p className="text-gray-600 text-base">
-              We&apos;ve sent a magic link to <strong>{email}</strong>
-            </p>
-            <button 
-              onClick={() => setSent(false)}
-              className="text-green-600 text-base font-medium hover:text-green-700"
-            >
-              Try again
-            </button>
-          </div>
-        ) : (
-          <form onSubmit={submit} className="space-y-6">
+        <form onSubmit={submit} className="space-y-6">
             {/* Email Field */}
             <div>
               <input
@@ -128,15 +114,14 @@ export default function SignIn() {
 
             {/* Forgot Password Link */}
             <div className="text-center">
-              <button
-                type="button"
+              <a
+                href="/forgot-password"
                 className="text-green-600 text-base font-medium hover:text-green-700 transition-colors"
               >
                 Forgot password?
-              </button>
+              </a>
             </div>
           </form>
-        )}
       </div>
     </div>
   );
