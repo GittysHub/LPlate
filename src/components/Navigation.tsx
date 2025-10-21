@@ -40,7 +40,7 @@ export default function Navigation() {
           .from("profiles")
           .select("role, name")
           .eq("id", user.id)
-          .single();
+          .maybeSingle(); // Use maybeSingle() instead of single()
         
         if (error) {
           console.error("Profile fetch error:", error);

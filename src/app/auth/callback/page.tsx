@@ -44,7 +44,7 @@ function AuthCallbackContent() {
           .from("profiles")
           .select("role")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();
 
         if (profileError && profileError.code !== 'PGRST116') {
           console.error('[AUTH] Profile error:', profileError);

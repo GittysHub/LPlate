@@ -35,7 +35,7 @@ export default function Dashboard() {
           .from("profiles")
           .select("role, name")
           .eq("id", user.id)
-          .single();
+          .maybeSingle();
         setProfile(profile);
       }
     } catch (e) {
