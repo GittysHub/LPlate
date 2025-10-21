@@ -84,6 +84,9 @@ function AuthCallbackContent() {
         console.log('[AUTH] Callback processing complete, redirecting to profile setup');
         console.log('[AUTH] Role param:', roleParam);
         
+        // Small delay to ensure profile creation is complete before redirect
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         // Always redirect new users to profile setup - let the profile page handle the completion check
         if (roleParam === "instructor") {
           console.log('[AUTH] Redirecting to instructor profile');

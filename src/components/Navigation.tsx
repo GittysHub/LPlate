@@ -44,6 +44,10 @@ export default function Navigation() {
         
         if (error) {
           console.error("Profile fetch error:", error);
+          // Don't set profile if it doesn't exist yet - this is normal for new users
+          if (error.code !== 'PGRST116') {
+            console.error("Unexpected profile error:", error);
+          }
         } else {
           setProfile(profile);
         }
