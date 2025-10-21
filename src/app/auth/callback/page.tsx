@@ -82,14 +82,19 @@ function AuthCallbackContent() {
         }
 
         console.log('[AUTH] Callback processing complete, redirecting to profile setup');
+        console.log('[AUTH] Role param:', roleParam);
         
         // Always redirect new users to profile setup - let the profile page handle the completion check
         if (roleParam === "instructor") {
           console.log('[AUTH] Redirecting to instructor profile');
+          console.log('[AUTH] About to call router.replace("/instructor/profile")');
           router.replace("/instructor/profile");
+          console.log('[AUTH] router.replace called for instructor');
         } else {
           console.log('[AUTH] Redirecting to learner profile');
+          console.log('[AUTH] About to call router.replace("/learner/profile")');
           router.replace("/learner/profile");
+          console.log('[AUTH] router.replace called for learner');
         }
       } catch (error) {
         console.error('[AUTH] Unexpected error in auth callback:', error);
