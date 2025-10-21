@@ -5,13 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
+    "start": "next start -p 3000",
+    "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test:smoke": "playwright test",
-    "ci:verify": "pnpm install --frozen-lockfile && npm run typecheck && npm run lint",
+    "ci:verify": "pnpm install --frozen-lockfile && npm run typecheck && npm run lint && npm run build && node -e \"require('fs').existsSync('.next/routes-manifest.json')||process.exit(2)\" && npm run test:smoke",
     "ci:verify-full": "pnpm install --frozen-lockfile && npm run typecheck && npm run lint && npm run build && npm run test:smoke",
-    "ci:verify-server": "pnpm install --frozen-lockfile && npm run typecheck && npm run lint && npm run test:smoke"
+    "ci:verify-server": "pnpm install --frozen-lockfile && npm run typecheck && npm run lint && npm run test:smoke",
+    "vercel:preview": "vercel build"
   },
   "dependencies": {
     "@supabase/ssr": "^0.7.0",
