@@ -49,6 +49,7 @@ export default function Navigation() {
             console.error("Unexpected profile error:", error);
           }
         } else {
+          console.log('[NAV] Profile loaded:', profile);
           setProfile(profile);
         }
       }
@@ -109,6 +110,13 @@ export default function Navigation() {
 
   const isInstructor = profile?.role === "instructor";
   const isLearner = profile?.role === "learner";
+  
+  console.log('[NAV] Role check:', { 
+    profile, 
+    role: profile?.role, 
+    isInstructor, 
+    isLearner 
+  });
 
   return (
     <nav className="bg-white border-b border-gray-100">
