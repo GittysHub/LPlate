@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import Logo from "@/components/ui/Logo";
+import { absUrl } from "@/lib/baseUrl";
 
 export default function ForgotPassword() {
   const sb = createSupabaseBrowser();
@@ -17,7 +18,7 @@ export default function ForgotPassword() {
     
     try {
       const { error } = await sb.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/reset-password`,
+        redirectTo: absUrl("/auth/reset-password"),
       });
       if (error) setErr(error.message);
       else setSent(true);

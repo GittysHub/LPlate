@@ -3,6 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
 import Logo from "@/components/ui/Logo";
+import { absUrl } from "@/lib/baseUrl";
 
 export default function SignUp() {
   const sb = createSupabaseBrowser();
@@ -20,7 +21,7 @@ export default function SignUp() {
     try {
       const { error } = await sb.auth.signInWithOtp({
         email,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback?role=${role}` }
+        options: { emailRedirectTo: absUrl(`/auth/callback?role=${role}`) }
       });
       if (error) setErr(error.message);
       else setSent(true);

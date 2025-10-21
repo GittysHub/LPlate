@@ -3,6 +3,11 @@
 import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createSupabaseBrowser } from "@/lib/supabase-browser";
+import { absUrl } from "@/lib/baseUrl";
+
+// Prevent prerender errors
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 function AuthCallbackContent() {
   const router = useRouter();
@@ -13,62 +18,74 @@ function AuthCallbackContent() {
   useEffect(() => {
     (async () => {
       try {
+        console.log('[AUTH] Starting callback processing...');
+        
         // On this page, supabase-js will detect the tokens in the URL hash
         // (because we enabled detectSessionInUrl: true in the client).
         // Give it a tick to process, then read the user.
         const { data: { user }, error: userError } = await sb.auth.getUser();
 
         if (userError) {
-          console.error("Auth error:", userError);
+          console.error('[AUTH] Auth error:', userError);
           router.replace("/sign-in?error=auth_failed");
           return;
         }
 
-        if (user?.id && user.email) {
-          // Check if user already has a profile
-          const { data: existingProfile, error: profileError } = await sb
-            .from("profiles")
-            .select("role")
-            .eq("id", user.id)
-            .single();
+        if (!user?.id || !user.email) {
+          console.error('[AUTH] No user or missing user data:', { user });
+          router.replace("/sign-in?error=no_user");
+          return;
+        }
 
-          if (profileError && profileError.code !== 'PGRST116') {
-            console.error("Profile error:", profileError);
-            router.replace("/sign-in?error=profile_failed");
+        console.log('[AUTH] User authenticated:', { id: user.id, email: user.email });
+
+        // Check if user already has a profile
+        const { data: existingProfile, error: profileError } = await sb
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.error('[AUTH] Profile error:', profileError);
+          router.replace("/sign-in?error=profile_failed");
+          return;
+        }
+
+        // If no existing profile, create one
+        if (!existingProfile) {
+          console.log('[AUTH] Creating new profile for user:', user.id);
+          const { error: insertError } = await (sb.from("profiles") as any).insert({
+            id: user.id,
+            role: (roleParam || "learner") as "learner" | "instructor",
+            name: user.email.split("@")[0],
+            email: user.email,
+          });
+
+          if (insertError) {
+            console.error('[AUTH] Insert profile error:', insertError);
+            router.replace("/sign-in?error=profile_creation_failed");
             return;
           }
+          console.log('[AUTH] Profile created successfully');
+        } else {
+          console.log('[AUTH] Profile exists, updating email if needed');
+          // Update email if it's different (in case user changed email)
+          const { error: updateError } = await (sb.from("profiles") as any).update({
+            email: user.email,
+          }).eq("id", user.id);
 
-          // If no existing profile, create one
-          if (!existingProfile) {
-            const { error: insertError } = await (sb.from("profiles") as any).insert({
-              id: user.id,
-              role: (roleParam || "learner") as "learner" | "instructor",
-              name: user.email.split("@")[0],
-              email: user.email,
-            });
-
-            if (insertError) {
-              console.error("Insert profile error:", insertError);
-              router.replace("/sign-in?error=profile_creation_failed");
-              return;
-            }
-          } else {
-            // Update email if it's different (in case user changed email)
-            const { error: updateError } = await (sb.from("profiles") as any).update({
-              email: user.email,
-            }).eq("id", user.id);
-
-            if (updateError) {
-              console.error("Update profile error:", updateError);
-              // Don't redirect on update error, just log it
-            }
+          if (updateError) {
+            console.error('[AUTH] Update profile error:', updateError);
+            // Don't redirect on update error, just log it
           }
         }
 
+        console.log('[AUTH] Callback processing complete, redirecting to home');
         // Go home
         router.replace("/");
       } catch (error) {
-        console.error("Unexpected error in auth callback:", error);
+        console.error('[AUTH] Unexpected error in auth callback:', error);
         router.replace("/sign-in?error=unexpected");
       }
     })();
