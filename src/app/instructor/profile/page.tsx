@@ -150,7 +150,11 @@ export default function InstructorProfilePage() {
       console.error("Save errors - Profile:", pErr, "Instructor:", iErr);
       setMsg(pErr?.message || iErr?.message || "Save failed");
     } else {
-      setMsg("Saved");
+      setMsg("Profile saved successfully! Redirecting to dashboard...");
+      // Redirect to instructor dashboard after successful save
+      setTimeout(() => {
+        window.location.href = "/instructor";
+      }, 1500);
     }
   }
 
