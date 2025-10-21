@@ -40,7 +40,7 @@ function AuthCallbackContent() {
 
           // If no existing profile, create one
           if (!existingProfile) {
-            const { error: insertError } = await sb.from("profiles").insert({
+            const { error: insertError } = await (sb.from("profiles") as any).insert({
               id: user.id,
               role: (roleParam || "learner") as "learner" | "instructor",
               name: user.email.split("@")[0],
@@ -54,7 +54,7 @@ function AuthCallbackContent() {
             }
           } else {
             // Update email if it's different (in case user changed email)
-            const { error: updateError } = await sb.from("profiles").update({
+            const { error: updateError } = await (sb.from("profiles") as any).update({
               email: user.email,
             }).eq("id", user.id);
 
