@@ -28,14 +28,26 @@ export default function Navigation() {
 
   useEffect(() => {
     loadUser();
+    
+    // Listen for auth state changes
+    const { data: { subscription } } = sb.auth.onAuthStateChange((event, session) => {
+      console.log('[NAV] Auth state changed:', event, session?.user?.id);
+      if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+        loadUser();
+      }
+    });
+    
+    return () => subscription.unsubscribe();
   }, []);
 
   async function loadUser() {
     try {
+      console.log('[NAV] Loading user...');
       const { data: { user } } = await sb.auth.getUser();
       setUser(user);
       
       if (user) {
+        console.log('[NAV] User found:', user.id);
         const { data: profile, error } = await sb
           .from("profiles")
           .select("role, name")
@@ -52,6 +64,9 @@ export default function Navigation() {
           console.log('[NAV] Profile loaded:', profile);
           setProfile(profile);
         }
+      } else {
+        console.log('[NAV] No user found');
+        setProfile(null);
       }
     } catch (e) {
       console.error("Failed to load user:", e);
