@@ -160,24 +160,21 @@ export default function AvailabilityPage() {
 
   return (
     <main className="max-w-2xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold">Your Diary</h1>
+      <h1 className="text-2xl font-bold text-center">Working Hours</h1>
 
       <div className="bg-white border rounded-2xl overflow-hidden divide-y shadow-lg">
         {week.map((d, i) => (
           <div key={d.key} className="flex items-center justify-between px-6 py-5 hover:bg-gray-50 transition-colors">
             <div className="w-24 font-semibold text-lg text-gray-800">{d.label}</div>
-            <div className="flex-1 flex items-center justify-center space-x-2 text-gray-700">
+            <div className="flex-1 flex items-center justify-center space-x-1 text-gray-700">
               <div className="relative">
                 <input
                   type="time"
                   value={d.start}
                   onChange={(e) => updateDay(i, { start: e.target.value })}
-                  className="border border-gray-300 bg-gray-50 rounded-md px-3 py-2 text-base focus:border-green-500 focus:ring-1 focus:ring-green-200 transition-all pr-8"
+                  className="border border-gray-300 bg-gray-50 rounded-md px-2 py-1.5 text-base focus:border-green-500 focus:ring-1 focus:ring-green-200 transition-all"
                   disabled={!d.enabled}
                 />
-                <svg className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
               </div>
               <span className="text-gray-400 text-sm">to</span>
               <div className="relative">
@@ -185,51 +182,51 @@ export default function AvailabilityPage() {
                   type="time"
                   value={d.end}
                   onChange={(e) => updateDay(i, { end: e.target.value })}
-                  className="border border-gray-300 bg-gray-50 rounded-md px-3 py-2 text-base focus:border-green-500 focus:ring-1 focus:ring-green-200 transition-all pr-8"
+                  className="border border-gray-300 bg-gray-50 rounded-md px-2 py-1.5 text-base focus:border-green-500 focus:ring-1 focus:ring-green-200 transition-all"
                   disabled={!d.enabled}
                 />
-                <svg className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
               </div>
             </div>
             
-            {/* Segmented Toggle */}
-            <div className="ml-4">
-              <div className={`relative rounded-full p-1 flex w-24 ${
-                d.enabled 
-                  ? 'bg-gradient-to-r from-green-600 to-green-700' 
-                  : 'bg-gradient-to-r from-red-500 to-red-700'
-              }`}>
-                {/* Sliding Background with Text */}
-                <div 
-                  className={`absolute top-1 bottom-1 w-1/2 bg-white rounded-full transition-transform duration-300 ease-in-out shadow-sm flex items-center justify-center ${
-                    d.enabled ? "translate-x-0" : "translate-x-[calc(100%-2px)]"
-                  }`}
-                >
-                  <span className="text-xs font-medium text-black truncate px-1">
-                    {d.enabled ? "Open" : "Busy"}
-                  </span>
-                </div>
-                
-                {/* Invisible Buttons for Click Areas */}
-                <button
-                  type="button"
-                  onClick={() => updateDay(i, { enabled: true })}
-                  className="relative z-10 flex-1 py-2 px-3 rounded-full text-sm font-medium opacity-0"
-                >
-                  Open
-                </button>
-                
-                <button
-                  type="button"
-                  onClick={() => updateDay(i, { enabled: false })}
-                  className="relative z-10 flex-1 py-2 px-3 rounded-full text-sm font-medium opacity-0"
-                >
-                  Busy
-                </button>
-              </div>
-            </div>
+             {/* Improved Toggle with Text in Track */}
+             <div className="ml-4">
+               <button
+                 type="button"
+                 role="switch"
+                 aria-checked={d.enabled}
+                 aria-label={`${d.label} availability`}
+                 onClick={() => updateDay(i, { enabled: !d.enabled })}
+                 onKeyDown={(e) => {
+                   if (e.key === " " || e.key === "Enter") {
+                     e.preventDefault();
+                     updateDay(i, { enabled: !d.enabled });
+                   }
+                 }}
+                 className={[
+                   "relative w-20 h-10 rounded-full transition-all duration-300 flex items-center",
+                   d.enabled ? "bg-green-600" : "bg-red-700",
+                   "focus:outline-none focus-visible:ring-4 focus-visible:ring-emerald-300/60 focus-visible:ring-offset-2"
+                 ].join(" ")}
+               >
+                 {/* Label inside the track, opposite side of the thumb */}
+                 <span
+                   className={[
+                     "absolute text-white font-semibold text-sm transition-all duration-300",
+                     d.enabled ? "left-1" : "right-1"
+                   ].join(" ")}
+                 >
+                   {d.enabled ? "Open" : "Busy"}
+                 </span>
+
+                 {/* The sliding white thumb */}
+                 <span
+                   className={[
+                     "absolute bg-white rounded-full w-8 h-8 shadow-md transform transition-transform duration-300",
+                     d.enabled ? "translate-x-[44px]" : "translate-x-[4px]"
+                   ].join(" ")}
+                 ></span>
+               </button>
+             </div>
           </div>
         ))}
       </div>
