@@ -124,9 +124,27 @@ function ResetPasswordForm() {
             setErr("Password updated but user not found. Please try signing in.");
           }
         } else {
-          // Existing user password reset - redirect to dashboard
-          console.log('[RESET] Existing user password reset, redirecting to dashboard');
-        router.push("/");
+          // Existing user password reset - check if they have a profile
+          console.log('[RESET] Existing user password reset, checking profile status');
+          const { data: { user } } = await sb.auth.getUser();
+          if (user) {
+            const { data: profile } = await sb
+              .from("profiles")
+              .select("role")
+              .eq("id", user.id)
+              .maybeSingle();
+            
+            if (profile) {
+              console.log('[RESET] Profile exists, redirecting to dashboard');
+              router.push("/");
+            } else {
+              console.log('[RESET] No profile found, redirecting to learner profile setup');
+              router.push("/learner/profile");
+            }
+          } else {
+            console.log('[RESET] No user found, redirecting to sign in');
+            router.push("/sign-in");
+          }
         }
       }
     } catch {
